@@ -1,0 +1,45 @@
+{
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+
+    "target": "ES2023",
+    "lib": ["ES2023"],
+
+    "outDir": "./dist",
+
+    "declaration": true,
+    "sourceMap": true,
+    "incremental": true,
+
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolvePackageJsonExports": true,
+    "isolatedModules": true,
+
+    "strict": true,
+    "strictNullChecks": true,
+
+    "noImplicitAny": false,
+    "strictBindCallApply": true,
+    "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,
+
+    "skipLibCheck": true,
+    "removeComments": true,
+
+     "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
+
+    "paths": {
+      "@/*": ["src/*"],
+      "@common/*": ["src/common/*"],
+      "@config/*": ["src/config/*"],
+      "@database/*": ["src/database/*"],
+      "@modules/*": ["src/modules/*"]
+    }
+  }
+}
