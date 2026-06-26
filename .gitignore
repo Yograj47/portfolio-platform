@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+
+# Logs
+logs
+*.log
+
+# Environment
+.env
+.env.*
+
+# Build
+dist/
+build/
+.next/
+
+# Prisma
+prisma/dev.db
+
+# Uploads
+uploads/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Coverage
+coverage/
+
+# Cache
+.cache/
