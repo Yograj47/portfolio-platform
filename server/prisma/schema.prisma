@@ -1,13 +1,246 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
-  output   = "../generated/prisma"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+}
+
+enum ProjectStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum BlogStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum TimelineType {
+  EDUCATION
+  EXPERIENCE
+  CERTIFICATION
+  ACHIEVEMENT
+}
+
+enum MediaType {
+  IMAGE
+  DOCUMENT
+}
+
+enum MessageStatus {
+  UNREAD
+  READ
+  REPLIED
+}
+
+model User {
+  id       String  @id @default(cuid())
+  name     String
+  email    String  @unique
+  password String
+  avatar   String?
+  role     Role    @default(ADMIN)
+
+  projects Project[]
+  blogs    Blog[]
+  media    Media[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String?
+
+  projects Project[]
+  blogs    Blog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Skill {
+  id           String  @id @default(cuid())
+  name         String
+  icon         String?
+  color        String?
+  level        Int
+  displayOrder Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Project {
+  id          String @id @default(cuid())
+  title       String
+  slug        String @unique
+  excerpt     String
+  description String
+
+  githubUrl String?
+  liveUrl   String?
+
+  featured Boolean       @default(false)
+  status   ProjectStatus @default(DRAFT)
+
+  displayOrder Int @default(0)
+
+  categoryId String
+  authorId   String
+
+  category Category       @relation(fields: [categoryId], references: [id])
+  author   User           @relation(fields: [authorId], references: [id])
+  images   ProjectImage[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([slug])
+  @@index([status])
+  @@index([featured])
+  @@index([categoryId])
+}
+
+model ProjectImage {
+  id        String @id @default(cuid())
+  projectId String
+
+  url String
+  alt String?
+
+  displayOrder Int @default(0)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+model Blog {
+  id    String @id @default(cuid())
+  title String
+  slug  String @unique
+
+  excerpt String
+  content String
+
+  coverImage String?
+
+  readingTime Int
+
+  status      BlogStatus @default(DRAFT)
+  publishedAt DateTime?
+
+  categoryId String
+  authorId   String
+
+  category Category @relation(fields: [categoryId], references: [id])
+  author   User     @relation(fields: [authorId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([slug])
+  @@index([status])
+  @@index([publishedAt])
+  @@index([categoryId])
+}
+
+model Timeline {
+  id           String  @id @default(cuid())
+  title        String
+  organization String
+  location     String?
+  description  String?
+
+  type TimelineType
+
+  startDate DateTime
+  endDate   DateTime?
+  current   Boolean   @default(false)
+
+  displayOrder Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([displayOrder])
+}
+
+model Media {
+  id String @id @default(cuid())
+
+  publicId String @unique
+  url      String
+
+  fileName String
+  mimeType String
+  type     MediaType
+
+  size Int
+
+  width  Int?
+  height Int?
+
+  uploadedBy String
+
+  user User @relation(fields: [uploadedBy], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model Message {
+  id String @id @default(cuid())
+
+  name    String
+  email   String
+  subject String
+  message String
+
+  status MessageStatus @default(UNREAD)
+
+  ipAddress String?
+  userAgent String?
+
+  createdAt DateTime @default(now())
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Setting {
+  id String @id @default(cuid())
+
+  siteTitle       String
+  siteDescription String
+
+  email String
+  phone String?
+
+  location String?
+
+  github   String?
+  linkedin String?
+  twitter  String?
+
+  resumeUrl String?
+
+  logo    String?
+  favicon String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
