@@ -7,10 +7,6 @@ datasource db {
   provider = "postgresql"
 }
 
-enum Role {
-  ADMIN
-}
-
 enum ProjectStatus {
   DRAFT
   PUBLISHED
@@ -42,12 +38,14 @@ enum MessageStatus {
 }
 
 model User {
-  id       String  @id @default(cuid())
-  name     String
-  email    String  @unique
-  password String
-  avatar   String?
-  role     Role    @default(ADMIN)
+  id           String  @id @default(cuid())
+  name         String
+  email        String  @unique
+  passwordHash String
+  avatar       String?
+
+  refreshTokenHash String?
+  lastLoginAt      DateTime?
 
   projects Project[]
   blogs    Blog[]
