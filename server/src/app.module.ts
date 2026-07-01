@@ -4,6 +4,9 @@ import { configuration, envValidationSchema } from "./config";
 import { APP_FILTER, APP_INTERCEPTOR, Reflector } from "@nestjs/core";
 import { ResponseInterceptor } from "./common/interceptors/response.interceptor";
 import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
+import { PrismaModule } from "./database/prisma/prisma.module";
+import { AuthModule } from "./modules/auth/auth.module";
+import { UsersModule } from "./modules/users/users.module";
 
 @Module({
     imports: [
@@ -14,7 +17,10 @@ import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
             envFilePath: ".env",
             load: configuration,
             validationSchema: envValidationSchema
-        })
+        }),
+        PrismaModule,
+        AuthModule,
+        UsersModule
     ],
 
     providers: [
