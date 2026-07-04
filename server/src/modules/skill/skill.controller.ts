@@ -1,18 +1,18 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
-import { SkillsService } from './skill.service';
+import { SkillService } from './skill.service';
 import { CreateSkillDto } from './dto/create-skill.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 import { ResponseMessage } from '@/common/decorators/response-message.decorator';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 
-@Controller('skill')
-export class SkillsController {
-  constructor(private readonly skillService: SkillsService) { }
+@Controller('skills')
+export class SkillController {
+  constructor(private readonly skillService: SkillService) { }
 
   @Post()
   @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.CREATED)
-  @ResponseMessage("Skill created successfull")
+  @ResponseMessage("Skill created successfully")
   create(@Body() createSkillDto: CreateSkillDto) {
     return this.skillService.create(createSkillDto);
   }
@@ -41,7 +41,7 @@ export class SkillsController {
 
   @Delete(':id')
   @UseGuards(AccessTokenGuard)
-  @HttpCode(HttpStatus.NO_CONTENT)
+  @HttpCode(HttpStatus.OK)
   @ResponseMessage("Skill deleted successfully")
   remove(@Param('id') id: string) {
     return this.skillService.remove(id);

@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateSkillDto } from './dto/create-skill.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 import { PrismaService } from '@/database/prisma/prisma.service';
 
 @Injectable()
-export class SkillsService {
+export class SkillService {
 
   constructor(private readonly prisma: PrismaService) { }
 
@@ -15,7 +15,11 @@ export class SkillsService {
   }
 
   findAll() {
-    return this.prisma.skill.findMany()
+    return this.prisma.skill.findMany({
+      orderBy: {
+        displayOrder: "asc",
+      },
+    });
   }
 
   async findOne(id: string) {
@@ -24,20 +28,24 @@ export class SkillsService {
     })
 
     if (!skill) {
-      throw new Error("Skill not found")
+      throw new NotFoundException("Skill not found")
     }
 
     return skill
   }
 
-  update(id: string, updateSkillDto: UpdateSkillDto) {
+  async update(id: string, updateSkillDto: UpdateSkillDto) {
+    await this.findOne(id);
+
     return this.prisma.skill.update({
       where: { id },
       data: updateSkillDto
     });
   }
 
-  remove(id: string) {
+  async remove(id: string) {
+    await this.findOne(id);
+
     return this.prisma.skill.delete({
       where: { id }
     })

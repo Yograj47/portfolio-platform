@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
-import { SkillsService } from './skill.service';
-import { SkillsController } from './skill.controller';
+import { SkillService } from './skill.service';
+import { SkillController } from './skill.controller';
+import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 
 @Module({
-  controllers: [SkillsController],
-  providers: [SkillsService],
-  exports: [SkillsService]
+  controllers: [SkillController],
+  providers: [SkillService, AccessTokenGuard],
+  exports: [SkillService]
 })
 export class SkillModule { }

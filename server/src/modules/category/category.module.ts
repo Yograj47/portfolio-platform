@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
-import { CategoriesController } from './category.controller';
-import { CategoriesService } from './category.service';
+import { CategoryController } from './category.controller';
+import { CategoryService } from './category.service';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 
 @Module({
-  controllers: [CategoriesController],
-  providers: [CategoriesService, AccessTokenGuard],
-  exports: [CategoriesService]
+  controllers: [CategoryController],
+  providers: [CategoryService, AccessTokenGuard],
+  exports: [CategoryService]
 })
 export class CategoryModule { }
