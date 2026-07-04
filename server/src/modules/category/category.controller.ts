@@ -23,7 +23,7 @@ export class CategoriesController {
         return this.categoriesService.findOne(id);
     }
 
-    @Post("create")
+    @Post()
     @UseGuards(AccessTokenGuard)
     @HttpCode(HttpStatus.CREATED)
     @ResponseMessage("Category Create successfully")

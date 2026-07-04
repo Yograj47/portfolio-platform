@@ -8,6 +8,7 @@ import { PrismaModule } from "./database/prisma/prisma.module";
 import { AuthModule } from "./modules/auth/auth.module";
 import { UsersModule } from "./modules/users/users.module";
 import { CategoryModule } from './modules/category/category.module';
+import { SkillModule } from './modules/skill/skill.module';
 
 @Module({
     imports: [
@@ -22,7 +23,8 @@ import { CategoryModule } from './modules/category/category.module';
         PrismaModule,
         AuthModule,
         UsersModule,
-        CategoryModule
+        CategoryModule,
+        SkillModule
     ],
 
     providers: [
