@@ -9,6 +9,7 @@ import { AuthModule } from "./modules/auth/auth.module";
 import { UsersModule } from "./modules/users/users.module";
 import { CategoryModule } from './modules/category/category.module';
 import { SkillModule } from './modules/skill/skill.module';
+import { TimelineModule } from './modules/timeline/timeline.module';
 
 @Module({
     imports: [
@@ -24,7 +25,8 @@ import { SkillModule } from './modules/skill/skill.module';
         AuthModule,
         UsersModule,
         CategoryModule,
-        SkillModule
+        SkillModule,
+        TimelineModule
     ],
 
     providers: [
