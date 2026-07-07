@@ -10,6 +10,7 @@ import { UsersModule } from "./modules/users/users.module";
 import { CategoryModule } from './modules/category/category.module';
 import { SkillModule } from './modules/skill/skill.module';
 import { TimelineModule } from './modules/timeline/timeline.module';
+import { ProjectModule } from './modules/project/project.module';
 
 @Module({
     imports: [
@@ -26,7 +27,8 @@ import { TimelineModule } from './modules/timeline/timeline.module';
         UsersModule,
         CategoryModule,
         SkillModule,
-        TimelineModule
+        TimelineModule,
+        ProjectModule
     ],
 
     providers: [
