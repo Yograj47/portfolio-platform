@@ -1,7 +1,10 @@
+"use client";
+
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+
 import { authService } from "@/services/auth.service";
 import { useAuthStore } from "@/store/auth.store";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { useRouter } from "next/router";
 
 export function useAuth() {
     const router = useRouter();
@@ -9,9 +12,9 @@ export function useAuth() {
     const {
         user,
         isAuthenticated,
-        isLoading,
+        isLoading: authLoading,
         setUser,
-        logout: clearAuth
+        logout: clearAuth,
     } = useAuthStore();
 
     const loginMutation = useMutation({
@@ -22,8 +25,8 @@ export function useAuth() {
 
             setUser(response.data.data);
 
-            router.push("/dashboard");
-        }
+            router.replace("/dashboard");
+        },
     });
 
     const logoutMutation = useMutation({
@@ -32,29 +35,14 @@ export function useAuth() {
         onSuccess: () => {
             clearAuth();
 
-            router.push("/login");
-        }
-    });
-
-    const meQuery = useQuery({
-        queryKey: ["auth-user"],
-
-        queryFn: async () => {
-            const response = await authService.me();
-            setUser(response.data.data);
-            return response.data.data;
+            router.replace("/login");
         },
-
-        enabled: !isAuthenticated,
-        retry: false,
     });
 
     return {
         user,
         isAuthenticated,
-
-        isLoading:
-            isLoading || meQuery.isLoading,
+        isLoading: authLoading,
 
         login: loginMutation.mutate,
         loginAsync: loginMutation.mutateAsync,

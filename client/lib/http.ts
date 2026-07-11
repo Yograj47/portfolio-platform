@@ -17,14 +17,22 @@ http.interceptors.response.use(
 
     async (error) => {
         const originalRequest = error.config as RetryConfig & typeof error.config;
+        const url = originalRequest.url;
 
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        if (error.response?.status === 401 &&
+            !originalRequest._retry &&
+            url !== "/auth/login" &&
+            url !== "/auth/refresh"
+        ) {
             originalRequest._retry = true;
 
             try {
                 await http.post("/auth/refresh");
+                return http(originalRequest)
             } catch (refreshError) {
-                window.location.href = "/login";
+                if (window.location.pathname !== "/login") {
+                    window.location.href = "/login";
+                }
                 return Promise.reject(refreshError)
             }
         }
