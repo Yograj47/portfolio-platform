@@ -1,3 +1,4 @@
+import { useAuthStore } from "@/store/auth.store";
 import axios from "axios";
 
 const http = axios.create({
@@ -39,7 +40,17 @@ http.interceptors.response.use(
 
         return Promise.reject(error);
     }
-
 )
+
+http.interceptors.request.use((config) => {
+    const token = useAuthStore.getState().accessToken;
+    console.log("Access Token:", token);
+
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`
+    }
+
+    return config;
+})
 
 export default http;  

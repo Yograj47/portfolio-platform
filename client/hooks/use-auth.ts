@@ -14,16 +14,19 @@ export function useAuth() {
         isAuthenticated,
         isLoading: authLoading,
         setUser,
+        setAccessToken,
         logout: clearAuth,
     } = useAuthStore();
 
     const loginMutation = useMutation({
         mutationFn: authService.login,
 
-        onSuccess: async () => {
-            const response = await authService.me();
+        onSuccess: async (response) => {
+            setAccessToken(response.data.data.accessToken);
 
-            setUser(response.data.data);
+            const me = await authService.me();
+
+            setUser(me.data.data);
 
             router.replace("/dashboard");
         },
