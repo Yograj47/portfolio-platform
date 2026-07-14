@@ -12,7 +12,6 @@ export function useAuth() {
     const {
         user,
         isAuthenticated,
-        isLoading: authLoading,
         setUser,
         setAccessToken,
         logout: clearAuth,
@@ -21,15 +20,14 @@ export function useAuth() {
     const loginMutation = useMutation({
         mutationFn: authService.login,
 
-        onSuccess: async (response) => {
-            setAccessToken(response.data.data.accessToken);
+        onSuccess: async (loginResponse) => {
+
+            setAccessToken(loginResponse.data.data.accessToken);
 
             const me = await authService.me();
-
             setUser(me.data.data);
-
             router.replace("/dashboard");
-        },
+        }
     });
 
     const logoutMutation = useMutation({
@@ -45,7 +43,6 @@ export function useAuth() {
     return {
         user,
         isAuthenticated,
-        isLoading: authLoading,
 
         login: loginMutation.mutate,
         loginAsync: loginMutation.mutateAsync,

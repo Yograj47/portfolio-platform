@@ -9,7 +9,6 @@ export function useSession() {
     const {
         user,
         isAuthenticated,
-        isLoading: authLoading,
         setUser,
     } = useAuthStore();
 
@@ -32,8 +31,7 @@ export function useSession() {
     return {
         user,
         isAuthenticated,
-        isLoading:
-            authLoading || sessionQuery.isLoading,
+        isLoading: sessionQuery.isLoading,
         isError: sessionQuery.isError,
         refresh: sessionQuery.refetch,
     };

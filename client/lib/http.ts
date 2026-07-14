@@ -28,8 +28,16 @@ http.interceptors.response.use(
             originalRequest._retry = true;
 
             try {
-                await http.post("/auth/refresh");
-                return http(originalRequest)
+                const response = await http.post("/auth/refresh");
+
+                useAuthStore
+                    .getState()
+                    .setAccessToken(response.data.data.accessToken);
+
+                originalRequest.headers.Authorization =
+                    `Bearer ${response.data.data.accessToken}`;
+
+                return http(originalRequest);
             } catch (refreshError) {
                 if (window.location.pathname !== "/login") {
                     window.location.href = "/login";

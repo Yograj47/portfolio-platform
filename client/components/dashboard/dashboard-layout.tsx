@@ -22,6 +22,7 @@ export function DashboardLayout({
     }
   }, [isError, router])
 
+  console.log("Loading state:", isLoading)
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -29,6 +30,7 @@ export function DashboardLayout({
       </div>
     );
   }
+
 
   return (
     <div className="flex min-h-screen bg-muted/20">
