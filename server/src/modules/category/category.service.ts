@@ -3,6 +3,7 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { PrismaService } from '@/database/prisma/prisma.service';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { Prisma } from '@prisma/client';
+import slugify from "slugify";
 
 @Injectable()
 export class CategoryService {
@@ -26,8 +27,17 @@ export class CategoryService {
     }
 
     async create(data: CreateCategoryDto) {
+        const slug = slugify(data.name, {
+            lower: true,
+            trim: true,
+            strict: true,
+        });
+
         return this.prisma.category.create({
-            data
+            data: {
+                ...data,
+                slug,
+            },
         });
     }
 
@@ -36,7 +46,16 @@ export class CategoryService {
 
         return this.prisma.category.update({
             where: { id },
-            data
+            data: {
+                ...data,
+                ...(data.name && {
+                    slug: slugify(data.name, {
+                        lower: true,
+                        trim: true,
+                        strict: true,
+                    }),
+                }),
+            },
         });
     }
 
