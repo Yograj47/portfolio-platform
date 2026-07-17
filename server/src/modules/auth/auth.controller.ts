@@ -34,7 +34,7 @@ export class AuthController {
         );
 
         return {
-            accesToken: tokens.accessToken,
+            accessToken: tokens.accessToken,
         }
     }
 
