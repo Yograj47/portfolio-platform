@@ -3,27 +3,27 @@
 import { useMemo } from "react";
 import { DataTable } from "@/components/data-table/data-table";
 import {
-  Category,
-  getCategoryColumns,
-} from "./category-columns";
+  Skill,
+  getSkillColumns,
+} from "./skill-columns";
 
-interface Props {
-  data: Category[];
+interface SkillTableProps {
+  data: Skill[];
   loading: boolean;
 
-  onEdit: (category: Category) => void;
-  onDelete: (category: Category) => void;
+  onEdit: (skill: Skill) => void;
+  onDelete: (skill: Skill) => void;
 }
 
-export function CategoryTable({
+export function SkillTable({
   data,
   loading,
   onEdit,
   onDelete,
-}: Props) {
+}: SkillTableProps) {
   const columns = useMemo(
     () =>
-      getCategoryColumns({
+      getSkillColumns({
         onEdit,
         onDelete,
       }),
@@ -35,8 +35,8 @@ export function CategoryTable({
       columns={columns}
       data={data}
       loading={loading}
-      emptyTitle="No categories"
-      emptyDescription="Create your first category."
+      emptyTitle="No skills"
+      emptyDescription="Create your first skill."
     />
   );
 }

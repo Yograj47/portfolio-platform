@@ -16,16 +16,23 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import { TableSkeleton } from "@/components/skeletons/table-skeleton";
+import { EmptyState } from "@/components/feedback/empty-state";
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   loading?: boolean;
+  emptyTitle?: string;
+  emptyDescription?: string;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   loading = false,
+  emptyTitle = "No data found",
+  emptyDescription = "There is nothing to display.",
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -34,7 +41,16 @@ export function DataTable<TData, TValue>({
   });
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <TableSkeleton />;
+  }
+
+  if (!table.getRowModel().rows.length) {
+    return (
+      <EmptyState
+        title={emptyTitle}
+        description={emptyDescription}
+      />
+    );
   }
 
   return (
@@ -58,29 +74,18 @@ export function DataTable<TData, TValue>({
         </TableHeader>
 
         <TableBody>
-          {table.getRowModel().rows.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(
-                      cell.column.columnDef.cell,
-                      cell.getContext()
-                    )}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell
-                colSpan={columns.length}
-                className="h-24 text-center"
-              >
-                No data found.
-              </TableCell>
+          {table.getRowModel().rows.map((row) => (
+            <TableRow key={row.id}>
+              {row.getVisibleCells().map((cell) => (
+                <TableCell key={cell.id}>
+                  {flexRender(
+                    cell.column.columnDef.cell,
+                    cell.getContext()
+                  )}
+                </TableCell>
+              ))}
             </TableRow>
-          )}
+          ))}
         </TableBody>
       </Table>
     </div>

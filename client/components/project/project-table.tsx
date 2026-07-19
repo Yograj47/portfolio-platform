@@ -3,27 +3,27 @@
 import { useMemo } from "react";
 import { DataTable } from "@/components/data-table/data-table";
 import {
-  Category,
-  getCategoryColumns,
-} from "./category-columns";
+  Project,
+  getProjectColumns,
+} from "./project-columns";
 
-interface Props {
-  data: Category[];
+interface ProjectTableProps {
+  data: Project[];
   loading: boolean;
 
-  onEdit: (category: Category) => void;
-  onDelete: (category: Category) => void;
+  onEdit: (project: Project) => void;
+  onDelete: (project: Project) => void;
 }
 
-export function CategoryTable({
+export function ProjectTable({
   data,
   loading,
   onEdit,
   onDelete,
-}: Props) {
+}: ProjectTableProps) {
   const columns = useMemo(
     () =>
-      getCategoryColumns({
+      getProjectColumns({
         onEdit,
         onDelete,
       }),
@@ -35,8 +35,8 @@ export function CategoryTable({
       columns={columns}
       data={data}
       loading={loading}
-      emptyTitle="No categories"
-      emptyDescription="Create your first category."
+      emptyTitle="No projects"
+      emptyDescription="Create your first project."
     />
   );
 }

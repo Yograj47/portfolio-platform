@@ -8,10 +8,15 @@ import {
 
 import { categoryService } from "@/services/category.service";
 
-import type {
+import {
     CreateCategorySchema,
     UpdateCategorySchema,
 } from "@/lib/validations/category";
+
+import {
+    showError,
+    showSuccess,
+} from "@/lib/toast";
 
 export function useCategory() {
     const queryClient = useQueryClient();
@@ -38,9 +43,15 @@ export function useCategory() {
             categoryService.create(data),
 
         onSuccess: () => {
+            showSuccess("Category created.");
+
             queryClient.invalidateQueries({
                 queryKey: ["categories"],
             });
+        },
+
+        onError: () => {
+            showError("Failed to create category.");
         },
     });
 
@@ -54,9 +65,15 @@ export function useCategory() {
         }) => categoryService.update(id, data),
 
         onSuccess: () => {
+            showSuccess("Category updated.");
+
             queryClient.invalidateQueries({
                 queryKey: ["categories"],
             });
+        },
+
+        onError: () => {
+            showError("Failed to update category.");
         },
     });
 
@@ -65,9 +82,15 @@ export function useCategory() {
             categoryService.remove(id),
 
         onSuccess: () => {
+            showSuccess("Category deleted.");
+
             queryClient.invalidateQueries({
                 queryKey: ["categories"],
             });
+        },
+
+        onError: () => {
+            showError("Failed to delete category.");
         },
     });
 

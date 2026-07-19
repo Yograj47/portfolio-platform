@@ -5,7 +5,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
 import { CategoryTable } from "@/components/category/category-table";
-import { CategoryDialog } from "@/components/category/category-dialog";
 import { ConfirmationDialog } from "@/components/dialogs/confirmation-dialog";
 
 import { useCategory } from "@/hooks/use-category";
@@ -16,6 +15,8 @@ import type {
 } from "@/lib/validations/category";
 
 import type { Category } from "@/components/category/category-columns";
+import { FormDialog } from "@/components/dialogs/form-dialog";
+import { CategoryForm } from "@/components/category/category-form";
 
 export default function CategoriesPage() {
     const [createOpen, setCreateOpen] = useState(false);
@@ -109,31 +110,49 @@ export default function CategoriesPage() {
                 onDelete={handleDelete}
             />
 
-            <CategoryDialog
+            <FormDialog
                 open={createOpen}
                 onOpenChange={setCreateOpen}
                 title="Create Category"
                 description="Create a new category."
-                loading={creating}
-                onSubmit={handleCreate}
-            />
+            >
+                <CategoryForm
+                    loading={creating}
+                    onSubmit={handleCreate}
+                />
+            </FormDialog>
 
-            <CategoryDialog
+            <FormDialog
                 open={editOpen}
                 onOpenChange={setEditOpen}
                 title="Edit Category"
                 description="Update category."
-                defaultValues={
-                    selectedCategory
-                        ? {
-                            name: selectedCategory.name,
-                            description: selectedCategory.description ?? "",
-                        }
-                        : undefined
-                }
-                loading={updating}
-                onSubmit={handleUpdate}
-            />
+            >
+                <CategoryForm
+                    defaultValues={{
+                        name: selectedCategory?.name ?? "",
+                        description:
+                            selectedCategory?.description ?? "",
+                    }}
+                    loading={updating}
+                    onSubmit={(data) => {
+                        if (!selectedCategory) return;
+
+                        updateCategory(
+                            {
+                                id: selectedCategory.id,
+                                data,
+                            },
+                            {
+                                onSuccess: () => {
+                                    setEditOpen(false);
+                                    setSelectedCategory(null);
+                                },
+                            }
+                        );
+                    }}
+                />
+            </FormDialog>
 
             <ConfirmationDialog
                 open={deleteOpen}

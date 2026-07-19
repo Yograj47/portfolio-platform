@@ -13,9 +13,9 @@ export const createTimelineSchema = z.object({
 
     type: z.nativeEnum(TimelineType),
 
-    startDate: z.coerce.date(),
+    startDate: z.string().min(1, "Start date is required"),
 
-    endDate: z.coerce.date().optional(),
+    endDate: z.string().optional(),
 
     current: z.boolean().default(false),
 
