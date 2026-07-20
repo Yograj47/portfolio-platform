@@ -16,6 +16,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import { Textarea } from "@/components/ui/textarea";
+import { FormSubmitButton } from "../forms/form-submit-button";
+import { FormFieldError } from "../forms/form-field-error";
 
 interface CategoryFormProps {
   defaultValues?: Partial<CreateCategorySchema>;
@@ -74,9 +76,9 @@ export function CategoryForm({
         />
 
         {errors.name && (
-          <p className="text-sm text-destructive">
-            {errors.name.message}
-          </p>
+          <FormFieldError
+            message={errors.name?.message}
+          />
         )}
       </div>
 
@@ -93,19 +95,16 @@ export function CategoryForm({
         />
 
         {errors.description && (
-          <p className="text-sm text-destructive">
-            {errors.description.message}
-          </p>
+          <FormFieldError
+            message={errors.description?.message}
+          />
         )}
       </div>
 
-      <Button
-        type="submit"
-        className="w-full"
-        disabled={loading}
-      >
-        {loading ? "Saving..." : "Save Category"}
-      </Button>
+      <FormSubmitButton
+        loading={loading}
+        label="Save Category"
+      />
     </form>
   );
 }

@@ -1,29 +1,31 @@
 "use client";
 
 import { useMemo } from "react";
-import { DataTable } from "@/components/data-table/data-table";
-import {
-  Category,
-  getCategoryColumns,
-} from "./category-columns";
 
-interface Props {
-  data: Category[];
+import { DataTable } from "@/components/data-table/data-table";
+
+import {
+  Timeline,
+  getTimelineColumns,
+} from "./timeline-columns";
+
+interface TimelineTableProps {
+  data: Timeline[];
   loading: boolean;
 
-  onEdit: (category: Category) => void;
-  onDelete: (category: Category) => void;
+  onEdit: (timeline: Timeline) => void;
+  onDelete: (timeline: Timeline) => void;
 }
 
-export function CategoryTable({
+export function TimelineTable({
   data,
   loading,
   onEdit,
   onDelete,
-}: Props) {
+}: TimelineTableProps) {
   const columns = useMemo(
     () =>
-      getCategoryColumns({
+      getTimelineColumns({
         onEdit,
         onDelete,
       }),
@@ -35,8 +37,8 @@ export function CategoryTable({
       columns={columns}
       data={data}
       loading={loading}
-      emptyTitle="No categories"
-      emptyDescription="Create your first category."
+      emptyTitle="No timeline entries"
+      emptyDescription="Create your first timeline entry."
     />
   );
 }

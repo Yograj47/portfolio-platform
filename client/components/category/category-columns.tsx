@@ -11,6 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { DataTableActions } from "../data-table/data-table-actions";
 
 export interface Category {
   id: string;
@@ -46,37 +47,14 @@ export function getCategoryColumns({
     },
     {
       id: "actions",
-      header: "",
-      cell: ({ row }) => {
-        const category = row.original;
-
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              className="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-accent transition-colors"
-            >
-              <MoreHorizontal className="h-4 w-4" />
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={() => onEdit(category)}
-              >
-                <Pencil className="mr-2 h-4 w-4" />
-                Edit
-              </DropdownMenuItem>
-
-              <DropdownMenuItem
-                className="text-red-600"
-                onClick={() => onDelete(category)}
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
+      cell: ({ row }) => (
+        <DataTableActions
+          onEdit={() => onEdit(row.original)}
+          onDelete={() =>
+            onDelete(row.original)
+          }
+        />
+      )
     },
   ];
 }

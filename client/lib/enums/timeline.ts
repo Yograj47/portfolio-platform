@@ -1,0 +1,5 @@
+export enum TimelineType {
+    EDUCATION = "EDUCATION",
+    EXPERIENCE = "EXPERIENCE",
+    CERTIFICATION = "CERTIFICATION",
+}
