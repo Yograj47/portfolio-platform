@@ -25,6 +25,7 @@ export class TimelineController {
   @HttpCode(HttpStatus.CREATED)
   @ResponseMessage("Timeline created successfully")
   create(@Body() createTimelineDto: CreateTimelineDto) {
+    console.log(createTimelineDto)
     return this.timelineService.create(createTimelineDto);
   }
 
