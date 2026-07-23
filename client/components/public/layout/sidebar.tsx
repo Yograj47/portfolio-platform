@@ -17,22 +17,22 @@ const explorer = [
   },
   {
     title: "Projects",
-    href: "/#projects",
+    href: "/projects",
     icon: FolderOpen,
   },
   {
     title: "Skills.json",
-    href: "/#skills",
+    href: "/skills",
     icon: FileText,
   },
   {
     title: "Timeline.log",
-    href: "/#timeline",
+    href: "/timeline",
     icon: FileText,
   },
   {
     title: "Contact.sh",
-    href: "/#contact",
+    href: "/contact",
     icon: FileText,
   },
 ];

@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { useWorkspace } from "./workspace/workspace-context";
+import { useWorkspace } from "../workspace/workspace-context";
 
 export function Navbar() {
 

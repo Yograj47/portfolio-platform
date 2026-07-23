@@ -1,9 +1,9 @@
-import { Connect } from "@/components/public/connect";
-import { CurrentStatus } from "@/components/public/current-status";
-import { FileView } from "@/components/public/file-view";
-import { Hero } from "@/components/public/hero";
-import { QuickFacts } from "@/components/public/quick-facts";
-import { TechFocus } from "@/components/public/tech-focus";
+import { Connect } from "@/components/public/home/connect";
+import { CurrentStatus } from "@/components/public/home/current-status";
+import { FileView } from "@/components/public/layout/file-view";
+import { Hero } from "@/components/public/home/hero";
+import { QuickFacts } from "@/components/public/home/quick-facts";
+import { TechFocus } from "@/components/public/home/tech-focus";
 
 export default function HomePage() {
   return (
