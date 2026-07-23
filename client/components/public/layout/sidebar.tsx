@@ -21,7 +21,7 @@ const explorer = [
     icon: FolderOpen,
   },
   {
-    title: "Skills.json",
+    title: "Skills.db",
     href: "/skills",
     icon: FileText,
   },
