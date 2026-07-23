@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { SkillTable } from "@/components/skill/skill-table";
-import { SkillForm } from "@/components/skill/skill-form";
+import { SkillTable } from "@/components/admin/skill/skill-table";
+import { SkillForm } from "@/components/admin/skill/skill-form";
 import { FormDialog } from "@/components/dialogs/form-dialog";
 import { ConfirmationDialog } from "@/components/dialogs/confirmation-dialog";
 import { useSkill } from "@/hooks/use-skill";
@@ -13,7 +13,7 @@ import type {
   UpdateSkillSchema,
 } from "@/lib/validations/skill";
 
-import type { Skill } from "@/components/skill/skill-columns";
+import type { Skill } from "@/components/admin/skill/skill-columns";
 
 export default function SkillsPage() {
   const [createOpen, setCreateOpen] = useState(false);

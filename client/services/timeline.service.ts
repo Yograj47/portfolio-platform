@@ -7,22 +7,22 @@ import type {
 
 export const timelineService = {
     findAll() {
-        return http.get("/timeline");
+        return http.get("/timelines");
     },
 
     findOne(id: string) {
-        return http.get(`/timeline/${id}`);
+        return http.get(`/timelines/${id}`);
     },
 
     create(data: CreateTimelineSchema) {
-        return http.post("/timeline", data);
+        return http.post("/timelines", data);
     },
 
     update(id: string, data: UpdateTimelineSchema) {
-        return http.patch(`/timeline/${id}`, data);
+        return http.patch(`/timelines/${id}`, data);
     },
 
     remove(id: string) {
-        return http.delete(`/timeline/${id}`);
+        return http.delete(`/timelines/${id}`);
     },
 };

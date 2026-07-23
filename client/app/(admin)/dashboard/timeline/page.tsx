@@ -4,8 +4,8 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 
-import { TimelineTable } from "@/components/timeline/timeline-table";
-import { TimelineForm } from "@/components/timeline/timeline-form";
+import { TimelineTable } from "@/components/admin/timeline/timeline-table";
+import { TimelineForm } from "@/components/admin/timeline/timeline-form";
 
 import { FormDialog } from "@/components/dialogs/form-dialog";
 import { ConfirmationDialog } from "@/components/dialogs/confirmation-dialog";
@@ -17,7 +17,7 @@ import type {
   UpdateTimelineSchema,
 } from "@/lib/validations/timeline";
 
-import type { Timeline } from "@/components/timeline/timeline-columns";
+import type { Timeline } from "@/components/admin/timeline/timeline-columns";
 
 export default function TimelinePage() {
   const [createOpen, setCreateOpen] = useState(false);

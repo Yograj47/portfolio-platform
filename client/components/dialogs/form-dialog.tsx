@@ -39,21 +39,26 @@ export function FormDialog({
       onOpenChange={onOpenChange}
     >
       <DialogContent
-        className={className ?? "sm:max-w-lg"}
+        className={
+          className ??
+          "sm:max-w-2xl max-h-[90vh] overflow-hidden p-0"
+        }
       >
-        <DialogHeader>
-          <DialogTitle>
-            {title}
-          </DialogTitle>
+        <div className="flex max-h-[90vh] flex-col">
+          <DialogHeader className="border-b px-6 py-4">
+            <DialogTitle>{title}</DialogTitle>
 
-          {description && (
-            <DialogDescription>
-              {description}
-            </DialogDescription>
-          )}
-        </DialogHeader>
+            {description && (
+              <DialogDescription>
+                {description}
+              </DialogDescription>
+            )}
+          </DialogHeader>
 
-        {children}
+          <div className="flex-1 overflow-y-auto px-6 py-5">
+            {children}
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );

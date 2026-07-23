@@ -9,15 +9,13 @@ import {
   CreateCategorySchema,
 } from "@/lib/validations/category";
 
-import { Button } from "@/components/ui/button";
-
 import { Input } from "@/components/ui/input";
 
 import { Label } from "@/components/ui/label";
 
 import { Textarea } from "@/components/ui/textarea";
-import { FormSubmitButton } from "../forms/form-submit-button";
-import { FormFieldError } from "../forms/form-field-error";
+import { FormSubmitButton } from "../../forms/form-submit-button";
+import { FormFieldError } from "../../forms/form-field-error";
 
 interface CategoryFormProps {
   defaultValues?: Partial<CreateCategorySchema>;
