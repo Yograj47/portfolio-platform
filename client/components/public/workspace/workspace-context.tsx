@@ -1,67 +1,73 @@
 "use client";
 
 import {
-    createContext,
-    useContext,
-    useState,
-    ReactNode,
+  createContext,
+  ReactNode,
+  useContext,
+  useState,
 } from "react";
 
-interface WorkspaceState {
-    title: string;
-    path: string;
+export type WorkspaceType =
+  | "terminal"
+  | "file"
+  | "folder"
+  | "database"
+  | "log";
 
-    setWorkspace: (
-        title: string,
-        path: string
-    ) => void;
+interface WorkspaceState {
+  name: string;
+  type: WorkspaceType;
+
+  setWorkspace: (
+    name: string,
+    type: WorkspaceType
+  ) => void;
 }
 
 const WorkspaceContext =
-    createContext<WorkspaceState | null>(null);
+  createContext<WorkspaceState | null>(null);
 
 export function WorkspaceProvider({
-    children,
+  children,
 }: {
-    children: ReactNode;
+  children: ReactNode;
 }) {
-    const [title, setTitle] = useState("README.md");
+  const [name, setName] =
+    useState("README.md");
 
-    const [path, setPath] = useState(
-        "Portfolio / README.md"
-    );
+  const [type, setType] =
+    useState<WorkspaceType>("file");
 
-    function setWorkspace(
-        title: string,
-        path: string
-    ) {
-        setTitle(title);
-        setPath(path);
-    }
+  function setWorkspace(
+    name: string,
+    type: WorkspaceType
+  ) {
+    setName(name);
+    setType(type);
+  }
 
-    return (
-        <WorkspaceContext.Provider
-            value={{
-                title,
-                path,
-                setWorkspace,
-            }}
-        >
-            {children}
-        </WorkspaceContext.Provider>
-    );
+  return (
+    <WorkspaceContext.Provider
+      value={{
+        name,
+        type,
+        setWorkspace,
+      }}
+    >
+      {children}
+    </WorkspaceContext.Provider>
+  );
 }
 
 export function useWorkspace() {
-    const context = useContext(
-        WorkspaceContext
+  const context =
+    useContext(WorkspaceContext);
+
+  if (!context) {
+    throw new Error(
+      "useWorkspace must be used inside WorkspaceProvider"
     );
+  }
 
-    if (!context) {
-        throw new Error(
-            "useWorkspace must be used inside WorkspaceProvider"
-        );
-    }
-
-    return context;
+  return context;
 }

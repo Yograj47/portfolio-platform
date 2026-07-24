@@ -1,29 +1,32 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import {
-  ChevronDown,
-  FolderOpen,
+  BookOpen,
+  Database,
   FileText,
   Folder,
 } from "lucide-react";
 
+import { cn } from "@/lib/utils";
+
 const explorer = [
   {
     title: "README.md",
-    href: "/",
+    href: "/readme",
     icon: FileText,
   },
   {
-    title: "Projects",
+    title: "Projects/",
     href: "/projects",
-    icon: FolderOpen,
+    icon: Folder,
   },
   {
     title: "Skills.db",
     href: "/skills",
-    icon: FileText,
+    icon: Database,
   },
   {
     title: "Timeline.log",
@@ -31,48 +34,50 @@ const explorer = [
     icon: FileText,
   },
   {
-    title: "Contact.sh",
-    href: "/contact",
-    icon: FileText,
+    title: "Blog/",
+    href: "/blog",
+    icon: BookOpen,
   },
 ];
 
 export function Sidebar() {
+  const pathname = usePathname();
+
   return (
-    <aside className="hidden w-64 shrink-0 border-r bg-muted/20 lg:flex lg:flex-col">
-      <div className="border-b px-4 py-3">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+    <aside className="flex h-full w-64 flex-col border-r bg-background">
+      <div className="border-b px-5 py-4">
+        <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
           Explorer
-        </h2>
+        </p>
       </div>
 
-      <div className="flex-1 overflow-y-auto py-2">
-        <div className="px-2">
-          <div className="mb-2 flex items-center gap-2 px-2 text-xs font-medium uppercase text-muted-foreground">
-            <ChevronDown className="size-4" />
-            <Folder className="size-4" />
-            Portfolio
-          </div>
+      <nav className="flex-1 px-3 py-3">
+        {explorer.map((item) => {
+          const Icon = item.icon;
 
-          <nav className="space-y-1">
-            {explorer.map((item) => {
-              const Icon = item.icon;
+          const active =
+            item.href === "/"
+              ? pathname === "/"
+              : pathname.startsWith(item.href);
 
-              return (
-                <Link
-                  key={item.title}
-                  href={item.href}
-                  className="flex items-center gap-2 rounded-md px-2 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
-                >
-                  <Icon className="size-4 text-blue-400" />
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex items-center gap-3 rounded-sm px-3 py-2 font-mono text-sm transition-colors",
+                active
+                  ? "bg-muted text-foreground"
+                  : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+              )}
+            >
+              <Icon className="h-4 w-4 shrink-0" />
 
-                  <span>{item.title}</span>
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
-      </div>
+              <span>{item.title}</span>
+            </Link>
+          );
+        })}
+      </nav>
     </aside>
   );
 }
