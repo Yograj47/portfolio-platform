@@ -12,14 +12,17 @@ import { TerminalBody } from "./terminal-body";
 import { TerminalWindow } from "./terminal-window";
 
 import { TerminalEntry } from "@/types/terminal.type";
+import { TERMINAL_PATHS, TerminalPath } from "./workspace/terminal-workspace.type";
 
 export function Terminal() {
   const router = useRouter();
 
   const [booted, setBooted] = useState(false);
-
   const [history, setHistory] = useState<TerminalEntry[]>([]);
-
+  const [cwd, setCwd] =
+    useState<TerminalPath>(
+      TERMINAL_PATHS.ROOT
+    );
   const [currentCommand, setCurrentCommand] =
     useState("");
 
@@ -35,6 +38,9 @@ export function Terminal() {
 
     const context = {
       router,
+
+      cwd,
+      setCwd,
 
       clearHistory() {
         setHistory([]);
@@ -124,10 +130,6 @@ export function Terminal() {
       />
     );
   }
-
-
-
-
 
   return (
     <TerminalWindow>

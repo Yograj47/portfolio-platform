@@ -1,9 +1,14 @@
 import { TerminalCommand } from "@/types/terminal.type";
+import { commandRegistry } from ".";
 
 export const helpCommand: TerminalCommand = {
     name: "help",
+    description: "Show available commands.",
 
     execute() {
+
+        const commands = Object.values(commandRegistry);
+
         return {
             output: (
                 <div className="font-mono text-sm">
@@ -15,62 +20,36 @@ export const helpCommand: TerminalCommand = {
                         </span>
                     </p>
 
-                    <p className="mt-5 mb-2 text-muted-foreground uppercase tracking-wider">
+                    <p className="mt-5 mb-2 uppercase tracking-wider text-muted-foreground">
                         Available Commands
                     </p>
 
                     <div className="mb-3 border-t" />
 
-                    <div className="grid grid-cols-[170px_1fr] gap-y-2">
+                    <div className="grid grid-cols-[180px_1fr] gap-y-2">
 
-                        <span className="font-medium text-primary">
-                            help
-                        </span>
-                        <span className="text-muted-foreground">
-                            Show available commands.
-                        </span>
+                        {commands.map((command) => (
+                            <div
+                                key={command.name}
+                                className="contents"
+                            >
+                                <span className="font-medium text-primary">
+                                    {command.name}
+                                </span>
 
-                        <span className="font-medium text-primary">
-                            ls
-                        </span>
-                        <span className="text-muted-foreground">
-                            List current workspace.
-                        </span>
-
-                        <span className="font-medium text-primary">
-                            open &lt;target&gt;
-                        </span>
-                        <span className="text-muted-foreground">
-                            Open a workspace item.
-                        </span>
-
-                        <span className="font-medium text-primary">
-                            clear
-                        </span>
-                        <span className="text-muted-foreground">
-                            Clear terminal history.
-                        </span>
-
-                        <span className="font-medium text-primary">
-                            about
-                        </span>
-                        <span className="text-muted-foreground">
-                            Display information about me.
-                        </span>
-
-                        <span className="font-medium text-primary">
-                            contact
-                        </span>
-                        <span className="text-muted-foreground">
-                            Show contact information.
-                        </span>
-
-                        <span className="font-medium text-primary">
-                            theme
-                        </span>
-                        <span className="text-muted-foreground">
-                            Switch terminal theme.
-                        </span>
+                                <span
+                                    className={
+                                        command.available === false
+                                            ? "text-yellow-500"
+                                            : "text-muted-foreground"
+                                    }
+                                >
+                                    {command.description}
+                                    {command.available === false &&
+                                        " (Coming soon)"}
+                                </span>
+                            </div>
+                        ))}
 
                     </div>
 
