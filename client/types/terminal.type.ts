@@ -6,6 +6,7 @@ export interface TerminalEntry {
     id: string;
     type: "command" | "output";
     value: ReactNode;
+    cwd?: TerminalPath;
 }
 
 export interface TerminalContext {

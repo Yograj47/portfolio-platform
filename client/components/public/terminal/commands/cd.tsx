@@ -1,6 +1,6 @@
-import { rootWorkspace } from "@/lib/terminal/fileSystem";
+import { findEntryByPath, rootWorkspace } from "@/lib/terminal/fileSystem";
+import { resolvePath } from "@/lib/terminal/navigation";
 import { TerminalCommand } from "@/types/terminal.type";
-import { TERMINAL_PATHS } from "../workspace/terminal-workspace.type";
 
 export const cdCommand: TerminalCommand = {
     name: "cd",
@@ -19,20 +19,22 @@ export const cdCommand: TerminalCommand = {
             };
         }
 
-        switch (target) {
-            case "..":
-            case "/":
-                context.setCwd(
-                    TERMINAL_PATHS.ROOT
-                );
-                return;
+        const path = resolvePath(
+            context.cwd,
+            target
+        );
 
+        if (!path) {
+            return {
+                output: (
+                    <span className="text-destructive">
+                        cd: path not found
+                    </span>
+                )
+            }
         }
 
-        const entry = rootWorkspace.find(
-            (item) =>
-                item.name.toLowerCase() === target.toLowerCase()
-        );
+        const entry = findEntryByPath(path);
 
         if (!entry) {
             return {

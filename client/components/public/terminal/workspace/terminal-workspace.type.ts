@@ -1,5 +1,6 @@
 export const TERMINAL_PATHS = {
     ROOT: "/",
+
     PROJECTS: "/Projects",
     BLOG: "/Blog",
 

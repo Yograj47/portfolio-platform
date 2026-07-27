@@ -11,7 +11,7 @@ import { TerminalHeader } from "./terminal-header";
 import { TerminalBody } from "./terminal-body";
 import { TerminalWindow } from "./terminal-window";
 
-import { TerminalEntry } from "@/types/terminal.type";
+import { TerminalContext, TerminalEntry } from "@/types/terminal.type";
 import { TERMINAL_PATHS, TerminalPath } from "./workspace/terminal-workspace.type";
 
 export function Terminal() {
@@ -36,16 +36,16 @@ export function Terminal() {
 
     if (!input) return;
 
-    const context = {
+    const context: TerminalContext = {
       router,
-
       cwd,
       setCwd,
-
       clearHistory() {
         setHistory([]);
       },
     };
+
+    const commandCwd = cwd;
 
     const result = engine.execute(
       input,
@@ -57,6 +57,7 @@ export function Terminal() {
         id: crypto.randomUUID(),
         type: "command",
         value: input,
+        cwd: commandCwd,
       },
     ];
 
@@ -136,6 +137,7 @@ export function Terminal() {
       <TerminalHeader />
 
       <TerminalBody
+        cwd={cwd}
         history={history}
         command={currentCommand}
         onCommandChange={

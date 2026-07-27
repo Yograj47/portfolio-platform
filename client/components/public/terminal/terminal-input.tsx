@@ -1,15 +1,18 @@
 "use client";
 
 import { KeyboardEvent, useEffect, useRef } from "react";
+import { TerminalPrompt } from "./terminal-prompt";
 
 interface TerminalInputProps {
-    value: string;
+    path: string;
 
+    value: string;
     onChange: (value: string) => void;
     onSubmit: () => void;
 }
 
 export function TerminalInput({
+    path,
     value,
     onChange,
     onSubmit,
@@ -29,11 +32,9 @@ export function TerminalInput({
     }
 
     return (
-        <div className="mt-2 flex items-center gap-3 font-mono text-sm">
+        <div className="flex items-center gap-1 font-mono text-sm leading-none">
 
-            <span className="select-none font-semibold text-primary">
-                ❯
-            </span>
+            <TerminalPrompt path={path} />
 
             <input
                 ref={inputRef}
@@ -44,8 +45,7 @@ export function TerminalInput({
                 onKeyDown={handleKeyDown}
                 autoComplete="off"
                 spellCheck={false}
-                className="flex-1 border-0 bg-transparent p-0 outline-none ring-0 placeholder:text-muted-foreground"
-                placeholder="Type a command..."
+                className="flex-1 bg-transparent outline-none border-0 p-0"
             />
 
         </div>

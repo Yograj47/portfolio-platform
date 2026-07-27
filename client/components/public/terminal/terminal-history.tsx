@@ -1,5 +1,6 @@
 import { TerminalEntry } from "@/types/terminal.type";
 import { TerminalPrompt } from "./terminal-prompt";
+import { TERMINAL_PATHS } from "./workspace/terminal-workspace.type";
 
 interface TerminalHistoryProps {
     history: TerminalEntry[];
@@ -17,8 +18,10 @@ export function TerminalHistory({
             {history.map((entry) => (
                 <div key={entry.id}>
                     {entry.type === "command" ? (
-                        <div className="flex items-center gap-2">
-                            <TerminalPrompt/>
+                        <div className="flex items-center gap-1 font-mono text-sm leading-none">
+                            <TerminalPrompt
+                                path={entry.cwd ?? TERMINAL_PATHS.ROOT}
+                            />
 
                             <span>{entry.value}</span>
                         </div>

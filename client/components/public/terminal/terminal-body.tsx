@@ -6,15 +6,15 @@ import { TerminalInput } from "./terminal-input";
 import { useEffect, useRef } from "react";
 
 interface TerminalBodyProps {
+    cwd: string;
     history: TerminalEntry[];
-
     command: string;
-
     onCommandChange: (value: string) => void;
     onSubmit: () => void;
 }
 
 export function TerminalBody({
+    cwd,
     history,
     command,
     onCommandChange,
@@ -35,14 +35,14 @@ export function TerminalBody({
                 history={history}
             />
 
-            {/* Active Prompt */}
             <TerminalInput
+                path={cwd}
                 value={command}
                 onChange={onCommandChange}
                 onSubmit={onSubmit}
             />
 
-            <div ref={bottomRef} className="overflow-y-auto"/>
+            <div ref={bottomRef} className="overflow-y-auto" />
         </div>
     );
 }

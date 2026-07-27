@@ -1,10 +1,11 @@
-import { findEntry } from "@/lib/terminal/fileSystem";
+import { findEntryByPath } from "@/lib/terminal/fileSystem";
+import { resolvePath } from "@/lib/terminal/navigation";
 import { TerminalCommand } from "@/types/terminal.type";
 
 export const openCommand: TerminalCommand = {
     name: "open",
     description: "Open a workspace item.",
-    execute(args) {
+    execute(args, context) {
 
         const target = args.join(" ").trim();
 
@@ -18,7 +19,22 @@ export const openCommand: TerminalCommand = {
             };
         }
 
-        const entry = findEntry(target);
+        const path = resolvePath(
+            context.cwd,
+            args.join(" ").trim()
+        );
+
+        if (!path) {
+            return {
+                output: (
+                    <span className="text-destructive">
+                        cd: path not found
+                    </span>
+                )
+            }
+        }
+
+        const entry = findEntryByPath(path);
 
         if (!entry) {
             return {

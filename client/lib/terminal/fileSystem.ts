@@ -1,15 +1,21 @@
-import { TERMINAL_PATHS, TerminalPath } from "@/components/public/terminal/workspace/terminal-workspace.type";
+import {
+    TERMINAL_PATHS,
+    TerminalPath,
+} from "@/components/public/terminal/workspace/terminal-workspace.type";
 
 export interface FileSystemEntry {
     name: string;
+    aliases: string[];
     path: TerminalPath;
     type: "directory" | "file" | "executable";
     route: string;
     description: string;
 }
+
 export const rootWorkspace: FileSystemEntry[] = [
     {
         name: "Projects",
+        aliases: ["project", "projects"],
         path: TERMINAL_PATHS.PROJECTS,
         type: "directory",
         route: "/projects",
@@ -17,20 +23,23 @@ export const rootWorkspace: FileSystemEntry[] = [
     },
     {
         name: "README.md",
+        aliases: ["readme", "read", "repo"],
         path: TERMINAL_PATHS.README,
         type: "file",
-        route: "/readme",
-        description: "Workspace overview",
+        route: "https://github.com/Yograj47/",
+        description: "Repository overview",
     },
     {
         name: "Skills.db",
+        aliases: ["skill", "skills"],
         path: TERMINAL_PATHS.SKILLS,
         type: "file",
         route: "/skills",
-        description: "Skills database",
+        description: "Technical skills database",
     },
     {
         name: "Timeline.log",
+        aliases: ["timeline", "career", "experience"],
         path: TERMINAL_PATHS.TIMELINE,
         type: "file",
         route: "/timeline",
@@ -38,6 +47,7 @@ export const rootWorkspace: FileSystemEntry[] = [
     },
     {
         name: "Blog",
+        aliases: ["blog", "blogs", "article", "articles"],
         path: TERMINAL_PATHS.BLOG,
         type: "directory",
         route: "/blogs",
@@ -45,6 +55,7 @@ export const rootWorkspace: FileSystemEntry[] = [
     },
     {
         name: "Contact.sh",
+        aliases: ["contact", "email", "mail"],
         path: TERMINAL_PATHS.CONTACT,
         type: "executable",
         route: "/contact",
@@ -55,12 +66,27 @@ export const rootWorkspace: FileSystemEntry[] = [
 export function findEntry(target: string) {
 
     const normalized = target
+        .trim()
         .replace(/^\.?\//, "")
         .replace(/\/$/, "")
         .toLowerCase();
 
+    return rootWorkspace.find((entry) => {
+
+        if (entry.name.toLowerCase() === normalized) {
+            return true;
+        }
+
+        return entry.aliases.some(
+            (alias) => alias.toLowerCase() === normalized
+        );
+    });
+}
+
+export function findEntryByPath(
+    path: TerminalPath
+) {
     return rootWorkspace.find(
-        (entry) =>
-            entry.name.toLowerCase() === normalized
+        (entry) => entry.path === path
     );
 }
