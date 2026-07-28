@@ -14,7 +14,7 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy, "jwt-refres
             ]),
             ignoreExpiration: false,
             passReqToCallback: true,
-            secretOrKey: configService.getOrThrow<string>("auth.refreshSecret")
+            secretOrKey: process.env.JWT_REFRESH_SECRET || configService.getOrThrow<string>("auth.refreshSecret")
         });
     }
 
