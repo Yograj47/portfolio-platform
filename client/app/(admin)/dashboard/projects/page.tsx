@@ -4,8 +4,8 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 
-import { ProjectTable } from "@/components/project/project-table";
-import { ProjectForm } from "@/components/project/project-form";
+import { ProjectTable } from "@/components/admin/project/project-table";
+import { ProjectForm } from "@/components/admin/project/project-form";
 
 import { FormDialog } from "@/components/dialogs/form-dialog";
 import { ConfirmationDialog } from "@/components/dialogs/confirmation-dialog";
@@ -18,7 +18,7 @@ import type {
   UpdateProjectSchema,
 } from "@/lib/validations/project";
 
-import type { Project } from "@/components/project/project-columns";
+import type { Project } from "@/components/admin/project/project-columns";
 
 export default function ProjectsPage() {
   const [createOpen, setCreateOpen] = useState(false);

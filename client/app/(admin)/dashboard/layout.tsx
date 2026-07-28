@@ -1,4 +1,4 @@
-import { DashboardLayout } from "@/components/dashboard/dashboard-layout";
+import { DashboardLayout } from "@/components/admin/dashboard/dashboard-layout";
 import { Toaster } from "@/components/ui/toaster";
 
 export default function Layout({

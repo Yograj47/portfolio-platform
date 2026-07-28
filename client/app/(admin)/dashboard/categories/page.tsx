@@ -4,7 +4,6 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 
-import { CategoryTable } from "@/components/category/category-table";
 import { ConfirmationDialog } from "@/components/dialogs/confirmation-dialog";
 
 import { useCategory } from "@/hooks/use-category";
@@ -14,9 +13,10 @@ import type {
     UpdateCategorySchema,
 } from "@/lib/validations/category";
 
-import type { Category } from "@/components/category/category-columns";
 import { FormDialog } from "@/components/dialogs/form-dialog";
-import { CategoryForm } from "@/components/category/category-form";
+import { Category } from "@/components/admin/category/category-columns";
+import { CategoryTable } from "@/components/admin/category/category-table";
+import { CategoryForm } from "@/components/admin/category/category-form";
 
 export default function CategoriesPage() {
     const [createOpen, setCreateOpen] = useState(false);

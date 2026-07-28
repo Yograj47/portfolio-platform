@@ -22,9 +22,10 @@ export function DashboardSidebar() {
           const Icon = item.icon;
 
           const active =
-            pathname === item.href ||
-            pathname.startsWith(item.href + "/");
-
+            item.href === "/dashboard"
+              ? pathname === item.href
+              : pathname === item.href ||
+              pathname.startsWith(`${item.href}/`);
           return (
             <Link
               key={item.href}
