@@ -7,6 +7,7 @@ import { pwdCommand } from "./pwd";
 import { aboutCommand } from "./about";
 import { contactCommand } from "./contact";
 import { themeCommand } from "./theme";
+import { rootCommand } from "./root";
 
 export const commandRegistry = {
     help: helpCommand,
@@ -19,4 +20,5 @@ export const commandRegistry = {
     about: aboutCommand,
     contact: contactCommand,
     theme: themeCommand,
+    root: rootCommand
 };

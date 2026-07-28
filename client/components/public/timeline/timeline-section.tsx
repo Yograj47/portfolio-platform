@@ -5,10 +5,9 @@ import { useMemo } from "react";
 import { useTimeline } from "@/hooks/use-timeline";
 
 import { TimelineEmpty } from "./timeline-empty";
-import { TimelineHeader } from "./timeline-header";
 import { TimelineSkeleton } from "./timeline-skeleton";
 import { TimelineYear } from "./timeline-year";
-import { Timeline } from "@/components/timeline/timeline-columns";
+import { Timeline } from "@/components/admin/timeline/timeline-columns";
 
 export function TimelineSection() {
     const {
@@ -45,7 +44,6 @@ export function TimelineSection() {
 
     return (
         <section className="space-y-12">
-            <TimelineHeader />
 
             {years.length ? (
                 years.map((year) => (

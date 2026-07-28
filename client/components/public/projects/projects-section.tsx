@@ -4,8 +4,6 @@ import { useState } from "react";
 
 import { usePublicProjects } from "@/hooks/use-public-projects";
 import { usePublicCategories } from "@/hooks/use-public-categories";
-
-import { ProjectsHeader } from "./projects-header";
 import { ProjectFilter } from "./project-filter";
 import { ProjectGrid } from "./project-grid";
 import { ProjectEmpty } from "./project-empty";
@@ -33,7 +31,6 @@ export function ProjectsSection() {
 
   return (
     <section className="space-y-8">
-      <ProjectsHeader />
 
       <ProjectFilter
         categories={categories}

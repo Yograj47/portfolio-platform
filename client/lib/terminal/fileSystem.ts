@@ -52,15 +52,7 @@ export const rootWorkspace: FileSystemEntry[] = [
         type: "directory",
         route: "/blogs",
         description: "Technical articles",
-    },
-    {
-        name: "Contact.sh",
-        aliases: ["contact", "email", "mail"],
-        path: TERMINAL_PATHS.CONTACT,
-        type: "executable",
-        route: "/contact",
-        description: "Contact information",
-    },
+    }
 ];
 
 export function findEntry(target: string) {

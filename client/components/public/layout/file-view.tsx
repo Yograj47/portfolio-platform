@@ -7,9 +7,11 @@ import {
 
 import { Separator } from "@/components/ui/separator";
 
+
 interface FileViewProps {
   title: string;
   meta?: string;
+  description?: string;
   folder?: boolean;
   children: ReactNode;
 }
@@ -17,6 +19,7 @@ interface FileViewProps {
 export function FileView({
   title,
   meta,
+  description,
   folder = false,
   children,
 }: FileViewProps) {
@@ -25,7 +28,9 @@ export function FileView({
   return (
     <section className="px-8 py-6">
       <header className="space-y-4">
+
         <div className="flex items-center justify-between">
+
           <div className="flex items-center gap-2">
             <Icon className="size-5 text-primary" />
 
@@ -39,9 +44,17 @@ export function FileView({
               {meta}
             </span>
           )}
+
         </div>
 
+        {description && (
+          <p className="max-w-3xl text-sm text-muted-foreground leading-6">
+            {description}
+          </p>
+        )}
+
         <Separator />
+
       </header>
 
       <div className="py-8">

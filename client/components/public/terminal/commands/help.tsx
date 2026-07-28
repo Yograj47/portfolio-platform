@@ -9,6 +9,8 @@ export const helpCommand: TerminalCommand = {
 
         const commands = Object.values(commandRegistry);
 
+        const filteredCommands = commands.filter((c)=> c.name !== "root")
+
         return {
             output: (
                 <div className="font-mono text-sm">
@@ -28,7 +30,7 @@ export const helpCommand: TerminalCommand = {
 
                     <div className="grid grid-cols-[180px_1fr] gap-y-2">
 
-                        {commands.map((command) => (
+                        {filteredCommands.map((command) => (
                             <div
                                 key={command.name}
                                 className="contents"
