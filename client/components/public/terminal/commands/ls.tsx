@@ -1,4 +1,4 @@
-import { findEntry, findEntryByPath, rootWorkspace } from "@/lib/terminal/fileSystem";
+import { findEntryByPath, rootWorkspace } from "@/lib/terminal/fileSystem";
 import { TerminalCommand } from "@/types/terminal.type";
 import { TERMINAL_PATHS } from "../workspace/terminal-workspace.type";
 import { resolvePath } from "@/lib/terminal/navigation";
@@ -114,7 +114,7 @@ export const lsCommand: TerminalCommand = {
             return {
                 output: (
                     <span className="text-destructive">
-                        ls: cannot access '{path}': No such file or directory.
+                        ls: cannot access {path}: No such file or directory.
                     </span>
                 ),
             };

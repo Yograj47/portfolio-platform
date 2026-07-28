@@ -1,4 +1,4 @@
-import type { Timeline } from "@/components/timeline/timeline-columns";
+import type { Timeline } from "@/components/admin/timeline/timeline-columns";
 
 import { TimelineItem } from "./timeline-item";
 

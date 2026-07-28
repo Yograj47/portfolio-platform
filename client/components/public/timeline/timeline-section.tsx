@@ -17,6 +17,7 @@ export function TimelineSection() {
 
     const grouped = useMemo(() => {
         return timelines.reduce(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (acc: any, item: Timeline) => {
                 const year = new Date(
                     item.startDate

@@ -40,7 +40,7 @@ export const openCommand: TerminalCommand = {
             return {
                 output: (
                     <span className="text-destructive">
-                        open: '{target}' not found.
+                        open: {target} not found.
                     </span>
                 ),
             };

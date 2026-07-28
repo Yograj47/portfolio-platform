@@ -15,6 +15,7 @@ export interface Project {
   category: {
     id: string;
     name: string;
+    slug?: string;
   };
 
   status: ProjectStatus;

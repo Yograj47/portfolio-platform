@@ -1,6 +1,5 @@
+import { Project } from "@/components/admin/project/project-columns";
 import { ProjectCard } from "./project-card";
-
-import type { Project } from "@/components/project/project-columns";
 
 interface ProjectGridProps {
   projects: Project[];

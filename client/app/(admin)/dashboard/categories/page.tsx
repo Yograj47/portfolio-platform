@@ -1,16 +1,12 @@
 "use client";
 
 import { useState } from "react";
-
 import { Button } from "@/components/ui/button";
-
 import { ConfirmationDialog } from "@/components/dialogs/confirmation-dialog";
-
 import { useCategory } from "@/hooks/use-category";
 
 import type {
     CreateCategorySchema,
-    UpdateCategorySchema,
 } from "@/lib/validations/category";
 
 import { FormDialog } from "@/components/dialogs/form-dialog";
@@ -57,22 +53,22 @@ export default function CategoriesPage() {
         setDeleteOpen(true);
     }
 
-    function handleUpdate(data: UpdateCategorySchema) {
-        if (!selectedCategory) return;
+    // function handleUpdate(data: UpdateCategorySchema) {
+    //     if (!selectedCategory) return;
 
-        updateCategory(
-            {
-                id: selectedCategory.id,
-                data,
-            },
-            {
-                onSuccess: () => {
-                    setEditOpen(false);
-                    setSelectedCategory(null);
-                },
-            }
-        );
-    }
+    //     updateCategory(
+    //         {
+    //             id: selectedCategory.id,
+    //             data,
+    //         },
+    //         {
+    //             onSuccess: () => {
+    //                 setEditOpen(false);
+    //                 setSelectedCategory(null);
+    //             },
+    //         }
+    //     );
+    // }
 
     function handleConfirmDelete() {
         if (!selectedCategory) return;

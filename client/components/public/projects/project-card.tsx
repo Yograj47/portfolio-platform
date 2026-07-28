@@ -3,11 +3,9 @@ import {
   ArrowUpRight,
   ExternalLink,
 } from "lucide-react";
-
 import { FaGithub } from "react-icons/fa6";
 import { Badge } from "@/components/ui/badge";
-
-import type { Project } from "@/components/project/project-columns";
+import { Project } from "@/components/admin/project/project-columns";
 
 interface ProjectCardProps {
   project: Project;

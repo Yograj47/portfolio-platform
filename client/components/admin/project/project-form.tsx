@@ -3,17 +3,13 @@
 import { useEffect } from "react";
 import { Resolver, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
 import {
     createProjectSchema,
     CreateProjectSchema,
 } from "@/lib/validations/project";
-
 import { ProjectStatus } from "@/lib/enums/project";
-
 import { FormFieldError } from "@/components/forms/form-field-error";
 import { FormSubmitButton } from "@/components/forms/form-submit-button";
-
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -137,7 +133,6 @@ export function ProjectForm({
 
             <div className="space-y-2">
                 <Label>Category</Label>
-
                 <Select
                     value={watch("categoryId")}
                     onValueChange={(value) =>

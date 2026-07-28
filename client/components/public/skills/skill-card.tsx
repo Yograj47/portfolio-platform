@@ -1,4 +1,4 @@
-import type { Skill } from "@/components/skill/skill-columns";
+import type { Skill } from "@/components/admin/skill/skill-columns";
 
 interface SkillCardProps {
   skill: Skill;

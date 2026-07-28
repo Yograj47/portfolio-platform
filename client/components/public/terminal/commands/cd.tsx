@@ -1,4 +1,4 @@
-import { findEntryByPath, rootWorkspace } from "@/lib/terminal/fileSystem";
+import { findEntryByPath} from "@/lib/terminal/fileSystem";
 import { resolvePath } from "@/lib/terminal/navigation";
 import { TerminalCommand } from "@/types/terminal.type";
 
