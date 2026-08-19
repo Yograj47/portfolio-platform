@@ -3,8 +3,12 @@
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 
-import { authService } from "@/services/auth.service";
+import {
+    authService,
+} from "@/services/auth.service";
+
 import { useAuthStore } from "@/store/auth.store";
+import { UpdateProfileData } from "@/lib/validations/profile";
 
 export function useAuth() {
     const router = useRouter();
@@ -21,13 +25,16 @@ export function useAuth() {
         mutationFn: authService.login,
 
         onSuccess: async (loginResponse) => {
-
-            setAccessToken(loginResponse.data.data.accessToken);
+            setAccessToken(
+                loginResponse.data.data.accessToken
+            );
 
             const me = await authService.me();
+
             setUser(me.data.data);
+
             router.replace("/dashboard");
-        }
+        },
     });
 
     const logoutMutation = useMutation({
@@ -40,6 +47,15 @@ export function useAuth() {
         },
     });
 
+    const updateProfileMutation = useMutation({
+        mutationFn: (data: UpdateProfileData) =>
+            authService.updateProfile(data),
+
+        onSuccess: (response) => {
+            setUser(response.data.data);
+        },
+    });
+
     return {
         user,
         isAuthenticated,
@@ -49,7 +65,13 @@ export function useAuth() {
 
         logout: logoutMutation.mutate,
 
+        updateProfile: updateProfileMutation.mutate,
+        updateProfileAsync:
+            updateProfileMutation.mutateAsync,
+
         loginLoading: loginMutation.isPending,
         logoutLoading: logoutMutation.isPending,
+        updateProfileLoading:
+            updateProfileMutation.isPending,
     };
 }

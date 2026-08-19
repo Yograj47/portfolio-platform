@@ -37,11 +37,25 @@ enum MessageStatus {
 }
 
 model User {
-  id           String  @id @default(cuid())
+  id String @id @default(cuid())
+
   name         String
-  email        String  @unique
+  email        String @unique
   passwordHash String
-  avatar       String?
+
+  avatar String?
+
+  // Portfolio profile
+  role             String?
+  location         String?
+  availability     String?
+  openToFullTime   Boolean @default(false)
+  openToOpenSource Boolean @default(false)
+  openToFreelance  Boolean @default(false)
+
+  githubUrl   String?
+  linkedinUrl String?
+  resumeUrl   String?
 
   refreshTokenHash String?
   lastLoginAt      DateTime?
