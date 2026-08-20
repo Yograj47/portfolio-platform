@@ -12,12 +12,6 @@ enum ProjectStatus {
   ARCHIVED
 }
 
-enum BlogStatus {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
-}
-
 enum TimelineType {
   EDUCATION
   EXPERIENCE
@@ -37,18 +31,16 @@ enum MessageStatus {
 }
 
 model User {
-  id String @id @default(cuid())
-
+  id           String  @id @default(cuid())
   name         String
-  email        String @unique
+  email        String  @unique
   passwordHash String
-
-  avatar String?
+  avatar       String?
 
   // Portfolio profile
   role             String?
   location         String?
-  availability     String?
+  isAvailable      Boolean @default(true)
   openToFullTime   Boolean @default(false)
   openToOpenSource Boolean @default(false)
   openToFreelance  Boolean @default(false)
@@ -57,11 +49,12 @@ model User {
   linkedinUrl String?
   resumeUrl   String?
 
+  // Authentication
   refreshTokenHash String?
   lastLoginAt      DateTime?
 
+  // Relations
   projects Project[]
-  blogs    Blog[]
   media    Media[]
 
   createdAt DateTime @default(now())
@@ -75,7 +68,6 @@ model Category {
   description String?
 
   projects Project[]
-  blogs    Blog[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -103,17 +95,17 @@ model Project {
   githubUrl String?
   liveUrl   String?
 
-  featured Boolean       @default(false)
-  status   ProjectStatus @default(DRAFT)
-
-  displayOrder Int @default(0)
+  featured     Boolean       @default(false)
+  status       ProjectStatus @default(DRAFT)
+  displayOrder Int           @default(0)
 
   categoryId String
   authorId   String
 
-  category Category       @relation(fields: [categoryId], references: [id])
-  author   User           @relation(fields: [authorId], references: [id])
-  images   ProjectImage[]
+  category Category @relation(fields: [categoryId], references: [id])
+  author   User     @relation(fields: [authorId], references: [id])
+
+  images ProjectImage[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -126,48 +118,15 @@ model Project {
 }
 
 model ProjectImage {
-  id        String @id @default(cuid())
-  projectId String
-
-  url String
-  alt String?
-
-  displayOrder Int @default(0)
+  id           String  @id @default(cuid())
+  projectId    String
+  url          String
+  alt          String?
+  displayOrder Int     @default(0)
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
-}
-
-model Blog {
-  id    String @id @default(cuid())
-  title String
-  slug  String @unique
-
-  excerpt String
-  content String
-
-  coverImage String?
-
-  readingTime Int
-
-  status      BlogStatus @default(DRAFT)
-  publishedAt DateTime?
-
-  categoryId String
-  authorId   String
-
-  category Category @relation(fields: [categoryId], references: [id])
-  author   User     @relation(fields: [authorId], references: [id])
-
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-
-  @@index([slug])
-  @@index([status])
-  @@index([publishedAt])
-  @@index([categoryId])
 }
 
 model Timeline {
@@ -192,25 +151,26 @@ model Timeline {
 }
 
 model Media {
-  id String @id @default(cuid())
-
+  id       String @id @default(cuid())
   publicId String @unique
-  url      String
 
+  url      String
   fileName String
   mimeType String
   type     MediaType
 
-  size Int
-
+  size   Int
   width  Int?
   height Int?
 
-  uploadedBy String
+  alt         String?
+  description String?
 
-  user User @relation(fields: [uploadedBy], references: [id])
+  uploadedBy String
+  user       User   @relation(fields: [uploadedBy], references: [id])
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Message {
@@ -230,28 +190,4 @@ model Message {
 
   @@index([status])
   @@index([createdAt])
-}
-
-model Setting {
-  id String @id @default(cuid())
-
-  siteTitle       String
-  siteDescription String
-
-  email String
-  phone String?
-
-  location String?
-
-  github   String?
-  linkedin String?
-  twitter  String?
-
-  resumeUrl String?
-
-  logo    String?
-  favicon String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
