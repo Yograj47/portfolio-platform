@@ -27,6 +27,31 @@ export class UsersService {
         return user;
     }
 
+    async getPublicProfile() {
+        const user = await this.prisma.user.findFirst({
+            select: {
+                name: true,
+                email: true,
+                avatar: true,
+                role: true,
+                location: true,
+                isAvailable: true,
+                openToFullTime: true,
+                openToOpenSource: true,
+                openToFreelance: true,
+                githubUrl: true,
+                linkedinUrl: true,
+                resumeUrl: true,
+            },
+        });
+
+        if (!user) {
+            throw new NotFoundException("Profile not found");
+        }
+
+        return user;
+    }
+
     // create(data: CreateUserDto) {
     //     return this.prisma.user.create({
     //         data

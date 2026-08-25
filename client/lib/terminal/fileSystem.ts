@@ -22,14 +22,6 @@ export const rootWorkspace: FileSystemEntry[] = [
         description: "Browse portfolio projects",
     },
     {
-        name: "README.md",
-        aliases: ["readme", "read", "repo"],
-        path: TERMINAL_PATHS.README,
-        type: "file",
-        route: "https://github.com/Yograj47/",
-        description: "Repository overview",
-    },
-    {
         name: "Skills.db",
         aliases: ["skill", "skills"],
         path: TERMINAL_PATHS.SKILLS,
@@ -46,7 +38,7 @@ export const rootWorkspace: FileSystemEntry[] = [
         description: "Career timeline",
     },
     {
-        name: "Blog",
+        name: "Blogs",
         aliases: ["blog", "blogs", "article", "articles"],
         path: TERMINAL_PATHS.BLOG,
         type: "directory",

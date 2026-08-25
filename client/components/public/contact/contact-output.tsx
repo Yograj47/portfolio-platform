@@ -1,10 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
 import ContactContent from "./contact-content";
+import { usePublicProfile } from "@/hooks/use-public-profile";
 
 export function ContactOutput() {
     const [step, setStep] = useState(0);
+
+    const {
+        data: profile,
+        isLoading,
+        isError,
+    } = usePublicProfile();
 
     useEffect(() => {
         const timers = [
@@ -14,12 +22,13 @@ export function ContactOutput() {
             setTimeout(() => setStep(4), 4000),
         ];
 
-        return () => timers.forEach(clearTimeout);
+        return () => {
+            timers.forEach(clearTimeout);
+        };
     }, []);
 
     return (
         <div className="space-y-1 font-mono text-sm animate-in fade-in duration-300">
-
             <p>Executing Contact.sh...</p>
 
             {step >= 1 && (
@@ -40,12 +49,23 @@ export function ContactOutput() {
                 </p>
             )}
 
-            {step >= 4 && (
-                <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-                    <ContactContent />
-                </div>
+            {step >= 4 && isLoading && (
+                <p className="text-muted-foreground">
+                    Loading contact information...
+                </p>
             )}
 
+            {step >= 4 && isError && (
+                <p className="text-destructive">
+                    Failed to load contact information.
+                </p>
+            )}
+
+            {step >= 4 && profile && (
+                <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+                    <ContactContent profile={profile} />
+                </div>
+            )}
         </div>
     );
 }

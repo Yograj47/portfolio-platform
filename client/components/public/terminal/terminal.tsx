@@ -111,15 +111,6 @@ export function Terminal() {
                     <span className="text-muted-foreground">
                       Browse workspace.
                     </span>
-
-                    <span className="text-primary">
-                      open README.md
-                    </span>
-
-                    <span className="text-muted-foreground">
-                      Start exploring.
-                    </span>
-
                   </div>
 
                 </div>
