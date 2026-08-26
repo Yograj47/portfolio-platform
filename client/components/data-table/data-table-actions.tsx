@@ -2,41 +2,42 @@
 
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
 interface DataTableActionsProps {
-    onEdit: () => void;
-    onDelete: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
 }
 
 export function DataTableActions({
-    onEdit,
-    onDelete,
+  onEdit,
+  onDelete,
 }: DataTableActionsProps) {
-    return (
-        <DropdownMenu>
-            <DropdownMenuTrigger className="inline-flex h-9 w-9 items-center justify-center rounded-md border hover:bg-accent">
-                <MoreHorizontal className="h-4 w-4" />
-            </DropdownMenuTrigger>
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger className="inline-flex size-8 items-center justify-center rounded-lg border border-border/60 bg-background hover:bg-accent hover:text-accent-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring">
+        <MoreHorizontal className="size-4" />
+        <span className="sr-only">Open menu</span>
+      </DropdownMenuTrigger>
 
-            <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={onEdit}>
-                    <Pencil className="mr-2 h-4 w-4" />
-                    Edit
-                </DropdownMenuItem>
+      <DropdownMenuContent align="end" className="w-40">
+        <DropdownMenuItem onClick={onEdit} className="cursor-pointer">
+          <Pencil className="mr-2 size-4 text-muted-foreground" />
+          Edit
+        </DropdownMenuItem>
 
-                <DropdownMenuItem
-                    onClick={onDelete}
-                    className="text-destructive"
-                >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
-    );
+        <DropdownMenuItem
+          onClick={onDelete}
+          className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive"
+        >
+          <Trash2 className="mr-2 size-4" />
+          Delete
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 }

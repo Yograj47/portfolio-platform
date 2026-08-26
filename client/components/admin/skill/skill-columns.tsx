@@ -24,64 +24,89 @@ export function getSkillColumns({
 }: Props): ColumnDef<Skill>[] {
   return [
     {
+      accessorKey: "displayOrder",
+      header: "Order",
+      cell: ({ row }) => (
+        <span className="font-mono text-xs font-semibold text-muted-foreground">
+          #{String(row.original.displayOrder).padStart(2, "0")}
+        </span>
+      ),
+    },
+    {
       accessorKey: "name",
       header: "Name",
-    },
+      cell: ({ row }) => {
+        const skill = row.original;
+        const color = skill.color || "#3b82f6";
 
+        return (
+          <div className="flex items-center gap-2.5">
+            <div
+              className="flex size-7 items-center justify-center rounded-md border text-xs font-bold uppercase text-white shadow-2xs"
+              style={{ backgroundColor: color }}
+            >
+              {skill.name.charAt(0)}
+            </div>
+            <span className="font-medium text-foreground">{skill.name}</span>
+          </div>
+        );
+      },
+    },
     {
       accessorKey: "icon",
       header: "Icon",
-
-      cell: ({ row }) =>
-        row.original.icon || "-",
+      cell: ({ row }) => (
+        <span className="font-mono text-xs text-muted-foreground">
+          {row.original.icon || "-"}
+        </span>
+      ),
     },
-
     {
       accessorKey: "color",
       header: "Color",
-
       cell: ({ row }) =>
         row.original.color ? (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 font-mono text-xs">
             <div
-              className="size-4 rounded-full border"
-              style={{
-                background: row.original.color,
-              }}
+              className="size-3.5 rounded-full border border-black/10 shadow-2xs"
+              style={{ backgroundColor: row.original.color }}
             />
-
-            {row.original.color}
+            <span className="uppercase text-muted-foreground">
+              {row.original.color}
+            </span>
           </div>
         ) : (
-          "-"
+          <span className="text-muted-foreground">-</span>
         ),
     },
-
     {
       accessorKey: "level",
       header: "Level",
+      cell: ({ row }) => {
+        const level = row.original.level;
+        const color = row.original.color || "#3b82f6";
 
-      cell: ({ row }) => (
-        <Badge>
-          {row.original.level}%
-        </Badge>
-      ),
+        return (
+          <div className="flex items-center gap-3">
+            <div className="h-2 w-20 overflow-hidden rounded-full bg-muted/60">
+              <div
+                className="h-full transition-all duration-300"
+                style={{ width: `${level}%`, backgroundColor: color }}
+              />
+            </div>
+            <Badge variant="secondary" className="font-mono text-[11px]">
+              {level}%
+            </Badge>
+          </div>
+        );
+      },
     },
-
-    {
-      accessorKey: "displayOrder",
-      header: "Order",
-    },
-
     {
       id: "actions",
-
       cell: ({ row }) => (
         <DataTableActions
           onEdit={() => onEdit(row.original)}
-          onDelete={() =>
-            onDelete(row.original)
-          }
+          onDelete={() => onDelete(row.original)}
         />
       ),
     },
