@@ -44,10 +44,9 @@ model User {
   openToFullTime   Boolean @default(false)
   openToOpenSource Boolean @default(false)
   openToFreelance  Boolean @default(false)
-
-  githubUrl   String?
-  linkedinUrl String?
-  resumeUrl   String?
+  githubUrl        String?
+  linkedinUrl      String?
+  resumeUrl        String?
 
   // Authentication
   refreshTokenHash String?
@@ -105,7 +104,7 @@ model Project {
   category Category @relation(fields: [categoryId], references: [id])
   author   User     @relation(fields: [authorId], references: [id])
 
-  images ProjectImage[]
+  media ProjectMedia[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -117,26 +116,13 @@ model Project {
   @@index([categoryId])
 }
 
-model ProjectImage {
-  id           String  @id @default(cuid())
-  projectId    String
-  url          String
-  alt          String?
-  displayOrder Int     @default(0)
-
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-}
-
 model Timeline {
-  id           String  @id @default(cuid())
+  id           String       @id @default(cuid())
   title        String
   organization String
   location     String?
   description  String?
-
-  type TimelineType
+  type         TimelineType
 
   startDate DateTime
   endDate   DateTime?
@@ -169,8 +155,29 @@ model Media {
   uploadedBy String
   user       User   @relation(fields: [uploadedBy], references: [id])
 
+  projects ProjectMedia[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model ProjectMedia {
+  id String @id @default(cuid())
+
+  projectId String
+  mediaId   String
+
+  displayOrder Int     @default(0)
+  isCover      Boolean @default(false)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  media     Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([projectId, mediaId])
+  @@index([projectId])
+  @@index([mediaId])
 }
 
 model Message {

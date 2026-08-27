@@ -19,6 +19,8 @@
     "test:cov": "jest --coverage"
   },
   "dependencies": {
+    "@imagekit/nodejs": "^7.11.0",
+    "@nestjs/cli": "^11.0.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.0.1",
@@ -44,7 +46,6 @@
     "resend": "^6.16.0",
     "rxjs": "^7.8.1",
     "slugify": "^1.6.9",
-    "@nestjs/cli": "^11.0.0",
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
