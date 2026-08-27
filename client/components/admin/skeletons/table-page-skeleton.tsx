@@ -1,13 +1,23 @@
 "use client";
 
-import { TableSkeleton } from "./table-skeleton";
 import { PageHeaderSkeleton } from "./page-header.skeleton";
+import { TableSkeleton } from "./table-skeleton";
 
-export function TablePageSkeleton() {
+interface TablePageSkeletonProps {
+  rowCount?: number;
+  columnCount?: number;
+  hasAction?: boolean;
+}
+
+export function TablePageSkeleton({
+  rowCount = 5,
+  columnCount = 4,
+  hasAction = true,
+}: TablePageSkeletonProps) {
   return (
     <div className="space-y-6">
-      <PageHeaderSkeleton />
-      <TableSkeleton />
+      <PageHeaderSkeleton hasAction={hasAction} />
+      <TableSkeleton rowCount={rowCount} columnCount={columnCount} />
     </div>
   );
 }

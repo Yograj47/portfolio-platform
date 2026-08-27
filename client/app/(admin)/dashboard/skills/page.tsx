@@ -133,6 +133,7 @@ export default function SkillsPage() {
         description="Update skill."
       >
         <SkillForm
+          skills={skills}
           defaultValues={
             selectedSkill
               ? {

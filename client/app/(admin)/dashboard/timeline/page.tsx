@@ -40,9 +40,7 @@ export default function TimelinePage() {
     deleting,
   } = useTimeline();
 
-  function handleCreate(
-    data: CreateTimelineSchema
-  ) {
+  function handleCreate(data: CreateTimelineSchema) {
     createTimeline(data, {
       onSuccess: () => {
         setCreateOpen(false);
@@ -60,9 +58,7 @@ export default function TimelinePage() {
     setDeleteOpen(true);
   }
 
-  function handleUpdate(
-    data: UpdateTimelineSchema
-  ) {
+  function handleUpdate(data: UpdateTimelineSchema) {
     if (!selectedTimeline) return;
 
     updateTimeline(
@@ -94,20 +90,13 @@ export default function TimelinePage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">
-            Timeline
-          </h1>
-
+          <h1 className="text-3xl font-bold">Timeline</h1>
           <p className="text-muted-foreground">
             Manage your timeline entries.
           </p>
         </div>
 
-        <Button
-          onClick={() => setCreateOpen(true)}
-        >
-          New Timeline
-        </Button>
+        <Button onClick={() => setCreateOpen(true)}>New Timeline</Button>
       </div>
 
       <TimelineTable
@@ -124,6 +113,7 @@ export default function TimelinePage() {
         description="Create a new timeline entry."
       >
         <TimelineForm
+          timelines={timelines}
           loading={creating}
           onSubmit={handleCreate}
         />
@@ -136,27 +126,20 @@ export default function TimelinePage() {
         description="Update timeline entry."
       >
         <TimelineForm
+          timelines={timelines}
           defaultValues={
             selectedTimeline
               ? {
-                  title: selectedTimeline.title,
-                  organization:
-                    selectedTimeline.organization,
-                  location:
-                    selectedTimeline.location ?? "",
-                  description:
-                    selectedTimeline.description ?? "",
-                  type: selectedTimeline.type,
-                  startDate:
-                    selectedTimeline.startDate,
-                  endDate:
-                    selectedTimeline.endDate ??
-                    "",
-                  current:
-                    selectedTimeline.current,
-                  displayOrder:
-                    selectedTimeline.displayOrder,
-                }
+                title: selectedTimeline.title,
+                organization: selectedTimeline.organization,
+                location: selectedTimeline.location ?? "",
+                description: selectedTimeline.description ?? "",
+                type: selectedTimeline.type,
+                startDate: selectedTimeline.startDate,
+                endDate: selectedTimeline.endDate ?? "",
+                current: selectedTimeline.current,
+                displayOrder: selectedTimeline.displayOrder,
+              }
               : undefined
           }
           loading={updating}
