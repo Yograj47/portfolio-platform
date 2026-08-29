@@ -1,6 +1,6 @@
 "use client";
 
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, Image as ImageIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,11 +11,13 @@ import {
 interface DataTableActionsProps {
   onEdit: () => void;
   onDelete: () => void;
+  onImages?: () => void; // Optional prop
 }
 
 export function DataTableActions({
   onEdit,
   onDelete,
+  onImages,
 }: DataTableActionsProps) {
   return (
     <DropdownMenu>
@@ -25,6 +27,13 @@ export function DataTableActions({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-40">
+        {onImages && (
+          <DropdownMenuItem onClick={onImages} className="cursor-pointer">
+            <ImageIcon className="mr-2 size-4 text-muted-foreground" />
+            Images
+          </DropdownMenuItem>
+        )}
+
         <DropdownMenuItem onClick={onEdit} className="cursor-pointer">
           <Pencil className="mr-2 size-4 text-muted-foreground" />
           Edit

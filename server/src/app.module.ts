@@ -12,6 +12,7 @@ import { SkillModule } from './modules/skill/skill.module';
 import { TimelineModule } from './modules/timeline/timeline.module';
 import { ProjectModule } from './modules/project/project.module';
 import { MediaModule } from './modules/media/media.module';
+import { ProjectMediaModule } from './modules/project-media/project-media.module';
 
 @Module({
     imports: [
@@ -30,7 +31,8 @@ import { MediaModule } from './modules/media/media.module';
         SkillModule,
         TimelineModule,
         ProjectModule,
-        MediaModule
+        MediaModule,
+        ProjectMediaModule
     ],
 
     providers: [

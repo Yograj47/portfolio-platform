@@ -19,11 +19,13 @@ import type {
 } from "@/lib/validations/project";
 
 import type { Project } from "@/components/admin/project/project-columns";
+import { ProjectImageDialog } from "@/components/admin/project-media/project-image-dialog";
 
 export default function ProjectsPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [imageOpen, setImageOpen] = useState(false);
 
   const [selectedProject, setSelectedProject] =
     useState<Project | null>(null);
@@ -61,6 +63,11 @@ export default function ProjectsPage() {
   function handleDelete(project: Project) {
     setSelectedProject(project);
     setDeleteOpen(true);
+  }
+
+  function handleImages(project: Project) {
+    setSelectedProject(project);
+    setImageOpen(true);
   }
 
   function handleUpdate(
@@ -118,6 +125,7 @@ export default function ProjectsPage() {
         loading={loading}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        onImages={handleImages}
       />
 
       <FormDialog
@@ -144,33 +152,34 @@ export default function ProjectsPage() {
           defaultValues={
             selectedProject
               ? {
-                  title:
-                    selectedProject.title,
-                  excerpt:
-                    selectedProject.excerpt,
-                  description:
-                    selectedProject.description,
-                  githubUrl:
-                    selectedProject.githubUrl ??
-                    "",
-                  liveUrl:
-                    selectedProject.liveUrl ??
-                    "",
-                  featured:
-                    selectedProject.featured,
-                  status:
-                    selectedProject.status,
-                  displayOrder:
-                    selectedProject.displayOrder,
-                  categoryId:
-                    selectedProject.category.id,
-                }
+                title:
+                  selectedProject.title,
+                excerpt:
+                  selectedProject.excerpt,
+                description:
+                  selectedProject.description,
+                githubUrl:
+                  selectedProject.githubUrl ??
+                  "",
+                liveUrl:
+                  selectedProject.liveUrl ??
+                  "",
+                featured:
+                  selectedProject.featured,
+                status:
+                  selectedProject.status,
+                displayOrder:
+                  selectedProject.displayOrder,
+                categoryId:
+                  selectedProject.category.id,
+              }
               : undefined
           }
           loading={updating}
           onSubmit={handleUpdate}
         />
       </FormDialog>
+
 
       <ConfirmationDialog
         open={deleteOpen}
@@ -180,6 +189,15 @@ export default function ProjectsPage() {
         loading={deleting}
         onConfirm={handleConfirmDelete}
       />
+
+      {selectedProject && (
+        <ProjectImageDialog
+          open={imageOpen}
+          onOpenChange={setImageOpen}
+          projectId={selectedProject.id}
+          projectTitle={selectedProject.title}
+        />
+      )}
     </div>
   );
 }

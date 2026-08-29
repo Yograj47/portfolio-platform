@@ -31,11 +31,14 @@ export interface Project {
 interface Props {
   onEdit: (project: Project) => void;
   onDelete: (project: Project) => void;
+  onImages: (project: Project) => void;
+
 }
 
 export function getProjectColumns({
   onEdit,
   onDelete,
+  onImages
 }: Props): ColumnDef<Project>[] {
   return [
     {
@@ -93,6 +96,9 @@ export function getProjectColumns({
           onDelete={() =>
             onDelete(row.original)
           }
+          {...(onImages && {
+            onImages: () => onImages(row.original),
+          })}
         />
       ),
     },
