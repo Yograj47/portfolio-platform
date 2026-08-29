@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { MediaController } from './media.controller';
-import { MediaService } from './media.service';
 import { ImageKitService } from './imagekit.service';
+import { MediaService } from './media.service';
 
 @Module({
   controllers: [MediaController],
-  providers: [MediaService, ImageKitService]
+  providers: [ImageKitService, MediaService],
+  exports: [ImageKitService, MediaService],
 })
 export class MediaModule { }

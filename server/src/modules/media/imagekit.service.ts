@@ -15,4 +15,8 @@ export class ImageKitService {
         return this.client.helper.getAuthenticationParameters();
     }
 
+    async deleteFile(publicId: string) {
+        return this.client.files.delete(publicId);
+    }
+
 }

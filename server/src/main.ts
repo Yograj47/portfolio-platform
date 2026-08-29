@@ -34,6 +34,14 @@ async function bootstrap() {
     .setDescription(configService.getOrThrow<string>('swagger.description'))
     .setVersion(configService.getOrThrow<string>('swagger.version'))
     .addServer(`/${configService.getOrThrow<string>('app.apiPrefix')}`)
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+      },
+      'access-token',
+    )
     .build();
 
   const docsPath = configService.getOrThrow<string>('swagger.path');
