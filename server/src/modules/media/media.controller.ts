@@ -91,12 +91,14 @@ export class MediaController {
 
     @Delete(':id')
     @HttpCode(HttpStatus.OK)
-    @ResponseMessage(
-        'Media deleted successfully',
-    )
+    @ResponseMessage('Media deleted successfully')
     async remove(
+        @CurrentUser() user: JwtPayload,
         @Param('id') id: string,
     ) {
-        return this.mediaService.remove(id);
+        return this.mediaService.remove(
+            id,
+            user.sub,
+        );
     }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { upload } from "@imagekit/javascript";
 
 import {
@@ -8,8 +8,12 @@ import {
     type CreateMediaData,
     type Media,
 } from "@/services/media.service";
-
 import { showError, showSuccess } from "@/lib/toast";
+
+export const MEDIA_QUERY_KEYS = {
+    all: ["media"] as const,
+    detail: (id: string) => ["media", id] as const,
+};
 
 interface UploadMediaInput {
     file: File;
@@ -19,12 +23,25 @@ interface UploadMediaInput {
     description?: string;
 }
 
+interface UpdateMediaInput {
+    id: string;
+    data: Partial<CreateMediaData>;
+}
+
 export function useMedia() {
-    const uploadMutation = useMutation<
-        Media,
-        Error,
-        UploadMediaInput
-    >({
+    const queryClient = useQueryClient();
+
+    // Fetch all media
+    const mediaListQuery = useQuery({
+        queryKey: MEDIA_QUERY_KEYS.all,
+        queryFn: async () => {
+            const response = await mediaService.findAll();
+            return response.data.data;
+        },
+    });
+
+    // Upload Mutation
+    const uploadMutation = useMutation<Media, Error, UploadMediaInput>({
         mutationFn: async ({
             file,
             fileName,
@@ -32,26 +49,19 @@ export function useMedia() {
             alt,
             description,
         }) => {
-            // 1. Get temporary ImageKit authentication
-            const response =
-                await mediaService.getUploadAuth();
-
+            const response = await mediaService.getUploadAuth();
             const auth = response.data.data;
 
-            // 2. Upload directly to ImageKit
             const result = await upload({
                 file,
                 fileName: fileName ?? file.name,
-                publicKey:
-                    process.env
-                        .NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY!,
+                publicKey: process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY!,
                 token: auth.token,
                 expire: auth.expire,
                 signature: auth.signature,
                 folder,
             });
 
-            // 3. Validate ImageKit response
             if (
                 !result.fileId ||
                 !result.url ||
@@ -63,7 +73,6 @@ export function useMedia() {
                 );
             }
 
-            // 4. Create our Media record
             const mediaData: CreateMediaData = {
                 publicId: result.fileId,
                 url: result.url,
@@ -77,30 +86,46 @@ export function useMedia() {
                 description,
             };
 
-            // 5. Save Media in our database
-            const mediaResponse =
-                await mediaService.create(mediaData);
-
+            const mediaResponse = await mediaService.create(mediaData);
             return mediaResponse.data.data;
         },
 
-        onError: () => {
-            showError("Failed to upload media.");
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: MEDIA_QUERY_KEYS.all });
+            showSuccess("Media uploaded successfully.");
+        },
+
+        onError: (error) => {
+            showError(error.message || "Failed to upload media.");
         },
     });
 
-    const deleteMutation = useMutation<
-        Media,
-        Error,
-        string
-    >({
-        mutationFn: async (id: string) => {
-            const response = await mediaService.remove(id);
-
+    // Update Mutation (PATCH /media/:id)
+    const updateMutation = useMutation<Media, Error, UpdateMediaInput>({
+        mutationFn: async ({ id, data }) => {
+            const response = await mediaService.update(id, data);
             return response.data.data;
         },
 
         onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: MEDIA_QUERY_KEYS.all });
+            showSuccess("Media updated successfully.");
+        },
+
+        onError: () => {
+            showError("Failed to update media.");
+        },
+    });
+
+    // Delete Mutation
+    const deleteMutation = useMutation<Media, Error, string>({
+        mutationFn: async (id: string) => {
+            const response = await mediaService.remove(id);
+            return response.data.data;
+        },
+
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: MEDIA_QUERY_KEYS.all });
             showSuccess("Media deleted successfully.");
         },
 
@@ -110,12 +135,24 @@ export function useMedia() {
     });
 
     return {
+        // List Query
+        mediaData: mediaListQuery.data ?? null,
+        loadingMedia: mediaListQuery.isLoading,
+        mediaError: mediaListQuery.isError,
+        refetchMedia: mediaListQuery.refetch,
+
         // Upload
         uploadMedia: uploadMutation.mutate,
         uploadMediaAsync: uploadMutation.mutateAsync,
         uploading: uploadMutation.isPending,
         uploadError: uploadMutation.isError,
         uploadResult: uploadMutation.data ?? null,
+
+        // Update
+        updateMedia: updateMutation.mutate,
+        updateMediaAsync: updateMutation.mutateAsync,
+        updating: updateMutation.isPending,
+        updateError: updateMutation.isError,
 
         // Delete
         deleteMedia: deleteMutation.mutate,

@@ -34,14 +34,27 @@ export class ProjectService {
   async findAll() {
     return this.prisma.project.findMany({
       where: {
-        deletedAt: null
+        deletedAt: null,
       },
-      orderBy: { displayOrder: 'asc' },
+      orderBy: {
+        displayOrder: 'asc',
+      },
       include: {
         category: true,
         author: true,
-      }
-    })
+        media: {
+          where: {
+            isActive: true,
+          },
+          orderBy: {
+            displayOrder: 'asc',
+          },
+          include: {
+            media: true,
+          },
+        },
+      },
+    });
   }
 
   async findOne(id: string) {
@@ -52,11 +65,22 @@ export class ProjectService {
       },
       include: {
         category: true,
+        media: {
+          where: {
+            isActive: true,
+          },
+          orderBy: {
+            displayOrder: 'asc',
+          },
+          include: {
+            media: true,
+          },
+        },
       },
     });
 
     if (!project) {
-      throw new NotFoundException("Project not found");
+      throw new NotFoundException('Project not found');
     }
 
     return project;

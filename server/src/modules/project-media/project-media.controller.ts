@@ -94,6 +94,19 @@ export class ProjectMediaController {
         );
     }
 
+    @Patch(':id/restore')
+    @HttpCode(HttpStatus.OK)
+    @ResponseMessage('Project media restored successfully')
+    async restore(
+        @CurrentUser() user: JwtPayload,
+        @Param('id') id: string,
+    ) {
+        return this.projectMediaService.restore(
+            id,
+            user.sub,
+        );
+    }
+
     @Delete(':id')
     @HttpCode(HttpStatus.OK)
     @ResponseMessage(

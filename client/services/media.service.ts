@@ -13,6 +13,20 @@ export type CreateMediaData = {
     description?: string;
 };
 
+export type MediaProjectRelation = {
+    id: string;
+    projectId: string;
+    mediaId: string;
+    displayOrder: number;
+    isCover: boolean;
+    isActive: boolean;
+    project: {
+        id: string;
+        title: string;
+        slug: string;
+    };
+};
+
 export type Media = {
     id: string;
     publicId: string;
@@ -28,6 +42,13 @@ export type Media = {
     uploadedBy: string;
     createdAt: string;
     updatedAt: string;
+    projects?: MediaProjectRelation[];
+};
+
+export type FindAllMediaResponse = {
+    projectMedia: Media[];
+    generalMedia: Media[];
+    total: number;
 };
 
 export type ImageKitUploadAuth = {
@@ -38,26 +59,26 @@ export type ImageKitUploadAuth = {
 
 export const mediaService = {
     getUploadAuth() {
-        return http.get("/media/upload-auth");
+        return http.get<{ data: ImageKitUploadAuth }>("/media/upload-auth");
     },
 
     create(data: CreateMediaData) {
-        return http.post("/media", data);
+        return http.post<{ data: Media }>("/media", data);
     },
 
     findAll() {
-        return http.get("/media");
+        return http.get<{ data: FindAllMediaResponse }>("/media");
     },
 
     findOne(id: string) {
-        return http.get(`/media/${id}`);
+        return http.get<{ data: Media }>(`/media/${id}`);
     },
 
     update(id: string, data: Partial<CreateMediaData>) {
-        return http.patch(`/media/${id}`, data);
+        return http.patch<{ data: Media }>(`/media/${id}`, data);
     },
 
     remove(id: string) {
-        return http.delete(`/media/${id}`);
+        return http.delete<{ data: Media }>(`/media/${id}`);
     },
 };

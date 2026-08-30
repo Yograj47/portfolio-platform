@@ -18,7 +18,9 @@ export type ProjectMedia = {
     mediaId: string;
     displayOrder: number;
     isCover: boolean;
+    isActive: boolean;
     createdAt: string;
+    updatedAt: string;
     media: {
         id: string;
         publicId: string;
@@ -36,30 +38,28 @@ export type ProjectMedia = {
 
 export const projectMediaService = {
     create(data: CreateProjectMediaData) {
-        return http.post("/project-media", data);
+        return http.post<{ data: ProjectMedia }>("/project-media", data);
     },
 
     findAll(projectId: string) {
-        return http.get(
+        return http.get<{ data: ProjectMedia[] }>(
             `/project-media/project/${projectId}`,
         );
     },
 
     findOne(id: string) {
-        return http.get(`/project-media/${id}`);
+        return http.get<{ data: ProjectMedia }>(`/project-media/${id}`);
     },
 
-    update(
-        id: string,
-        data: UpdateProjectMediaData,
-    ) {
-        return http.patch(
-            `/project-media/${id}`,
-            data,
-        );
+    update(id: string, data: UpdateProjectMediaData) {
+        return http.patch<{ data: ProjectMedia }>(`/project-media/${id}`, data);
+    },
+
+    restore(id: string) {
+        return http.patch<{ data: ProjectMedia }>(`/project-media/${id}/restore`);
     },
 
     remove(id: string) {
-        return http.delete(`/project-media/${id}`);
+        return http.delete<{ data: ProjectMedia }>(`/project-media/${id}`);
     },
 };

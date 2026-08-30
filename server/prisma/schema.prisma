@@ -162,18 +162,18 @@ model Media {
 }
 
 model ProjectMedia {
-  id String @id @default(cuid())
-
-  projectId String
-  mediaId   String
-
+  id           String  @id @default(cuid())
+  projectId    String
+  mediaId      String
   displayOrder Int     @default(0)
   isCover      Boolean @default(false)
+  isActive     Boolean @default(true)
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  media   Media   @relation(fields: [mediaId], references: [id], onDelete: Cascade)
 
-  media     Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([projectId, mediaId])
   @@index([projectId])

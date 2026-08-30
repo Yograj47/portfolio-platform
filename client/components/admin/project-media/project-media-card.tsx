@@ -40,7 +40,7 @@ export function ProjectMediaCard({
     <div
       ref={setNodeRef}
       style={style}
-      className="group relative aspect-[16/10] w-full min-w-0 overflow-hidden rounded-xl border border-border bg-slate-950 shadow-xs"
+      className="group relative aspect-16/10 w-full min-w-0 overflow-hidden rounded-xl border border-border bg-slate-950 shadow-xs"
     >
       {/* Media Image */}
       <img

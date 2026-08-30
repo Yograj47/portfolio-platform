@@ -15,10 +15,7 @@ export class ProjectMediaService {
         private readonly prisma: PrismaService,
     ) { }
 
-    async create(
-        userId: string,
-        data: CreateProjectMediaDto,
-    ) {
+    async create(userId: string, data: CreateProjectMediaDto) {
         const { projectId, mediaId } = data;
 
         const project = await this.prisma.project.findFirst({
@@ -29,9 +26,7 @@ export class ProjectMediaService {
         });
 
         if (!project) {
-            throw new NotFoundException(
-                'Project not found',
-            );
+            throw new NotFoundException('Project not found');
         }
 
         const media = await this.prisma.media.findFirst({
@@ -42,25 +37,52 @@ export class ProjectMediaService {
         });
 
         if (!media) {
-            throw new NotFoundException(
-                'Media not found',
-            );
+            throw new NotFoundException('Media not found');
         }
 
-        const existing =
-            await this.prisma.projectMedia.findUnique({
-                where: {
-                    projectId_mediaId: {
-                        projectId,
-                        mediaId,
-                    },
+        const existing = await this.prisma.projectMedia.findUnique({
+            where: {
+                projectId_mediaId: {
+                    projectId,
+                    mediaId,
                 },
-            });
+            },
+        });
 
-        if (existing) {
+        // Already attached and active
+        if (existing?.isActive) {
             throw new ConflictException(
                 'Media is already attached to this project',
             );
+        }
+
+        // Previously detached → restore the relationship
+        if (existing) {
+            if (data.isCover) {
+                await this.prisma.projectMedia.updateMany({
+                    where: {
+                        projectId,
+                        id: { not: existing.id },
+                    },
+                    data: {
+                        isCover: false,
+                    },
+                });
+            }
+
+            return this.prisma.projectMedia.update({
+                where: {
+                    id: existing.id,
+                },
+                data: {
+                    isActive: true,
+                    displayOrder: data.displayOrder ?? 0,
+                    isCover: data.isCover ?? false,
+                },
+                include: {
+                    media: true,
+                },
+            });
         }
 
         if (data.isCover) {
@@ -76,6 +98,7 @@ export class ProjectMediaService {
                 mediaId,
                 displayOrder: data.displayOrder ?? 0,
                 isCover: data.isCover ?? false,
+                isActive: true,
             },
             include: {
                 media: true,
@@ -102,7 +125,10 @@ export class ProjectMediaService {
         }
 
         return this.prisma.projectMedia.findMany({
-            where: { projectId },
+            where: {
+                projectId,
+                isActive: true,
+            },
             include: {
                 media: true,
             },
@@ -116,18 +142,18 @@ export class ProjectMediaService {
         id: string,
         userId: string,
     ) {
-        const projectMedia =
-            await this.prisma.projectMedia.findFirst({
-                where: {
-                    id,
-                    project: {
-                        authorId: userId,
-                    },
+        const projectMedia = await this.prisma.projectMedia.findFirst({
+            where: {
+                id,
+                isActive: true,
+                project: {
+                    authorId: userId,
                 },
-                include: {
-                    media: true,
-                },
-            });
+            },
+            include: {
+                media: true,
+            },
+        });
 
         if (!projectMedia) {
             throw new NotFoundException(
@@ -172,14 +198,53 @@ export class ProjectMediaService {
         });
     }
 
-    async remove(
+    async restore(
         id: string,
         userId: string,
     ) {
-        await this.findOne(id, userId);
+        const projectMedia = await this.prisma.projectMedia.findFirst({
+            where: {
+                id,
+                project: {
+                    authorId: userId,
+                },
+            },
+        });
 
-        return this.prisma.projectMedia.delete({
+        if (!projectMedia) {
+            throw new NotFoundException(
+                'Project media not found',
+            );
+        }
+
+        if (projectMedia.isActive) {
+            throw new ConflictException(
+                'Project media is already active',
+            );
+        }
+
+        return this.prisma.projectMedia.update({
             where: { id },
+            data: {
+                isActive: true,
+            },
+            include: {
+                media: true,
+            },
+        });
+    }
+
+    async remove(id: string, userId: string) {
+        const projectMedia = await this.findOne(id, userId);
+
+        return this.prisma.projectMedia.update({
+            where: { id: projectMedia.id },
+            data: {
+                isActive: false,
+            },
+            include: {
+                media: true,
+            },
         });
     }
 }

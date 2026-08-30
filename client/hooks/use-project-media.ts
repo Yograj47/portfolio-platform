@@ -1,150 +1,171 @@
 "use client";
 
-import {
-    useMutation,
-    useQuery,
-    useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
     projectMediaService,
     type CreateProjectMediaData,
     type UpdateProjectMediaData,
+    type ProjectMedia,
 } from "@/services/project-media.service";
+import { showError, showSuccess } from "@/lib/toast";
 
-import {
-    showError,
-    showSuccess,
-} from "@/lib/toast";
+export const PROJECT_MEDIA_QUERY_KEYS = {
+    all: ["project-media"] as const,
+    byProject: (projectId: string) =>
+        ["project-media", "project", projectId] as const,
+    detail: (id: string) => ["project-media", id] as const,
+};
 
-export function useProjectMedia(
-    projectId: string,
-) {
+interface UpdateProjectMediaInput {
+    id: string;
+    data: UpdateProjectMediaData;
+}
+
+export type ReorderMediaItem = {
+    id: string;
+    displayOrder: number;
+};
+
+export function useProjectMedia(projectId?: string) {
     const queryClient = useQueryClient();
 
-    const projectMediaQuery = useQuery({
-        queryKey: ["project-media", projectId],
+    // Fetch media for a specific project
+    const projectMediaListQuery = useQuery({
+        queryKey: PROJECT_MEDIA_QUERY_KEYS.byProject(projectId ?? ""),
         queryFn: async () => {
-            const response =
-                await projectMediaService.findAll(
-                    projectId,
-                );
-
+            if (!projectId) return [];
+            const response = await projectMediaService.findAll(projectId);
             return response.data.data;
         },
-        enabled: !!projectId,
+        enabled: Boolean(projectId),
     });
 
-    const invalidate = () => {
-        queryClient.invalidateQueries({
-            queryKey: ["project-media", projectId],
-        });
-    };
-
-    const createMutation = useMutation({
-        mutationFn: (
-            data: CreateProjectMediaData,
-        ) => projectMediaService.create(data),
-
-        onSuccess: () => {
-            showSuccess(
-                "Image attached to project.",
-            );
-            invalidate();
+    // Attach Media to Project
+    const attachMutation = useMutation<ProjectMedia, Error, CreateProjectMediaData>({
+        mutationFn: async (data) => {
+            const response = await projectMediaService.create(data);
+            return response.data.data;
         },
+        onSuccess: (_, variables) => {
+            queryClient.invalidateQueries({
+                queryKey: PROJECT_MEDIA_QUERY_KEYS.byProject(variables.projectId),
+            });
+            queryClient.invalidateQueries({ queryKey: ["media"] });
+            showSuccess("Media attached to project successfully.");
+        },
+        onError: (error) => {
+            showError(error.message || "Failed to attach media to project.");
+        },
+    });
 
+    // Update Single Project Media (e.g. Set Cover)
+    const updateMutation = useMutation<ProjectMedia, Error, UpdateProjectMediaInput>({
+        mutationFn: async ({ id, data }) => {
+            const response = await projectMediaService.update(id, data);
+            return response.data.data;
+        },
+        onSuccess: (updatedItem) => {
+            queryClient.invalidateQueries({
+                queryKey: PROJECT_MEDIA_QUERY_KEYS.byProject(updatedItem.projectId),
+            });
+            showSuccess("Project media updated successfully.");
+        },
         onError: () => {
-            showError(
-                "Failed to attach image.",
-            );
+            showError("Failed to update project media.");
         },
     });
 
-    const updateMutation = useMutation({
-        mutationFn: ({
-            id,
-            data,
-        }: {
-            id: string;
-            data: UpdateProjectMediaData;
-        }) =>
-            projectMediaService.update(
-                id,
-                data,
-            ),
-
-        onSuccess: () => {
-            invalidate();
-        },
-
-        onError: () => {
-            showError(
-                "Failed to update project image.",
-            );
-        },
-    });
-
-    const reorderMutation = useMutation({
-        mutationFn: (items: { id: string; displayOrder: number }[]) =>
-            Promise.all(
+    // Batch Reorder Media
+    const reorderMutation = useMutation<ProjectMedia[], Error, ReorderMediaItem[]>({
+        mutationFn: async (items) => {
+            const results = await Promise.all(
                 items.map((item) =>
                     projectMediaService.update(item.id, { displayOrder: item.displayOrder })
                 )
-            ),
+            );
+            return results.map((res) => res.data.data);
+        },
         onSuccess: () => {
-            invalidate();
+            if (projectId) {
+                queryClient.invalidateQueries({
+                    queryKey: PROJECT_MEDIA_QUERY_KEYS.byProject(projectId),
+                });
+            }
         },
         onError: () => {
-            showError("Failed to update image order.");
+            showError("Failed to reorder images.");
         },
     });
 
-    const removeMutation = useMutation({
-        mutationFn: (id: string) =>
-            projectMediaService.remove(id),
-
-        onSuccess: () => {
-            showSuccess(
-                "Image removed from project.",
-            );
-            invalidate();
+    // Restore Project Media
+    const restoreMutation = useMutation<ProjectMedia, Error, string>({
+        mutationFn: async (id: string) => {
+            const response = await projectMediaService.restore(id);
+            return response.data.data;
         },
-
+        onSuccess: (restoredItem) => {
+            queryClient.invalidateQueries({
+                queryKey: PROJECT_MEDIA_QUERY_KEYS.byProject(restoredItem.projectId),
+            });
+            showSuccess("Project media restored successfully.");
+        },
         onError: () => {
-            showError(
-                "Failed to remove project image.",
-            );
+            showError("Failed to restore project media.");
+        },
+    });
+
+    // Remove / Detach Media
+    const removeMutation = useMutation<ProjectMedia, Error, string>({
+        mutationFn: async (id: string) => {
+            const response = await projectMediaService.remove(id);
+            return response.data.data;
+        },
+        onSuccess: (removedItem) => {
+            queryClient.invalidateQueries({
+                queryKey: PROJECT_MEDIA_QUERY_KEYS.byProject(removedItem.projectId),
+            });
+            queryClient.invalidateQueries({ queryKey: ["media"] });
+            showSuccess("Project media detached successfully.");
+        },
+        onError: () => {
+            showError("Failed to detach project media.");
         },
     });
 
     return {
-        projectMedia:
-            projectMediaQuery.data ?? [],
+        // List Query
+        projectMedia: projectMediaListQuery.data ?? [],
+        loading: projectMediaListQuery.isLoading,
+        loadingProjectMedia: projectMediaListQuery.isLoading,
+        projectMediaError: projectMediaListQuery.isError,
+        refetchProjectMedia: projectMediaListQuery.refetch,
 
-        loading: projectMediaQuery.isLoading,
-        error: projectMediaQuery.isError,
+        // Attach
+        attachMedia: attachMutation.mutate,
+        attachMediaAsync: attachMutation.mutateAsync,
+        attaching: attachMutation.isPending,
 
-        refetch: projectMediaQuery.refetch,
+        // Update
+        updateProjectMedia: updateMutation.mutate,
+        updateProjectMediaAsync: updateMutation.mutateAsync,
+        updating: updateMutation.isPending,
 
-        attachMedia: createMutation.mutate,
-        attachMediaAsync:
-            createMutation.mutateAsync,
-
-        updateProjectMedia:
-            updateMutation.mutate,
-        updateProjectMediaAsync:
-            updateMutation.mutateAsync,
-
+        // Reorder
         reorderMedia: reorderMutation.mutate,
         reorderMediaAsync: reorderMutation.mutateAsync,
         reordering: reorderMutation.isPending,
 
-        removeMedia: removeMutation.mutate,
-        removeMediaAsync:
-            removeMutation.mutateAsync,
+        // Restore
+        restoreProjectMedia: restoreMutation.mutate,
+        restoreProjectMediaAsync: restoreMutation.mutateAsync,
+        restoring: restoreMutation.isPending,
 
-        attaching: createMutation.isPending,
-        updating: updateMutation.isPending,
+        // Remove / Detach
+        removeMedia: removeMutation.mutate,
+        removeMediaAsync: removeMutation.mutateAsync,
+        removeProjectMedia: removeMutation.mutate,
+        removeProjectMediaAsync: removeMutation.mutateAsync,
         removing: removeMutation.isPending,
     };
 }
