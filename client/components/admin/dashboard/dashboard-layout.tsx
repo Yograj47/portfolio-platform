@@ -22,24 +22,27 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   }, [isError, router]);
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-muted/20">
+    <div className="flex h-screen w-screen overflow-hidden bg-muted/20">
       <DashboardSidebar />
 
-      <div className="flex flex-1 flex-col overflow-hidden">
+      {/* Main View Container */}
+      <div className="flex flex-1 flex-col min-h-0 overflow-hidden">
         <DashboardHeader />
 
-        <main className="flex-1 overflow-y-auto p-6">
+        {/* Bound Main Region to Remaining Vertical Height */}
+        <main className="flex flex-1 flex-col min-h-0 overflow-hidden p-6">
           {isLoading ? (
-            /* Neutral skeleton for session check so it doesn't assume page layout */
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <Skeleton className="h-8 w-48" />
-                <Skeleton className="h-4 w-72" />
+            <div className="flex flex-1 flex-col min-h-0 space-y-6">
+              <div className="space-y-2 shrink-0">
+                <Skeleton className="h-7 w-48 rounded-lg" />
+                <Skeleton className="h-4 w-72 rounded-lg" />
               </div>
-              <Skeleton className="h-64 w-full rounded-xl" />
+              <Skeleton className="flex-1 min-h-0 w-full rounded-xl" />
             </div>
           ) : (
-            children
+            <div className="flex flex-1 flex-col min-h-0 overflow-hidden">
+              {children}
+            </div>
           )}
         </main>
       </div>

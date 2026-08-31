@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/admin/dashboard/page-header";
 
 import { TimelineTable } from "@/components/admin/timeline/timeline-table";
 import { TimelineForm } from "@/components/admin/timeline/timeline-form";
@@ -87,25 +89,33 @@ export default function TimelinePage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Timeline</h1>
-          <p className="text-muted-foreground">
-            Manage your timeline entries.
-          </p>
-        </div>
-
-        <Button onClick={() => setCreateOpen(true)}>New Timeline</Button>
-      </div>
-
-      <TimelineTable
-        data={timelines}
-        loading={loading}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
+    <div className="flex flex-1 flex-col min-h-0 h-full gap-4">
+      {/* Page Header */}
+      <PageHeader
+        description="Manage your timeline entries."
+        action={
+          <Button
+            size="sm"
+            onClick={() => setCreateOpen(true)}
+            className="cursor-pointer"
+          >
+            <Plus className="mr-2 size-4" />
+            New Timeline
+          </Button>
+        }
       />
 
+      {/* Table Container constrained to flex height */}
+      <div className="flex flex-1 flex-col min-h-0">
+        <TimelineTable
+          data={timelines}
+          loading={loading}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+      </div>
+
+      {/* Dialogs */}
       <FormDialog
         open={createOpen}
         onOpenChange={setCreateOpen}

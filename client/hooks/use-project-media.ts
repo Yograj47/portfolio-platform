@@ -27,6 +27,18 @@ export type ReorderMediaItem = {
     displayOrder: number;
 };
 
+// Formats NestJS validation error arrays or error string messages for toasts
+function getErrorMessage(error: any, fallback: string): string {
+    const message = error?.response?.data?.message ?? error?.message;
+    if (Array.isArray(message)) {
+        return message.join(", ");
+    }
+    if (typeof message === "string") {
+        return message;
+    }
+    return fallback;
+}
+
 export function useProjectMedia(projectId?: string) {
     const queryClient = useQueryClient();
 
@@ -44,7 +56,14 @@ export function useProjectMedia(projectId?: string) {
     // Attach Media to Project
     const attachMutation = useMutation<ProjectMedia, Error, CreateProjectMediaData>({
         mutationFn: async (data) => {
-            const response = await projectMediaService.create(data);
+            // Supply non-undefined defaults to satisfy NestJS validation DTO rules
+            const payload: CreateProjectMediaData = {
+                projectId: data.projectId,
+                mediaId: data.mediaId,
+                displayOrder: data.displayOrder ?? 0,
+                isCover: data.isCover ?? false,
+            };
+            const response = await projectMediaService.create(payload);
             return response.data.data;
         },
         onSuccess: (_, variables) => {
@@ -55,7 +74,7 @@ export function useProjectMedia(projectId?: string) {
             showSuccess("Media attached to project successfully.");
         },
         onError: (error) => {
-            showError(error.message || "Failed to attach media to project.");
+            showError(getErrorMessage(error, "Failed to attach media to project."));
         },
     });
 
@@ -69,10 +88,11 @@ export function useProjectMedia(projectId?: string) {
             queryClient.invalidateQueries({
                 queryKey: PROJECT_MEDIA_QUERY_KEYS.byProject(updatedItem.projectId),
             });
+            queryClient.invalidateQueries({ queryKey: ["media"] });
             showSuccess("Project media updated successfully.");
         },
-        onError: () => {
-            showError("Failed to update project media.");
+        onError: (error) => {
+            showError(getErrorMessage(error, "Failed to update project media."));
         },
     });
 
@@ -92,13 +112,14 @@ export function useProjectMedia(projectId?: string) {
                     queryKey: PROJECT_MEDIA_QUERY_KEYS.byProject(projectId),
                 });
             }
+            queryClient.invalidateQueries({ queryKey: ["media"] });
         },
-        onError: () => {
-            showError("Failed to reorder images.");
+        onError: (error) => {
+            showError(getErrorMessage(error, "Failed to reorder images."));
         },
     });
 
-    // Restore Project Media
+    // Restore Project Media (Expects projectMedia.id)
     const restoreMutation = useMutation<ProjectMedia, Error, string>({
         mutationFn: async (id: string) => {
             const response = await projectMediaService.restore(id);
@@ -108,14 +129,15 @@ export function useProjectMedia(projectId?: string) {
             queryClient.invalidateQueries({
                 queryKey: PROJECT_MEDIA_QUERY_KEYS.byProject(restoredItem.projectId),
             });
+            queryClient.invalidateQueries({ queryKey: ["media"] });
             showSuccess("Project media restored successfully.");
         },
-        onError: () => {
-            showError("Failed to restore project media.");
+        onError: (error) => {
+            showError(getErrorMessage(error, "Failed to restore project media."));
         },
     });
 
-    // Remove / Detach Media
+    // Remove / Detach Media (Expects projectMedia.id)
     const removeMutation = useMutation<ProjectMedia, Error, string>({
         mutationFn: async (id: string) => {
             const response = await projectMediaService.remove(id);
@@ -128,8 +150,8 @@ export function useProjectMedia(projectId?: string) {
             queryClient.invalidateQueries({ queryKey: ["media"] });
             showSuccess("Project media detached successfully.");
         },
-        onError: () => {
-            showError("Failed to detach project media.");
+        onError: (error) => {
+            showError(getErrorMessage(error, "Failed to detach project media."));
         },
     });
 

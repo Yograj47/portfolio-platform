@@ -6,17 +6,27 @@ interface TableSkeletonProps {
   rowCount?: number;
   columnCount?: number;
   showHeader?: boolean;
+  showSearch?: boolean;
 }
 
 export function TableSkeleton({
   rowCount = 5,
   columnCount = 4,
   showHeader = true,
+  showSearch = true,
 }: TableSkeletonProps) {
   return (
-    <div className="w-full min-w-0 overflow-hidden rounded-xl border bg-card shadow-xs">
+    <div className="flex flex-1 min-h-0 w-full flex-col overflow-hidden rounded-xl border border-border/60 bg-card shadow-xs">
+      {/* Search Toolbar Skeleton */}
+      {showSearch && (
+        <div className="shrink-0 flex items-center justify-between border-b border-border/60 px-4 py-3 bg-card">
+          <Skeleton className="h-9 w-full max-w-xs sm:max-w-sm rounded-md" />
+        </div>
+      )}
+
+      {/* Table Header Skeleton */}
       {showHeader && (
-        <div className="flex items-center justify-between border-b bg-muted/40 px-4 py-3">
+        <div className="shrink-0 flex items-center justify-between border-b border-border/60 bg-muted/90 px-4 py-3">
           {Array.from({ length: columnCount }).map((_, i) => (
             <Skeleton
               key={i}
@@ -32,7 +42,8 @@ export function TableSkeleton({
         </div>
       )}
 
-      <div className="divide-y">
+      {/* Internal Table Content Area */}
+      <div className="flex-1 min-h-0 overflow-auto divide-y divide-border/40">
         {Array.from({ length: rowCount }).map((_, rowIndex) => (
           <div
             key={rowIndex}
@@ -49,7 +60,7 @@ export function TableSkeleton({
                 );
               }
 
-              // First data column (Primary identifier)
+              // First column (Primary identifier)
               if (colIndex === 0) {
                 return (
                   <div

@@ -125,26 +125,17 @@ export class MediaService {
         });
     }
 
-    async remove(
-        id: string,
-        userId: string,
-    ) {
-        const media = await this.findOne(
-            id,
-            userId,
-        );
+    async remove(id: string, userId: string) {
+        const media = await this.findOne(id, userId);
 
-        // Permanent deletion:
-        // remove the actual file from ImageKit first.
-        await this.imageKitService.deleteFile(
-            media.publicId,
-        );
+        try {
+            await this.imageKitService.deleteFile(media.publicId);
+        } catch (error) {
+            console.error(`ImageKit deletion failed for publicId: ${media.publicId}`, error);
+        }
 
-        // Then remove the database record.
         return this.prisma.media.delete({
-            where: {
-                id,
-            },
+            where: { id },
         });
     }
 }
