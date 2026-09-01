@@ -1,37 +1,35 @@
-"use client";
-
-import { useState } from "react";
-
-import { ImageUpload } from "@/components/admin/media/image-upload";
-import type { Media } from "@/services/media.service";
-
 export default function DashboardPage() {
-    const [media, setMedia] = useState<Media | null>(null);
-
     return (
-        <div className="max-w-xl space-y-6">
+        <div className="space-y-6">
             <div>
-                <h1 className="text-2xl font-bold">
-                    Media Upload
-                </h1>
-
+                <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
                 <p className="text-sm text-muted-foreground">
-                    Test ImageKit media uploads.
+                    Welcome back. Here is an overview of your system.
                 </p>
             </div>
 
-            <ImageUpload
-                value={media}
-                onChange={setMedia}
-                folder="/portfolio/test"
-            />
+            {/* Summary Cards Grid */}
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="rounded-xl border bg-card p-6 text-card-foreground shadow-sm">
+                    <p className="text-sm font-medium text-muted-foreground">Total Media</p>
+                    <h2 className="mt-2 text-3xl font-bold">128</h2>
+                </div>
 
-            {media && (
-                <pre className="overflow-auto rounded-md border bg-muted/30 p-4 text-xs">
-                    {JSON.stringify(media, null, 2)}
-                </pre>
-            )}
+                <div className="rounded-xl border bg-card p-6 text-card-foreground shadow-sm">
+                    <p className="text-sm font-medium text-muted-foreground">Storage Used</p>
+                    <h2 className="mt-2 text-3xl font-bold">1.2 GB</h2>
+                </div>
+
+                <div className="rounded-xl border bg-card p-6 text-card-foreground shadow-sm">
+                    <p className="text-sm font-medium text-muted-foreground">Active Projects</p>
+                    <h2 className="mt-2 text-3xl font-bold">12</h2>
+                </div>
+
+                <div className="rounded-xl border bg-card p-6 text-card-foreground shadow-sm">
+                    <p className="text-sm font-medium text-muted-foreground">System Status</p>
+                    <h2 className="mt-2 text-3xl font-bold text-emerald-600 font-sans">Healthy</h2>
+                </div>
+            </div>
         </div>
     );
-
 }

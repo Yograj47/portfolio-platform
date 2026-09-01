@@ -1,5 +1,3 @@
-// lib/validations/profile.ts
-
 import { z } from "zod";
 
 export const profileSchema = z.object({
@@ -18,6 +16,7 @@ export const profileSchema = z.object({
         .string()
         .trim()
         .url("Enter a valid avatar URL")
+        .nullable()
         .optional()
         .or(z.literal("")),
 
@@ -68,7 +67,7 @@ export type ProfileSchema = z.infer<typeof profileSchema>;
 export interface UpdateProfileData {
     name: string;
     email: string;
-    avatar?: string;
+    avatar?: string | null;
     role?: string;
     location?: string;
 

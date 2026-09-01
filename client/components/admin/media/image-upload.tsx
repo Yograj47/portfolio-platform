@@ -1,20 +1,16 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState, useRef, ChangeEvent } from "react";
 import Image from "next/image";
-import {
-    ImageIcon,
-    Loader2,
-    Upload,
-    X,
-} from "lucide-react";
+import { Upload, Trash2, RefreshCw, Loader2 } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
+import { useMedia } from "@/hooks/use-media"; // Adjust path to where your useMedia hook is located
 import type { Media } from "@/services/media.service";
-import { useMedia } from "@/hooks/use-media";
 
 interface ImageUploadProps {
-    value?: Media | null;
-    onChange?: (media: Media | null) => void;
+    value?: Media | string | null;
+    onChange: (value: Media | string | null) => void;
     folder?: string;
     alt?: string;
     description?: string;
@@ -24,210 +20,160 @@ interface ImageUploadProps {
 export function ImageUpload({
     value,
     onChange,
-    folder = "/portfolio",
-    alt,
+    folder = "/avatars",
+    alt = "Uploaded image",
     description,
     disabled = false,
 }: ImageUploadProps) {
-    const inputRef = useRef<HTMLInputElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const { uploadMediaAsync, deleteMediaAsync } = useMedia();
 
-    const [preview, setPreview] = useState<string | null>(
-        value?.url ?? null,
-    );
+    const [isUploading, setIsUploading] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
-    const [removing, setRemoving] = useState(false);
+    // Safely extract preview URL regardless of whether value is a raw string or Media object
+    const preview =
+        typeof value === "string"
+            ? value
+            : value && typeof value === "object" && "url" in value
+                ? value.url
+                : null;
 
-    const {
-        uploadMediaAsync,
-        deleteMediaAsync,
-        uploading,
-        deleting,
-    } = useMedia();
+    // Check if image is registered in your backend DB (has a valid Media ID)
+    const isRegisteredMedia =
+        typeof value === "object" &&
+        value !== null &&
+        Boolean(value.id) &&
+        value.id !== "avatar-preview";
 
-    const busy = uploading || deleting || removing;
+    const handleTriggerUpload = () => {
+        fileInputRef.current?.click();
+    };
 
-    const handleFileChange = async (
-        event: React.ChangeEvent<HTMLInputElement>,
-    ) => {
-        const file = event.target.files?.[0];
-
+    const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
         if (!file) return;
 
-        if (!file.type.startsWith("image/")) {
-            return;
-        }
-
-        const localPreview = URL.createObjectURL(file);
-
-        setPreview(localPreview);
-
         try {
-            /*
-             * If this component already has a Media record,
-             * delete it before creating the replacement.
-             */
-            if (value?.id) {
-                await deleteMediaAsync(value.id);
-            }
+            setIsUploading(true);
 
-            /*
-             * Upload the new image to ImageKit and
-             * register it in our database.
-             */
-            const media = await uploadMediaAsync({
+            // Uses your exact ImageKit + Backend registration mutation
+            const registeredMedia = await uploadMediaAsync({
                 file,
                 folder,
                 alt,
                 description,
             });
 
-            setPreview(media.url);
-
-            onChange?.(media);
-        } catch {
-            /*
-             * If replacement fails, restore the
-             * previous image instead of leaving
-             * the temporary local preview.
-             */
-            setPreview(value?.url ?? null);
+            // Pass registered URL back to form state
+            onChange(registeredMedia.url);
+        } catch (error) {
+            console.error("Upload error:", error);
         } finally {
-            if (inputRef.current) {
-                inputRef.current.value = "";
+            setIsUploading(false);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = "";
             }
-
-            URL.revokeObjectURL(localPreview);
         }
     };
 
     const handleRemove = async () => {
-        if (!value?.id) {
-            setPreview(null);
-            onChange?.(null);
-            return;
-        }
+        if (!value) return;
 
         try {
-            setRemoving(true);
+            setIsDeleting(true);
 
-            await deleteMediaAsync(value.id);
-
-            setPreview(null);
-            onChange?.(null);
-        } catch {
-            // Keep the existing image if deletion failed.
+            // Only attempt DB deletion if image has a registered Media ID
+            if (isRegisteredMedia && typeof value === "object" && value.id) {
+                await deleteMediaAsync(value.id);
+            }
+        } catch (error) {
+            console.error("Delete error:", error);
         } finally {
-            setRemoving(false);
+            setIsDeleting(false);
+            // Reset local state regardless of whether it was registered or external
+            onChange(null);
         }
     };
 
     return (
-        <div className="space-y-3">
+        <div className="space-y-4">
+            {/* Hidden file input triggered by custom UI */}
             <input
-                ref={inputRef}
+                ref={fileInputRef}
                 type="file"
                 accept="image/*"
                 onChange={handleFileChange}
-                disabled={disabled || busy}
                 className="hidden"
+                disabled={disabled || isUploading || isDeleting}
             />
 
-            {!preview ? (
-                <button
-                    type="button"
-                    disabled={disabled || busy}
-                    onClick={() => inputRef.current?.click()}
-                    className="flex min-h-48 w-full flex-col items-center justify-center rounded-lg border border-dashed transition-colors hover:bg-muted/30 disabled:pointer-events-none disabled:opacity-50"
-                >
-                    {busy ? (
-                        <>
-                            <Loader2 className="mb-3 size-8 animate-spin text-muted-foreground" />
+            {preview ? (
+                <div className="relative aspect-video w-full overflow-hidden rounded-lg border bg-muted">
+                    <Image
+                        src={preview}
+                        alt={alt}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover"
+                    />
 
-                            <span className="text-sm font-medium">
-                                {deleting || removing
-                                    ? "Removing image..."
-                                    : "Uploading image..."}
-                            </span>
+                    <div className="absolute right-2 top-2 flex items-center gap-2">
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            disabled={disabled || isUploading || isDeleting}
+                            onClick={handleTriggerUpload}
+                        >
+                            {isUploading ? (
+                                <Loader2 className="mr-2 size-4 animate-spin" />
+                            ) : (
+                                <RefreshCw className="mr-2 size-4" />
+                            )}
+                            Upload New
+                        </Button>
 
-                            <span className="mt-1 text-xs text-muted-foreground">
-                                Please wait
-                            </span>
-                        </>
-                    ) : (
-                        <>
-                            <div className="mb-3 flex size-10 items-center justify-center rounded-full bg-muted">
-                                <Upload className="size-5" />
-                            </div>
-
-                            <span className="text-sm font-medium">
-                                Upload image
-                            </span>
-
-                            <span className="mt-1 text-xs text-muted-foreground">
-                                Click to select an image
-                            </span>
-                        </>
-                    )}
-                </button>
-            ) : (
-                <div className="relative overflow-hidden rounded-lg border">
-                    <div className="relative aspect-video w-full">
-                        <Image
-                            src={preview}
-                            alt={alt ?? "Uploaded image"}
-                            fill
-                            className="object-cover"
-                        />
-
-                        {busy && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-background/70 backdrop-blur-sm">
-                                <div className="flex items-center gap-2 rounded-md bg-background px-4 py-2 text-sm shadow">
-                                    <Loader2 className="size-4 animate-spin" />
-
-                                    {deleting || removing
-                                        ? "Removing..."
-                                        : "Uploading..."}
-                                </div>
-                            </div>
-                        )}
-
-                        {!busy && (
-                            <button
-                                type="button"
-                                onClick={handleRemove}
-                                className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-background/90 shadow transition-colors hover:bg-background"
-                                aria-label="Remove image"
-                            >
-                                <X className="size-4" />
-                            </button>
-                        )}
+                        <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            disabled={disabled || isUploading || isDeleting}
+                            onClick={handleRemove}
+                        >
+                            {isDeleting ? (
+                                <Loader2 className="size-4 animate-spin" />
+                            ) : (
+                                <Trash2 className="size-4" />
+                            )}
+                        </Button>
                     </div>
-
-                    {!busy && (
-                        <div className="flex items-center justify-between border-t px-3 py-2">
-                            <div className="flex min-w-0 items-center gap-2">
-                                <ImageIcon className="size-4 shrink-0 text-muted-foreground" />
-
-                                <span className="truncate text-xs text-muted-foreground">
-                                    {value?.fileName ??
-                                        "Image selected"}
-                                </span>
+                </div>
+            ) : (
+                <div
+                    onClick={handleTriggerUpload}
+                    className="flex aspect-video w-full cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-input p-6 text-center transition-colors hover:bg-accent/50"
+                >
+                    {isUploading ? (
+                        <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                            <Loader2 className="size-8 animate-spin text-primary" />
+                            <p className="text-sm font-medium">Uploading & registering image...</p>
+                        </div>
+                    ) : (
+                        <div className="flex flex-col items-center gap-2">
+                            <div className="rounded-full bg-muted p-3">
+                                <Upload className="size-6 text-muted-foreground" />
                             </div>
-
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    inputRef.current?.click()
-                                }
-                                className="text-xs font-medium hover:underline"
-                            >
-                                Replace
-                            </button>
+                            <div>
+                                <p className="text-sm font-medium">Click to upload a new image</p>
+                                <p className="text-xs text-muted-foreground">
+                                    PNG, JPG, WEBP up to 5MB
+                                </p>
+                            </div>
                         </div>
                     )}
                 </div>
             )}
         </div>
     );
-
 }
