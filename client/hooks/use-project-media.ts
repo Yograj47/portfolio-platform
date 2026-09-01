@@ -28,13 +28,19 @@ export type ReorderMediaItem = {
 };
 
 // Formats NestJS validation error arrays or error string messages for toasts
-function getErrorMessage(error: any, fallback: string): string {
-    const message = error?.response?.data?.message ?? error?.message;
-    if (Array.isArray(message)) {
-        return message.join(", ");
-    }
-    if (typeof message === "string") {
-        return message;
+function getErrorMessage(error: unknown, fallback: string): string {
+    if (typeof error === "object" && error !== null) {
+        const err = error as {
+            response?: { data?: { message?: string | string[] } };
+            message?: string;
+        };
+        const message = err.response?.data?.message ?? err.message;
+        if (Array.isArray(message)) {
+            return message.join(", ");
+        }
+        if (typeof message === "string") {
+            return message;
+        }
     }
     return fallback;
 }

@@ -6,6 +6,7 @@ import { GripVertical, Loader2, Star, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import type { ProjectMedia } from "@/services/project-media.service";
+import Image from "next/image";
 
 interface ProjectMediaCardProps {
   item: ProjectMedia;
@@ -43,7 +44,7 @@ export function ProjectMediaCard({
       className="group relative aspect-16/10 w-full min-w-0 overflow-hidden rounded-xl border border-border bg-slate-950 shadow-xs"
     >
       {/* Media Image */}
-      <img
+      <Image
         src={item.media.url}
         alt={item.media.alt ?? item.media.fileName}
         className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"

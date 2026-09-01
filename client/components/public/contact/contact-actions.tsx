@@ -35,7 +35,7 @@ const actions = [
     type: "linkedin",
   },
   {
-    label: "resume.pdf",
+    label: "open resume.pdf",
     type: "resume",
   },
 ] as const;
@@ -48,14 +48,11 @@ export function ContactActions({
   function handleAction(type: ActionType) {
     switch (type) {
       case "email":
-        window.location.href =
-          `mailto:${profile.email}`;
+        window.location.assign(`mailto:${profile.email}`);
         return;
 
       case "copy-email":
-        navigator.clipboard.writeText(
-          profile.email
-        );
+        navigator.clipboard.writeText(profile.email);
 
         setCopied(true);
 
@@ -117,19 +114,14 @@ export function ContactActions({
               !profile.resumeUrl);
 
           const label =
-            action.type === "copy-email" &&
-              copied
+            action.type === "copy-email" && copied
               ? "✓ copied"
               : action.label;
 
           return (
             <TerminalActionButton
               key={action.type}
-              onClick={() =>
-                handleAction(
-                  action.type
-                )
-              }
+              onClick={() => handleAction(action.type)}
               disabled={disabled}
             >
               {label}

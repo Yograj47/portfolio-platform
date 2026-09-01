@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
 import type { ProfileSchema } from "@/lib/validations/profile";
+import Image from "next/image";
 
 interface ProfileSummaryProps {
     profile: ProfileSchema;
@@ -32,7 +33,7 @@ export function ProfileSummary({
             <section className="flex flex-col gap-5 sm:flex-row sm:items-center">
                 <div className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-full border bg-muted">
                     {profile.avatar ? (
-                        <img
+                        <Image
                             src={profile.avatar}
                             alt={profile.name}
                             className="size-full object-cover"

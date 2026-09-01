@@ -24,9 +24,7 @@ export default function MediaPage() {
     attachMedia,
     attaching,
     restoreProjectMedia,
-    restoring,
     removeProjectMedia,
-    removing,
   } = useProjectMedia();
 
   // Extract available unique projects from loaded projectMedia items

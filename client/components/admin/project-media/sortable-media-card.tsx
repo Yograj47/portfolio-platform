@@ -5,6 +5,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Loader2, Star, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { ProjectMedia } from "@/services/project-media.service";
+import Image from "next/image";
 
 interface SortableMediaCardProps {
     item: ProjectMedia;
@@ -41,7 +42,7 @@ export function SortableMediaCard({
             style={style}
             className="group relative aspect-16/10 overflow-hidden rounded-xl border border-border/60 bg-muted/30 shadow-sm transition-all hover:border-border hover:shadow-md"
         >
-            <img
+            <Image
                 src={item.media.url}
                 alt={item.media.alt ?? item.media.fileName}
                 className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"

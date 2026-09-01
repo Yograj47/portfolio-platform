@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { profileSchema, type ProfileSchema } from "@/lib/validations/profile";
@@ -31,7 +31,6 @@ export function ProfileForm({
         handleSubmit,
         reset,
         setValue,
-        watch,
         control,
         formState: { errors },
     } = useForm<ProfileSchema>({
@@ -72,11 +71,11 @@ export function ProfileForm({
         }
     }, [defaultValues, reset]);
 
-    const name = watch("name");
-    const isAvailable = watch("isAvailable");
-    const openToFullTime = watch("openToFullTime");
-    const openToOpenSource = watch("openToOpenSource");
-    const openToFreelance = watch("openToFreelance");
+    const name = useWatch({ control, name: "name" });
+    const isAvailable = useWatch({ control, name: "isAvailable" });
+    const openToFullTime = useWatch({ control, name: "openToFullTime" });
+    const openToOpenSource = useWatch({ control, name: "openToOpenSource" });
+    const openToFreelance = useWatch({ control, name: "openToFreelance" });
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">

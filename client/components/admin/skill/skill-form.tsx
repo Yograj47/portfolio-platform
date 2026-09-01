@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import { Resolver, useForm, Controller } from "react-hook-form";
+import { Resolver, useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createSkillSchema, CreateSkillSchema } from "@/lib/validations/skill";
 import { FormFieldError } from "@/components/forms/form-field-error";
@@ -14,7 +14,7 @@ import type { Skill } from "@/components/admin/skill/skill-columns";
 import { Pipette } from "lucide-react";
 
 interface SkillFormProps {
-  skills?: Skill[]; 
+  skills?: Skill[];
   defaultValues?: Partial<CreateSkillSchema>;
   loading?: boolean;
   onSubmit: (data: CreateSkillSchema) => void;
@@ -32,28 +32,27 @@ export function SkillForm({
   loading = false,
   onSubmit,
 }: SkillFormProps) {
+  const currentDisplayOrder = defaultValues?.displayOrder;
+
   const disabledOrders = useMemo(() => {
     return skills
       .map((skill) => skill.displayOrder)
-      .filter((order) => order !== defaultValues?.displayOrder);
-  }, [skills, defaultValues?.displayOrder]);
-
-  console.log("disabled:", disabledOrders)
+      .filter((order) => order !== currentDisplayOrder);
+  }, [skills, currentDisplayOrder]);
 
   const defaultOrder = useMemo(() => {
-    if (defaultValues?.displayOrder) return defaultValues.displayOrder;
+    if (currentDisplayOrder) return currentDisplayOrder;
     for (let i = 1; i <= 25; i++) {
       if (!disabledOrders.includes(i)) return i;
     }
     return 1;
-  }, [defaultValues?.displayOrder, disabledOrders]);
-
+  }, [currentDisplayOrder, disabledOrders]);
+  
   const {
     register,
     handleSubmit,
     reset,
     control,
-    watch,
     setValue,
     formState: { errors },
   } = useForm<CreateSkillSchema>({
@@ -68,8 +67,8 @@ export function SkillForm({
     },
   });
 
-  const levelValue = watch("level") ?? 0;
-  const colorValue = watch("color") ?? "#3b82f6";
+  const levelValue = useWatch({ control, name: "level" }) ?? 0;
+  const colorValue = useWatch({ control, name: "color" }) ?? "#3b82f6";
 
   useEffect(() => {
     if (!defaultValues) return;

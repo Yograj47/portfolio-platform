@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import type { Media } from "@/services/media.service";
+import Image from "next/image";
 
 export interface MediaCardProps {
   media: Media;
@@ -42,7 +43,7 @@ export function MediaCard({
     <div className="group overflow-hidden rounded-xl border border-border/60 bg-card shadow-xs">
       <div className="relative aspect-video overflow-hidden bg-muted">
         {media.type === "IMAGE" ? (
-          <img
+          <Image
             src={media.url}
             alt={media.alt ?? media.fileName}
             className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"

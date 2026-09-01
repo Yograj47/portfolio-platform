@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import type { ProjectMediaItem } from "@/lib/validations/project";
 
 interface ProjectGalleryProps {
@@ -19,18 +20,23 @@ export function ProjectGallery({ mediaList = [] }: ProjectGalleryProps) {
       {/* Container with Ambient Blur Fill */}
       <div className="relative aspect-16/10 w-full overflow-hidden border border-border/60 bg-black/5 dark:bg-white/5 shadow-xs">
         {/* Blurred Background to fill empty aspect gaps */}
-        <img
+        <Image
           src={currentMedia.media.url}
           alt=""
           aria-hidden="true"
-          className="absolute inset-0 h-full w-full object-cover blur-2xl opacity-40 scale-110 pointer-events-none select-none"
+          fill
+          priority
+          className="object-cover blur-2xl opacity-40 scale-110 pointer-events-none select-none"
         />
 
         {/* Uncropped Main Display */}
-        <img
+        <Image
           src={currentMedia.media.url}
           alt={currentMedia.media.fileName || "Project media preview"}
-          className="relative h-full w-full object-contain transition-all duration-300 drop-shadow-md"
+          fill
+          priority
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 70vw, 50vw"
+          className="object-contain transition-all duration-300 drop-shadow-md"
         />
       </div>
 
@@ -47,10 +53,12 @@ export function ProjectGallery({ mediaList = [] }: ProjectGalleryProps) {
                   : "border-transparent opacity-60 hover:opacity-100"
                 }`}
             >
-              <img
+              <Image
                 src={item.media.url}
-                alt={item.media.fileName}
-                className="h-full w-full object-cover"
+                alt={item.media.fileName || "Thumbnail"}
+                fill
+                sizes="96px"
+                className="object-cover"
               />
             </button>
           ))}

@@ -1,19 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { projectService } from "@/services/project.service";
 
-export function usePublicProject(slug: string) {
-    const [cachedId, setCachedId] = useState<string | null>(null);
+function getStorageId(slug: string): string | null {
+    if (typeof window === "undefined" || !slug) return null;
+    return sessionStorage.getItem(`project_id_${slug}`);
+}
 
-    // Sync sessionStorage into React state on mount
-    useEffect(() => {
-        if (slug) {
-            const id = sessionStorage.getItem(`project_id_${slug}`);
-            if (id) setCachedId(id);
-        }
-    }, [slug]);
+export function usePublicProject(slug: string) {
+    const [prevSlug, setPrevSlug] = useState(slug);
+    const [cachedId, setCachedId] = useState<string | null>(() => getStorageId(slug));
+
+    // Sync cachedId during render when slug changes (avoids Effect cascading renders)
+    if (slug !== prevSlug) {
+        setPrevSlug(slug);
+        setCachedId(getStorageId(slug));
+    }
 
     // Fallback query if no cached ID in sessionStorage
     const listQuery = useQuery({

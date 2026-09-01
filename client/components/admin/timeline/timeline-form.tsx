@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import { Resolver, useForm, Controller } from "react-hook-form";
+import { Resolver, useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import {
@@ -80,7 +80,6 @@ export function TimelineForm({
     handleSubmit,
     reset,
     control,
-    watch,
     setValue,
     clearErrors,
     formState: { errors },
@@ -99,7 +98,10 @@ export function TimelineForm({
     },
   });
 
-  const isCurrent = watch("current");
+  const isCurrent = useWatch({
+    control,
+    name: "current",
+  });
 
   // Force re-sync of form controls whenever edit target changes
   useEffect(() => {
