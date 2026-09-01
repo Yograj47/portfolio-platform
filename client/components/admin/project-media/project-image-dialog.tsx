@@ -73,7 +73,13 @@ export function ProjectImageDialog({
         })
     );
 
-    async function handleMediaChange(media: Media | null) {
+    async function handleMediaChange(media: string | Media | null) {
+        // If media is a string (e.g. raw URL), clear selected media and exit
+        if (typeof media === "string") {
+            setSelectedMedia(null);
+            return;
+        }
+
         setSelectedMedia(media);
         if (!media) return;
 
@@ -85,7 +91,7 @@ export function ProjectImageDialog({
                 displayOrder: items.length,
                 isCover: items.length === 0,
             });
-            setLocalItems(null); // Reset local override so fresh query data renders
+            setLocalItems(null); 
             setSelectedMedia(null);
         } finally {
             setAttaching(false);
