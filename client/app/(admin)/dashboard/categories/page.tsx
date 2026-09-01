@@ -1,18 +1,21 @@
 "use client";
 
 import { useState } from "react";
+import { Plus } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
-import { ConfirmationDialog } from "@/components/dialogs/confirmation-dialog";
-import { useCategory } from "@/hooks/use-category";
+import { PageHeader } from "@/components/admin/dashboard/page-header";
 
-import type {
-    CreateCategorySchema,
-} from "@/lib/validations/category";
-
-import { FormDialog } from "@/components/dialogs/form-dialog";
-import { Category } from "@/components/admin/category/category-columns";
 import { CategoryTable } from "@/components/admin/category/category-table";
 import { CategoryForm } from "@/components/admin/category/category-form";
+
+import { FormDialog } from "@/components/dialogs/form-dialog";
+import { ConfirmationDialog } from "@/components/dialogs/confirmation-dialog";
+
+import { useCategory } from "@/hooks/use-category";
+
+import type { CreateCategorySchema } from "@/lib/validations/category";
+import type { Category } from "@/components/admin/category/category-columns";
 
 export default function CategoriesPage() {
     const [createOpen, setCreateOpen] = useState(false);
@@ -53,23 +56,6 @@ export default function CategoriesPage() {
         setDeleteOpen(true);
     }
 
-    // function handleUpdate(data: UpdateCategorySchema) {
-    //     if (!selectedCategory) return;
-
-    //     updateCategory(
-    //         {
-    //             id: selectedCategory.id,
-    //             data,
-    //         },
-    //         {
-    //             onSuccess: () => {
-    //                 setEditOpen(false);
-    //                 setSelectedCategory(null);
-    //             },
-    //         }
-    //     );
-    // }
-
     function handleConfirmDelete() {
         if (!selectedCategory) return;
 
@@ -82,40 +68,40 @@ export default function CategoriesPage() {
     }
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold">
-                        Categories
-                    </h1>
-
-                    <p className="text-muted-foreground">
-                        Manage your portfolio categories.
-                    </p>
-                </div>
-
-                <Button onClick={() => setCreateOpen(true)}>
-                    New Category
-                </Button>
-            </div>
-
-            <CategoryTable
-                data={categories}
-                loading={loading}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
+        <div className="flex flex-1 flex-col min-h-0 h-full gap-4">
+            {/* Page Header */}
+            <PageHeader
+                description="Manage your portfolio categories."
+                action={
+                    <Button
+                        size="sm"
+                        onClick={() => setCreateOpen(true)}
+                        className="cursor-pointer"
+                    >
+                        <Plus className="mr-2 size-4" />
+                        New Category
+                    </Button>
+                }
             />
 
+            {/* Table Container bound to remaining viewport height */}
+            <div className="flex flex-1 flex-col min-h-0">
+                <CategoryTable
+                    data={categories}
+                    loading={loading}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                />
+            </div>
+
+            {/* Dialogs */}
             <FormDialog
                 open={createOpen}
                 onOpenChange={setCreateOpen}
                 title="Create Category"
                 description="Create a new category."
             >
-                <CategoryForm
-                    loading={creating}
-                    onSubmit={handleCreate}
-                />
+                <CategoryForm loading={creating} onSubmit={handleCreate} />
             </FormDialog>
 
             <FormDialog
@@ -127,8 +113,7 @@ export default function CategoriesPage() {
                 <CategoryForm
                     defaultValues={{
                         name: selectedCategory?.name ?? "",
-                        description:
-                            selectedCategory?.description ?? "",
+                        description: selectedCategory?.description ?? "",
                     }}
                     loading={updating}
                     onSubmit={(data) => {

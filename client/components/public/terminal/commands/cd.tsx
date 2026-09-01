@@ -1,12 +1,14 @@
-import { findEntryByPath} from "@/lib/terminal/fileSystem";
+import { findEntryByPath } from "@/lib/terminal/fileSystem";
 import { resolvePath } from "@/lib/terminal/navigation";
+import { TERMINAL_PATHS } from "@/components/public/terminal/workspace/terminal-workspace.type";
 import { TerminalCommand } from "@/types/terminal.type";
 
 export const cdCommand: TerminalCommand = {
     name: "cd",
-    description: "Change directory.",
-    execute(args, context) {
 
+    description: "Change directory.",
+
+    execute(args, context) {
         const target = args.join(" ").trim();
 
         if (!target) {
@@ -30,8 +32,13 @@ export const cdCommand: TerminalCommand = {
                     <span className="text-destructive">
                         cd: path not found
                     </span>
-                )
-            }
+                ),
+            };
+        }
+
+        if (path === TERMINAL_PATHS.ROOT) {
+            context.setCwd(TERMINAL_PATHS.ROOT);
+            return;
         }
 
         const entry = findEntryByPath(path);
@@ -50,7 +57,6 @@ export const cdCommand: TerminalCommand = {
             return {
                 output: (
                     <div className="space-y-1">
-
                         <p className="text-destructive">
                             cd: {entry.name} is not a directory.
                         </p>
@@ -61,7 +67,6 @@ export const cdCommand: TerminalCommand = {
                                 open {entry.name}
                             </span>
                         </p>
-
                     </div>
                 ),
             };

@@ -9,6 +9,7 @@ export function normalizeTarget(target: string) {
     return target
         .trim()
         .replace(/\\/g, "/")
+        .replace(/\/+/g, "/")
         .replace(/\/+$/, "");
 }
 
@@ -16,43 +17,56 @@ export function resolvePath(
     cwd: TerminalPath,
     target?: string
 ): TerminalPath | null {
-
     if (!target || target === ".") {
         return cwd;
     }
 
     const normalized = normalizeTarget(target);
 
-    switch (normalized) {
-
-        case "/":
-            return TERMINAL_PATHS.ROOT;
-
-        case "..":
-            return cwd === TERMINAL_PATHS.ROOT
-                ? TERMINAL_PATHS.ROOT
-                : TERMINAL_PATHS.ROOT;
+    // Explicit root
+    if (normalized === "/") {
+        return TERMINAL_PATHS.ROOT;
     }
 
-    if (normalized.startsWith("../")) {
+    const baseSegments =
+        cwd === TERMINAL_PATHS.ROOT
+            ? []
+            : cwd.split("/").filter(Boolean);
 
-        const entry = findEntry(
-            normalized.slice(3)
-        );
+    const targetSegments = normalized
+        .split("/")
+        .filter(Boolean);
 
-        return entry?.path ?? null;
+    // Absolute path starts from root
+    if (normalized.startsWith("/")) {
+        baseSegments.length = 0;
     }
 
-    if (normalized.startsWith("./")) {
+    for (const segment of targetSegments) {
+        if (segment === ".") {
+            continue;
+        }
 
-        const entry = findEntry(
-            normalized.slice(2)
-        );
+        if (segment === "..") {
+            if (baseSegments.length > 0) {
+                baseSegments.pop();
+            }
 
-        return entry?.path ?? null;
+            continue;
+        }
+
+        baseSegments.push(segment);
     }
 
-    const entry = findEntry(normalized);
+    const resolved =
+        `/${baseSegments.join("/")}`;
+
+    // Root is valid even though it isn't a FileSystemEntry.
+    if (resolved === TERMINAL_PATHS.ROOT) {
+        return TERMINAL_PATHS.ROOT;
+    }
+
+    const entry = findEntry(resolved);
 
     return entry?.path ?? null;
 }

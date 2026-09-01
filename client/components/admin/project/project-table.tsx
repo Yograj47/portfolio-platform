@@ -10,9 +10,9 @@ import {
 interface ProjectTableProps {
   data: Project[];
   loading: boolean;
-
   onEdit: (project: Project) => void;
   onDelete: (project: Project) => void;
+  onImages: (project: Project) => void;
 }
 
 export function ProjectTable({
@@ -20,14 +20,16 @@ export function ProjectTable({
   loading,
   onEdit,
   onDelete,
+  onImages,
 }: ProjectTableProps) {
   const columns = useMemo(
     () =>
       getProjectColumns({
         onEdit,
         onDelete,
+        onImages,
       }),
-    [onEdit, onDelete]
+    [onEdit, onDelete, onImages]
   );
 
   return (

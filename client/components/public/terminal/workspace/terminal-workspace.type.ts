@@ -4,10 +4,8 @@ export const TERMINAL_PATHS = {
     PROJECTS: "/Projects",
     BLOG: "/Blog",
 
-    README: "/README.md",
     SKILLS: "/Skills.db",
-    TIMELINE: "/Timeline.log",
-    CONTACT: "/Contact.sh",
+    TIMELINE: "/Timeline.log"
 } as const;
 
 export type TerminalPath =

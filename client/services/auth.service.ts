@@ -1,8 +1,12 @@
 import http from "@/lib/http";
 
+import { UpdateProfileData } from "@/lib/validations/profile";
+
 export const authService = {
-    login: (data: { email: string; password: string }) =>
-        http.post("/auth/login", data),
+    login: (data: {
+        email: string;
+        password: string;
+    }) => http.post("/auth/login", data),
 
     logout: () =>
         http.post("/auth/logout"),
@@ -13,9 +17,9 @@ export const authService = {
     me: () =>
         http.get("/users/me"),
 
-    updateProfile: (data: {
-        name: string;
-        avatar?: string
-    }) =>
-        http.patch("/users/me", data)
-}
+    profile: () =>
+        http.get("/users/profile"),
+
+    updateProfile: (data: UpdateProfileData) =>
+        http.patch("/users/me", data),
+};

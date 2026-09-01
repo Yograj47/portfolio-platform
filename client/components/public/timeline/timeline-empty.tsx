@@ -1,12 +1,18 @@
+import { Layers } from "lucide-react";
+
 export function TimelineEmpty() {
   return (
-    <div className="rounded-md border py-20 text-center">
-      <h3 className="text-lg font-semibold">
-        Nothing here yet
+    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed p-12 text-center">
+      <div className="flex size-12 items-center justify-center rounded-full bg-muted">
+        <Layers className="size-6 text-muted-foreground" />
+      </div>
+
+      <h3 className="mt-4 text-base font-semibold text-foreground">
+        No Timeline Logs Found
       </h3>
 
-      <p className="mt-2 text-muted-foreground">
-        Timeline entries will appear here.
+      <p className="mt-1 text-sm text-muted-foreground">
+        Milestones and career history entries will appear here soon.
       </p>
     </div>
   );

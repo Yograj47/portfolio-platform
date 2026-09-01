@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { Plus } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { SkillTable } from "@/components/admin/skill/skill-table";
 import { SkillForm } from "@/components/admin/skill/skill-form";
@@ -14,14 +16,14 @@ import type {
 } from "@/lib/validations/skill";
 
 import type { Skill } from "@/components/admin/skill/skill-columns";
+import { PageHeader } from "@/components/admin/dashboard/page-header";
 
 export default function SkillsPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
-  const [selectedSkill, setSelectedSkill] =
-    useState<Skill | null>(null);
+  const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null);
 
   const {
     skills,
@@ -36,9 +38,7 @@ export default function SkillsPage() {
     deleting,
   } = useSkill();
 
-  function handleCreate(
-    data: CreateSkillSchema
-  ) {
+  function handleCreate(data: CreateSkillSchema) {
     createSkill(data, {
       onSuccess: () => {
         setCreateOpen(false);
@@ -56,9 +56,7 @@ export default function SkillsPage() {
     setDeleteOpen(true);
   }
 
-  function handleUpdate(
-    data: UpdateSkillSchema
-  ) {
+  function handleUpdate(data: UpdateSkillSchema) {
     if (!selectedSkill) return;
 
     updateSkill(
@@ -87,32 +85,28 @@ export default function SkillsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">
-            Skills
-          </h1>
-
-          <p className="text-muted-foreground">
-            Manage your skills.
-          </p>
-        </div>
-
-        <Button
-          onClick={() => setCreateOpen(true)}
-        >
-          New Skill
-        </Button>
-      </div>
-
-      <SkillTable
-        data={skills}
-        loading={loading}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
+    <div className="flex flex-1 flex-col min-h-0 h-full gap-4">
+      <PageHeader
+        description="Manage your skills."
+        action={
+          <Button size="sm" onClick={() => setCreateOpen(true)} className="cursor-pointer">
+            <Plus className="mr-2 size-4" />
+            New Skill
+          </Button>
+        }
       />
 
+      {/* Table Container bound to flex height */}
+      <div className="flex flex-1 flex-col min-h-0">
+        <SkillTable
+          data={skills}
+          loading={loading}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+      </div>
+
+      {/* Dialogs */}
       <FormDialog
         open={createOpen}
         onOpenChange={setCreateOpen}
@@ -120,6 +114,7 @@ export default function SkillsPage() {
         description="Create a new skill."
       >
         <SkillForm
+          skills={skills}
           loading={creating}
           onSubmit={handleCreate}
         />
@@ -132,6 +127,7 @@ export default function SkillsPage() {
         description="Update skill."
       >
         <SkillForm
+          skills={skills}
           defaultValues={
             selectedSkill
               ? {
@@ -139,8 +135,7 @@ export default function SkillsPage() {
                   icon: selectedSkill.icon ?? "",
                   color: selectedSkill.color ?? "",
                   level: selectedSkill.level,
-                  displayOrder:
-                    selectedSkill.displayOrder,
+                  displayOrder: selectedSkill.displayOrder,
                 }
               : undefined
           }

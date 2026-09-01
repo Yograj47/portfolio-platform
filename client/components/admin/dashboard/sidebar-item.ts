@@ -6,9 +6,18 @@ import {
     GraduationCap,
     Mail,
     Settings,
+    Images,
+    type LucideIcon,
 } from "lucide-react";
 
-export const sidebarItems = [
+export interface SidebarItem {
+    title: string;
+    href: string;
+    icon: LucideIcon;
+    notActive?: boolean;
+}
+
+export const sidebarItems: SidebarItem[] = [
     {
         title: "Dashboard",
         href: "/dashboard",
@@ -18,6 +27,11 @@ export const sidebarItems = [
         title: "Projects",
         href: "/dashboard/projects",
         icon: FolderKanban,
+    },
+    {
+        title: "Media",
+        href: "/dashboard/media",
+        icon: Images,
     },
     {
         title: "Categories",
@@ -38,10 +52,12 @@ export const sidebarItems = [
         title: "Messages",
         href: "/dashboard/messages",
         icon: Mail,
+        notActive: true,
     },
     {
         title: "Settings",
         href: "/dashboard/settings",
         icon: Settings,
+        notActive: true,
     },
 ];

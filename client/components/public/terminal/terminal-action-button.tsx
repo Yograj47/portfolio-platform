@@ -1,16 +1,19 @@
 interface TerminalActionButtonProps {
     children: React.ReactNode;
-
-    onClick: () => void;
+    onClick?: () => void;
+    disabled?: boolean;
 }
 
 export function TerminalActionButton({
     children,
     onClick,
+    disabled = false,
 }: TerminalActionButtonProps) {
     return (
         <button
+            type="button"
             onClick={onClick}
+            disabled={disabled}
             className="
                 border
                 border-border
@@ -23,7 +26,7 @@ export function TerminalActionButton({
                 hover:bg-muted
             "
         >
-            [{children}]
+            {children}
         </button>
     );
 }

@@ -4,7 +4,6 @@ import { lsCommand } from "./ls";
 import { openCommand } from "./open";
 import { cdCommand } from "./cd";
 import { pwdCommand } from "./pwd";
-import { aboutCommand } from "./about";
 import { contactCommand } from "./contact";
 import { themeCommand } from "./theme";
 import { rootCommand } from "./root";
@@ -17,7 +16,6 @@ export const commandRegistry = {
     open: openCommand,
     clear: clearCommand,
 
-    about: aboutCommand,
     contact: contactCommand,
     theme: themeCommand,
     root: rootCommand

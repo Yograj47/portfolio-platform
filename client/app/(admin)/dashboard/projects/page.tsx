@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/admin/dashboard/page-header";
 
 import { ProjectTable } from "@/components/admin/project/project-table";
 import { ProjectForm } from "@/components/admin/project/project-form";
@@ -19,11 +21,13 @@ import type {
 } from "@/lib/validations/project";
 
 import type { Project } from "@/components/admin/project/project-columns";
+import { ProjectImageDialog } from "@/components/admin/project-media/project-image-dialog";
 
 export default function ProjectsPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [imageOpen, setImageOpen] = useState(false);
 
   const [selectedProject, setSelectedProject] =
     useState<Project | null>(null);
@@ -43,9 +47,7 @@ export default function ProjectsPage() {
 
   const { categories } = useCategory();
 
-  function handleCreate(
-    data: CreateProjectSchema
-  ) {
+  function handleCreate(data: CreateProjectSchema) {
     createProject(data, {
       onSuccess: () => {
         setCreateOpen(false);
@@ -63,9 +65,12 @@ export default function ProjectsPage() {
     setDeleteOpen(true);
   }
 
-  function handleUpdate(
-    data: UpdateProjectSchema
-  ) {
+  function handleImages(project: Project) {
+    setSelectedProject(project);
+    setImageOpen(true);
+  }
+
+  function handleUpdate(data: UpdateProjectSchema) {
     if (!selectedProject) return;
 
     updateProject(
@@ -94,32 +99,34 @@ export default function ProjectsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">
-            Projects
-          </h1>
-
-          <p className="text-muted-foreground">
-            Manage your portfolio projects.
-          </p>
-        </div>
-
-        <Button
-          onClick={() => setCreateOpen(true)}
-        >
-          New Project
-        </Button>
-      </div>
-
-      <ProjectTable
-        data={projects}
-        loading={loading}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
+    <div className="flex flex-1 flex-col min-h-0 h-full gap-4">
+      {/* Page Header without redundant title */}
+      <PageHeader
+        description="Manage your portfolio projects."
+        action={
+          <Button
+            size="sm"
+            onClick={() => setCreateOpen(true)}
+            className="cursor-pointer"
+          >
+            <Plus className="mr-2 size-4" />
+            New Project
+          </Button>
+        }
       />
 
+      {/* Bound Table Container to remaining height */}
+      <div className="flex flex-1 flex-col min-h-0">
+        <ProjectTable
+          data={projects}
+          loading={loading}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onImages={handleImages}
+        />
+      </div>
+
+      {/* Dialogs */}
       <FormDialog
         open={createOpen}
         onOpenChange={setCreateOpen}
@@ -144,27 +151,16 @@ export default function ProjectsPage() {
           defaultValues={
             selectedProject
               ? {
-                  title:
-                    selectedProject.title,
-                  excerpt:
-                    selectedProject.excerpt,
-                  description:
-                    selectedProject.description,
-                  githubUrl:
-                    selectedProject.githubUrl ??
-                    "",
-                  liveUrl:
-                    selectedProject.liveUrl ??
-                    "",
-                  featured:
-                    selectedProject.featured,
-                  status:
-                    selectedProject.status,
-                  displayOrder:
-                    selectedProject.displayOrder,
-                  categoryId:
-                    selectedProject.category.id,
-                }
+                title: selectedProject.title,
+                excerpt: selectedProject.excerpt,
+                description: selectedProject.description,
+                githubUrl: selectedProject.githubUrl ?? "",
+                liveUrl: selectedProject.liveUrl ?? "",
+                featured: selectedProject.featured,
+                status: selectedProject.status,
+                displayOrder: selectedProject.displayOrder,
+                categoryId: selectedProject.category.id,
+              }
               : undefined
           }
           loading={updating}
@@ -180,6 +176,15 @@ export default function ProjectsPage() {
         loading={deleting}
         onConfirm={handleConfirmDelete}
       />
+
+      {selectedProject && (
+        <ProjectImageDialog
+          open={imageOpen}
+          onOpenChange={setImageOpen}
+          projectId={selectedProject.id}
+          projectTitle={selectedProject.title}
+        />
+      )}
     </div>
   );
 }

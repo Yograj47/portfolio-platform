@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { Resolver, useForm } from "react-hook-form";
+import { Resolver, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
     createProjectSchema,
@@ -47,7 +47,7 @@ export function ProjectForm({
         handleSubmit,
         reset,
         setValue,
-        watch,
+        control,
         formState: { errors },
     } = useForm<CreateProjectSchema>({
         resolver: zodResolver(createProjectSchema) as Resolver<CreateProjectSchema>,
@@ -65,6 +65,10 @@ export function ProjectForm({
             ...defaultValues,
         },
     });
+
+    const categoryId = useWatch({ control, name: "categoryId" });
+    const status = useWatch({ control, name: "status" });
+    const featured = useWatch({ control, name: "featured" });
 
     useEffect(() => {
         if (!defaultValues) return;
@@ -134,7 +138,7 @@ export function ProjectForm({
             <div className="space-y-2">
                 <Label>Category</Label>
                 <Select
-                    value={watch("categoryId")}
+                    value={categoryId}
                     onValueChange={(value) =>
                         setValue("categoryId", value ?? "category", {
                             shouldValidate: true,
@@ -195,7 +199,7 @@ export function ProjectForm({
                     <Label>Status</Label>
 
                     <Select
-                        value={watch("status")}
+                        value={status}
                         onValueChange={(value) =>
                             setValue(
                                 "status",
@@ -210,12 +214,12 @@ export function ProjectForm({
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                            {PROJECT_STATUS_OPTIONS.map((status) => (
+                            {PROJECT_STATUS_OPTIONS.map((statusOption) => (
                                 <SelectItem
-                                    key={status.value}
-                                    value={status.value}
+                                    key={statusOption.value}
+                                    value={statusOption.value}
                                 >
-                                    {status.label}
+                                    {statusOption.label}
                                 </SelectItem>
                             ))}
                         </SelectContent>
@@ -254,7 +258,7 @@ export function ProjectForm({
                 </div>
 
                 <Switch
-                    checked={watch("featured")}
+                    checked={featured}
                     onCheckedChange={(checked) =>
                         setValue("featured", checked)
                     }

@@ -150,9 +150,10 @@ export const icons: IconOption[] = [
     },
 ];
 
-export const iconMap = Object.fromEntries(
-    icons.map((icon) => [
-        icon.value,
-        icon.icon,
-    ])
-);
+export const iconMap: Record<string, IconType> =
+    Object.fromEntries(
+        icons.map((icon) => [
+            icon.value,
+            icon.icon,
+        ])
+    );

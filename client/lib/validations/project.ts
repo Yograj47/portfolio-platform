@@ -35,3 +35,46 @@ export const updateProjectSchema =
 
 export type CreateProjectSchema = z.infer<typeof createProjectSchema>;
 export type UpdateProjectSchema = z.infer<typeof updateProjectSchema>;
+
+export type ProjectMediaItem = {
+    id: string;
+    projectId: string;
+    mediaId: string;
+    displayOrder: number;
+    isCover: boolean;
+    isActive: boolean;
+    media: {
+        id: string;
+        publicId: string;
+        url: string;
+        fileName: string;
+        mimeType: string;
+        type: "IMAGE" | "DOCUMENT";
+        width: number | null;
+        height: number | null;
+        alt: string | null;
+    };
+};
+
+export type PublicProject = {
+    id: string;
+    title: string;
+    slug: string;
+    excerpt: string;
+    description: string;
+    githubUrl: string | null;
+    liveUrl: string | null;
+    featured: boolean;
+    status: string;
+    displayOrder: number;
+    categoryId: string;
+    authorId: string;
+    createdAt: string;
+    updatedAt: string;
+    category: {
+        id: string;
+        name: string;
+        slug: string;
+    };
+    media?: ProjectMediaItem[];
+};

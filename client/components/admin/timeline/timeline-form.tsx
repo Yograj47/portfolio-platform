@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
-import { Resolver, useForm } from "react-hook-form";
+import { useEffect, useMemo } from "react";
+import { Resolver, useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import {
@@ -10,9 +10,9 @@ import {
 } from "@/lib/validations/timeline";
 
 import { TIMELINE_TYPE_OPTIONS } from "@/lib/constants/timeline-type-options";
-
 import { FormFieldError } from "@/components/forms/form-field-error";
 import { FormSubmitButton } from "@/components/forms/form-submit-button";
+import { OrderPicker } from "@/components/forms/order-picker";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,231 +29,247 @@ import {
 
 import { TimelineType } from "@/lib/enums/timeline";
 
-interface TimelineFormProps {
-  defaultValues?: Partial<CreateTimelineSchema>;
-  loading?: boolean;
+export interface TimelineItem {
+  id: string;
+  title: string;
+  organization: string;
+  displayOrder: number;
+}
 
+interface TimelineFormProps {
+  timelines?: TimelineItem[];
+  defaultValues?: Partial<CreateTimelineSchema> & { id?: string };
+  loading?: boolean;
   onSubmit: (data: CreateTimelineSchema) => void;
 }
 
+const formatDateForInput = (dateString?: string | null) => {
+  if (!dateString) return "";
+  return dateString.split("T")[0];
+};
+
 export function TimelineForm({
+  timelines = [],
   defaultValues,
   loading = false,
   onSubmit,
 }: TimelineFormProps) {
+  // Extract active order for edit mode
+  const currentEditOrder =
+    defaultValues?.displayOrder !== undefined
+      ? Number(defaultValues.displayOrder)
+      : null;
+
+  // Keep current item's order enabled during edit mode
+  const disabledOrders = useMemo(() => {
+    return timelines
+      .map((item) => Number(item.displayOrder))
+      .filter((order) => order !== currentEditOrder);
+  }, [timelines, currentEditOrder]);
+
+  const defaultOrder = useMemo(() => {
+    if (currentEditOrder !== null) return currentEditOrder;
+    for (let i = 1; i <= 25; i++) {
+      if (!disabledOrders.includes(i)) return i;
+    }
+    return 1;
+  }, [currentEditOrder, disabledOrders]);
+
   const {
     register,
     handleSubmit,
     reset,
-    watch,
+    control,
     setValue,
-
-    formState: {
-      errors,
-    },
+    clearErrors,
+    formState: { errors },
   } = useForm<CreateTimelineSchema>({
     resolver: zodResolver(createTimelineSchema) as Resolver<CreateTimelineSchema>,
-
     defaultValues: {
-      title: "",
-      organization: "",
-      location: "",
-      description: "",
-      type: TimelineType.EXPERIENCE,
-      startDate: "",
-      endDate: "",
-      current: false,
-      displayOrder: 0,
-
-      ...defaultValues,
+      title: defaultValues?.title ?? "",
+      organization: defaultValues?.organization ?? "",
+      location: defaultValues?.location ?? "",
+      description: defaultValues?.description ?? "",
+      type: defaultValues?.type ?? TimelineType.EXPERIENCE,
+      startDate: formatDateForInput(defaultValues?.startDate),
+      endDate: formatDateForInput(defaultValues?.endDate),
+      current: defaultValues?.current ?? false,
+      displayOrder: defaultOrder,
     },
   });
 
+  const isCurrent = useWatch({
+    control,
+    name: "current",
+  });
+
+  // Force re-sync of form controls whenever edit target changes
   useEffect(() => {
     if (!defaultValues) return;
 
     reset({
       title: defaultValues.title ?? "",
-      organization:
-        defaultValues.organization ?? "",
+      organization: defaultValues.organization ?? "",
       location: defaultValues.location ?? "",
-      description:
-        defaultValues.description ?? "",
-      type:
-        defaultValues.type ??
-        TimelineType.EXPERIENCE,
-      startDate:
-        defaultValues.startDate ?? "",
-      endDate: defaultValues.endDate ?? "",
+      description: defaultValues.description ?? "",
+      type: defaultValues.type ?? TimelineType.EXPERIENCE,
+      startDate: formatDateForInput(defaultValues.startDate),
+      endDate: formatDateForInput(defaultValues.endDate),
       current: defaultValues.current ?? false,
-      displayOrder:
-        defaultValues.displayOrder ?? 0,
+      displayOrder: Number(defaultValues.displayOrder ?? defaultOrder),
     });
-  }, [defaultValues, reset]);
+  }, [defaultValues, defaultOrder, reset]);
+
+  // Handle current toggle
+  useEffect(() => {
+    if (isCurrent) {
+      setValue("endDate", "", { shouldValidate: false });
+      clearErrors("endDate");
+    }
+  }, [isCurrent, setValue, clearErrors]);
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="space-y-6"
-    >
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      {/* Title */}
       <div className="space-y-2">
-        <Label>Title</Label>
-
-        <Input
-          placeholder="Frontend Developer"
-          {...register("title")}
-        />
-
-        <FormFieldError
-          message={errors.title?.message}
-        />
+        <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Title
+        </Label>
+        <Input placeholder="e.g. Frontend Developer" {...register("title")} />
+        <FormFieldError message={errors.title?.message} />
       </div>
 
-      <div className="space-y-2">
-        <Label>Organization</Label>
+      {/* Organization & Location */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="space-y-2">
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Organization
+          </Label>
+          <Input placeholder="e.g. OpenAI" {...register("organization")} />
+          <FormFieldError message={errors.organization?.message} />
+        </div>
 
-        <Input
-          placeholder="OpenAI"
-          {...register("organization")}
-        />
-
-        <FormFieldError
-          message={errors.organization?.message}
-        />
+        <div className="space-y-2">
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Location
+          </Label>
+          <Input placeholder="e.g. Kathmandu, Nepal" {...register("location")} />
+          <FormFieldError message={errors.location?.message} />
+        </div>
       </div>
 
+      {/* Description */}
       <div className="space-y-2">
-        <Label>Location</Label>
-
-        <Input
-          placeholder="Kathmandu, Nepal"
-          {...register("location")}
-        />
-
-        <FormFieldError
-          message={errors.location?.message}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label>Description</Label>
-
+        <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Description
+        </Label>
         <Textarea
-          rows={5}
-          placeholder="Describe this experience..."
+          rows={4}
+          placeholder="Describe key responsibilities and achievements..."
+          className="resize-none"
           {...register("description")}
         />
-
-        <FormFieldError
-          message={errors.description?.message}
-        />
+        <FormFieldError message={errors.description?.message} />
       </div>
 
+      {/* Category Type */}
       <div className="space-y-2">
-        <Label>Type</Label>
-
-        <Select
-          value={watch("type")}
-          onValueChange={(value) =>
-            setValue(
-              "type",
-              value as TimelineType,
-              {
-                shouldValidate: true,
-              }
-            )
-          }
-        >
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-
-          <SelectContent>
-            {TIMELINE_TYPE_OPTIONS.map(
-              (option) => (
-                <SelectItem
-                  key={option.value}
-                  value={option.value}
-                >
-                  {option.label}
-                </SelectItem>
-              )
-            )}
-          </SelectContent>
-        </Select>
-
-        <FormFieldError
-          message={errors.type?.message}
+        <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Category Type
+        </Label>
+        <Controller
+          name="type"
+          control={control}
+          render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select type" />
+              </SelectTrigger>
+              <SelectContent>
+                {TIMELINE_TYPE_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         />
+        <FormFieldError message={errors.type?.message} />
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      {/* Dates Grid */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label>Start Date</Label>
-
-          <Input
-            type="date"
-            {...register("startDate")}
-          />
-
-          <FormFieldError
-            message={errors.startDate?.message}
-          />
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Start Date
+          </Label>
+          <Input type="date" {...register("startDate")} />
+          <FormFieldError message={errors.startDate?.message} />
         </div>
 
         <div className="space-y-2">
-          <Label>End Date</Label>
-
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            End Date
+          </Label>
           <Input
             type="date"
-            disabled={watch("current")}
+            disabled={isCurrent}
             {...register("endDate")}
           />
-
-          <FormFieldError
-            message={errors.endDate?.message}
-          />
+          <FormFieldError message={errors.endDate?.message} />
         </div>
       </div>
 
-      <div className="flex items-center justify-between rounded-lg border p-4">
-        <div>
-          <Label>Current</Label>
-
-          <p className="text-sm text-muted-foreground">
-            Still ongoing
+      {/* Current Checkbox Switch Card */}
+      <div className="flex items-center justify-between rounded-xl border bg-card p-4 shadow-xs">
+        <div className="space-y-0.5">
+          <Label className="text-sm font-medium">Currently Working Here</Label>
+          <p className="text-xs text-muted-foreground">
+            Ongoing position or active experience
           </p>
         </div>
-
-        <Switch
-          checked={watch("current")}
-          onCheckedChange={(checked) =>
-            setValue("current", checked)
-          }
+        <Controller
+          name="current"
+          control={control}
+          render={({ field }) => (
+            <Switch
+              checked={field.value}
+              onCheckedChange={(checked) => {
+                field.onChange(checked);
+                if (checked) {
+                  setValue("endDate", "");
+                  clearErrors("endDate");
+                }
+              }}
+            />
+          )}
         />
       </div>
 
+      {/* Order Picker */}
       <div className="space-y-2">
-        <Label>Display Order</Label>
-
-        <Input
-          type="number"
-          {...register("displayOrder", {
-            valueAsNumber: true,
-          })}
+        <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Timeline Display Order (1–25)
+        </Label>
+        <Controller
+          name="displayOrder"
+          control={control}
+          render={({ field }) => (
+            <OrderPicker
+              value={field.value}
+              onChange={field.onChange}
+              disabledOrders={disabledOrders}
+            />
+          )}
         />
-
-        <FormFieldError
-          message={
-            errors.displayOrder?.message
-          }
-        />
+        <FormFieldError message={errors.displayOrder?.message} />
       </div>
 
-      <FormSubmitButton
-        loading={loading}
-        label="Save Timeline"
-      />
+      {/* Action Footer */}
+      <div className="flex justify-end pt-2">
+        <FormSubmitButton loading={loading} label="Save Timeline" />
+      </div>
     </form>
   );
 }

@@ -2,117 +2,133 @@
 
 import { useState } from "react";
 
-import { contact } from "./contact.data";
 import { TerminalActionButton } from "../terminal/terminal-action-button";
 
+import type { ContactProfileData } from "./contact.type";
+
+interface ContactActionsProps {
+  profile: ContactProfileData;
+}
+
 type ActionType =
-    | "copy-email"
-    | "github"
-    | "linkedin"
-    | "resume";
+  | "email"
+  | "copy-email"
+  | "github"
+  | "linkedin"
+  | "resume";
 
 const actions = [
-    {
-        label: "cp email",
-        type: "copy-email",
-    },
-    {
-        label: "open github",
-        type: "github",
-    },
-    {
-        label: "open linkedin",
-        type: "linkedin",
-    },
-    {
-        label: "resume.pdf",
-        type: "resume",
-    },
+  {
+    label: "email",
+    type: "email",
+  },
+  {
+    label: "cp email",
+    type: "copy-email",
+  },
+  {
+    label: "open github",
+    type: "github",
+  },
+  {
+    label: "open linkedin",
+    type: "linkedin",
+  },
+  {
+    label: "open resume.pdf",
+    type: "resume",
+  },
 ] as const;
 
-export function ContactActions() {
-    const [copied, setCopied] =
-        useState(false);
+export function ContactActions({
+  profile,
+}: ContactActionsProps) {
+  const [copied, setCopied] = useState(false);
 
-    function handleAction(
-        type: ActionType
-    ) {
+  function handleAction(type: ActionType) {
+    switch (type) {
+      case "email":
+        window.location.assign(`mailto:${profile.email}`);
+        return;
 
-        switch (type) {
+      case "copy-email":
+        navigator.clipboard.writeText(profile.email);
 
-            case "copy-email":
-                navigator.clipboard.writeText(
-                    contact.email
-                );
+        setCopied(true);
 
-                setCopied(true);
+        setTimeout(() => {
+          setCopied(false);
+        }, 2000);
 
-                setTimeout(() => {
-                    setCopied(false);
-                }, 2000);
+        return;
 
-                return;
-
-            case "github":
-                window.open(
-                    contact.github,
-                    "_blank",
-                    "noopener,noreferrer"
-                );
-                return;
-
-            case "linkedin":
-                window.open(
-                    contact.linkedin,
-                    "_blank",
-                    "noopener,noreferrer"
-                );
-                return;
-
-            case "resume":
-                window.open(
-                    contact.resume,
-                    "_blank",
-                    "noopener,noreferrer"
-                );
-                return;
+      case "github":
+        if (profile.githubUrl) {
+          window.open(
+            profile.githubUrl,
+            "_blank",
+            "noopener,noreferrer"
+          );
         }
+
+        return;
+
+      case "linkedin":
+        if (profile.linkedinUrl) {
+          window.open(
+            profile.linkedinUrl,
+            "_blank",
+            "noopener,noreferrer"
+          );
+        }
+
+        return;
+
+      case "resume":
+        if (profile.resumeUrl) {
+          window.open(
+            profile.resumeUrl,
+            "_blank",
+            "noopener,noreferrer"
+          );
+        }
+
+        return;
     }
+  }
 
-    return (
-        <section className="space-y-2">
+  return (
+    <section className="space-y-2">
+      <div className="border-b pb-1 font-semibold">
+        Quick Actions
+      </div>
 
-            <div className="border-b pb-1 font-semibold">
-                Quick Actions
-            </div>
+      <div className="flex flex-wrap gap-2">
+        {actions.map((action) => {
+          const disabled =
+            (action.type === "github" &&
+              !profile.githubUrl) ||
+            (action.type === "linkedin" &&
+              !profile.linkedinUrl) ||
+            (action.type === "resume" &&
+              !profile.resumeUrl);
 
-            <div className="flex flex-wrap gap-2">
+          const label =
+            action.type === "copy-email" && copied
+              ? "✓ copied"
+              : action.label;
 
-                {actions.map((action) => {
-
-                    const label =
-                        action.type ===
-                            "copy-email" &&
-                            copied
-                            ? "✓ copied"
-                            : action.label;
-
-                    return (
-                        <TerminalActionButton
-                            key={action.type}
-                            onClick={() =>
-                                handleAction(
-                                    action.type
-                                )
-                            }
-                        >
-                            {label}
-                        </TerminalActionButton>
-                    );
-                })}
-
-            </div>
-
-        </section>
-    );
+          return (
+            <TerminalActionButton
+              key={action.type}
+              onClick={() => handleAction(action.type)}
+              disabled={disabled}
+            >
+              {label}
+            </TerminalActionButton>
+          );
+        })}
+      </div>
+    </section>
+  );
 }

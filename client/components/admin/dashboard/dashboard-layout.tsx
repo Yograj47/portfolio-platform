@@ -1,46 +1,49 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { DashboardSidebar } from "./dashboard-sidebar";
 import { DashboardHeader } from "./dashboard-header";
 import { useSession } from "@/hooks/use-session";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type DashboardLayoutProps = {
   children: React.ReactNode;
 };
 
-export function DashboardLayout({
-  children,
-}: DashboardLayoutProps) {
+export function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter();
   const { isLoading, isError } = useSession();
 
   useEffect(() => {
     if (isError) {
-      router.replace("/login")
+      router.replace("/login");
     }
-  }, [isError, router])
-
-  console.log("Loading state:", isLoading)
-  if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        Loading...
-      </div>
-    );
-  }
-
+  }, [isError, router]);
 
   return (
-    <div className="flex min-h-screen bg-muted/20">
+    <div className="flex h-screen w-screen overflow-hidden bg-muted/20">
       <DashboardSidebar />
 
-      <div className="flex flex-1 flex-col">
+      {/* Main View Container */}
+      <div className="flex flex-1 flex-col min-h-0 overflow-hidden">
         <DashboardHeader />
 
-        <main className="flex-1 overflow-y-auto p-6">
-          {children}
+        {/* Bound Main Region to Remaining Vertical Height */}
+        <main className="flex flex-1 flex-col min-h-0 overflow-hidden p-6">
+          {isLoading ? (
+            <div className="flex flex-1 flex-col min-h-0 space-y-6">
+              <div className="space-y-2 shrink-0">
+                <Skeleton className="h-7 w-48 rounded-lg" />
+                <Skeleton className="h-4 w-72 rounded-lg" />
+              </div>
+              <Skeleton className="flex-1 min-h-0 w-full rounded-xl" />
+            </div>
+          ) : (
+            <div className="flex flex-1 flex-col min-h-0 overflow-hidden">
+              {children}
+            </div>
+          )}
         </main>
       </div>
     </div>
