@@ -46,6 +46,7 @@ export function MediaCard({
           <Image
             src={media.url}
             alt={media.alt ?? media.fileName}
+            fill
             className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
           />
         ) : (

@@ -45,6 +45,7 @@ export function ProjectMediaCard({
     >
       {/* Media Image */}
       <Image
+        fill
         src={item.media.url}
         alt={item.media.alt ?? item.media.fileName}
         className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"

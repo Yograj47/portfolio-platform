@@ -34,3 +34,16 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+v1.1.1 Stabilization
+
+[x] New project → upload image links correctly
+[x] General media → assign to project works
+[x] All projects appear in media assignment selector
+[x] Project with zero media can receive media
+[x] Project with existing media can receive media
+[x] Media ordering/cover state remains correct
+[ ] Login survives hard reload
+[ ] Logout still clears authentication
+[ ] Test production auth flow
+[ ] Fix remaining v1.1.0 bugs discovered during testing

@@ -52,12 +52,12 @@ export function ImageUpload({
 
     const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
+
         if (!file) return;
 
         try {
             setIsUploading(true);
 
-            // Uses your exact ImageKit + Backend registration mutation
             const registeredMedia = await uploadMediaAsync({
                 file,
                 folder,
@@ -65,12 +65,12 @@ export function ImageUpload({
                 description,
             });
 
-            // Pass registered URL back to form state
-            onChange(registeredMedia.url);
+            onChange(registeredMedia);
         } catch (error) {
             console.error("Upload error:", error);
         } finally {
             setIsUploading(false);
+
             if (fileInputRef.current) {
                 fileInputRef.current.value = "";
             }
