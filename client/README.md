@@ -1,49 +1,122 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Yograj Portfolio
 
-## Getting Started
+A full-stack personal portfolio platform with an interactive terminal workspace, project showcase, technical articles, and a private dashboard for content management.
 
-First, run the development server:
+## Status
+
+🚧 Development Done For this Version
+
+## Tech Stack
+
+### Frontend
+
+* Next.js
+* React
+* TypeScript
+* Tailwind CSS
+* shadcn/ui
+* TanStack Query
+* Zustand
+
+### Backend
+
+* NestJS
+* TypeScript
+* Prisma
+* PostgreSQL
+
+### Infrastructure
+
+* Vercel
+* Render
+* ImageKit
+
+## Development
+
+### Prerequisites
+
+* Node.js
+* npm
+
+### Run the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The application will be available at:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project Structure
 
-## Learn More
+```text
+/
+├── project/
+│   └── <project-slug>
+├── blogs/
+│   └── <article>
+├── skills.db
+├── timeline.log
+├── about.md
+├── contact.sh
+└── ...
+```
 
-To learn more about Next.js, take a look at the following resources:
+The terminal uses a virtual filesystem to organize portfolio content and interactive commands.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Workspace Entries
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Type      | Name     | Aliases                                            | Description               |
+| --------- | -------- | -------------------------------------------------- | ------------------------- |
+| directory | Projects | `project`, `projects`                              | Browse portfolio projects |
+| file      | Skills   | `skills.db`, `skill`                               | Technical skills database |
+| file      | Timeline | `timeline.log`, `timeline`, `career`, `experience` | Career timeline           |
+| directory | Blogs    | `blog`, `blogs`, `article`, `articles`             | Technical articles        |
 
-## Deploy on Vercel
+Terminal commands and aliases are case-insensitive.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Terminal
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The portfolio includes an interactive terminal interface.
 
-v1.1.1 Stabilization
+Example commands:
 
-[x] New project → upload image links correctly
-[x] General media → assign to project works
-[x] All projects appear in media assignment selector
-[x] Project with zero media can receive media
-[x] Project with existing media can receive media
-[x] Media ordering/cover state remains correct
-[ ] Login survives hard reload
-[ ] Logout still clears authentication
-[ ] Test production auth flow
-[ ] Fix remaining v1.1.0 bugs discovered during testing
+```text
+help
+ls
+ls project
+cd blog
+open project/grocerypro
+contact
+clear
+```
+
+Dynamic project entries can be opened using their project slug:
+
+```text
+open project/<slug>
+```
+
+## Media Management
+
+The dashboard includes media management for portfolio projects.
+
+* Image uploads
+* Project media assignment
+* General media library
+* Project media ordering
+* Cover image management
+* ImageKit integration
+
+## Authentication
+
+The dashboard uses email/password authentication.
+
+Authentication is handled separately from the public terminal workspace.
+
+## License
+
+See [LICENSE](LICENSE).
