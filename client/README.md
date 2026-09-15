@@ -1,10 +1,6 @@
 # Yograj Portfolio
 
-A full-stack personal portfolio platform with an interactive terminal workspace, project showcase, technical articles, and a private dashboard for content management.
-
-## Status
-
-🚧 Development Done For this Version
+A full-stack personal portfolio platform featuring an interactive terminal workspace, project showcase, technical articles, media management, and a private dashboard.
 
 ## Tech Stack
 
@@ -31,25 +27,6 @@ A full-stack personal portfolio platform with an interactive terminal workspace,
 * Render
 * ImageKit
 
-## Development
-
-### Prerequisites
-
-* Node.js
-* npm
-
-### Run the development server
-
-```bash
-npm run dev
-```
-
-The application will be available at:
-
-```text
-http://localhost:3000
-```
-
 ## Project Structure
 
 ```text
@@ -65,7 +42,7 @@ http://localhost:3000
 └── ...
 ```
 
-The terminal uses a virtual filesystem to organize portfolio content and interactive commands.
+The terminal uses a virtual filesystem to organize portfolio content and provide interactive commands.
 
 ### Workspace Entries
 
@@ -94,20 +71,30 @@ contact
 clear
 ```
 
-Dynamic project entries can be opened using their project slug:
+Projects can be opened using their slug:
 
 ```text
 open project/<slug>
 ```
 
+## Projects
+
+Projects are presented through the portfolio workspace and can include:
+
+* Project descriptions
+* Project media
+* Technology information
+* External links
+* Detailed Markdown-based content
+
 ## Media Management
 
-The dashboard includes media management for portfolio projects.
+The dashboard provides project media management with:
 
 * Image uploads
-* Project media assignment
 * General media library
-* Project media ordering
+* Project media assignment
+* Media ordering
 * Cover image management
 * ImageKit integration
 
@@ -115,7 +102,7 @@ The dashboard includes media management for portfolio projects.
 
 The dashboard uses email/password authentication.
 
-Authentication is handled separately from the public terminal workspace.
+Authentication is separate from the public terminal workspace.
 
 ## License
 
