@@ -74,24 +74,18 @@ export const openCommand: TerminalCommand = {
 
     if (!rawTarget) {
       return {
-        output: (
-          <span className="text-destructive">
-            Missing target.
-          </span>
-        ),
+        output: <span className="text-destructive">Missing target.</span>,
       };
     }
 
-    // Handle 'open .' inside /Projects or /Blogs
+    // 1. Resolve '.' to current working directory
     const target = rawTarget === "." ? context.cwd : rawTarget;
 
-    // 1. Resolve virtual file/directory path relative to context.cwd
+    // 2. Try static Virtual File System resolution first (e.g. 'open .', 'open /blogs', 'open Skills.db')
     const resolvedPath = resolvePath(context.cwd, target);
 
     if (resolvedPath) {
-      // Check if it matches a root workspace entry (e.g., /Projects, /Blogs, Skills.db)
       const entry = findEntryByPath(resolvedPath) || findEntry(target);
-
       if (entry && entry.route) {
         window.open(entry.route, "_blank", "noopener,noreferrer");
         return {
@@ -104,16 +98,38 @@ export const openCommand: TerminalCommand = {
       }
     }
 
-    // 2. Resolve dynamic project targets (supports absolute & relative project paths)
-    const cleanTarget = target.toLowerCase().replace(/^\/+|\/+$/g, "");
+    // 3. Normalize relative/absolute paths for dynamic project routes
+    //    E.g., '../project/grocerypro' from '/Blog' resolves via path logic to '/Projects/grocerypro'
+    let normalizedPath = target;
+
+    // Standardize leading relative syntax into path format
+    if (target.startsWith("./") || target.startsWith("../")) {
+      // Resolve path against context.cwd to flatten relative references
+      const segments = context.cwd.split("/").filter(Boolean);
+      const parts = target.split("/");
+
+      for (const part of parts) {
+        if (part === "..") {
+          segments.pop();
+        } else if (part !== "." && part !== "") {
+          segments.push(part);
+        }
+      }
+      normalizedPath = "/" + segments.join("/");
+    }
+
+    // Clean up normalized string for slug extraction (e.g. "/projects/grocerypro" -> "projects/grocerypro")
+    const cleanTarget = normalizedPath.toLowerCase().replace(/^\/+|\/+$/g, "");
     const isAtProjectsDir = context.cwd === TERMINAL_PATHS.PROJECTS;
     const projectPrefixRegex = /^projects?\//i;
 
     let projectSlug = "";
 
-    if (isAtProjectsDir) {
-      projectSlug = cleanTarget.replace(projectPrefixRegex, "");
+    if (isAtProjectsDir && !projectPrefixRegex.test(cleanTarget)) {
+      // Direct slug inside /Projects directory
+      projectSlug = cleanTarget;
     } else if (projectPrefixRegex.test(cleanTarget)) {
+      // Target starts with project/ or projects/ (or resolved to /projects/...)
       projectSlug = cleanTarget.replace(projectPrefixRegex, "");
     } else {
       return {
