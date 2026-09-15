@@ -134,6 +134,7 @@ export default function ProjectsPage() {
         description="Create a new project."
       >
         <ProjectForm
+        projects={projects}
           categories={categories}
           loading={creating}
           onSubmit={handleCreate}
@@ -147,6 +148,7 @@ export default function ProjectsPage() {
         description="Update project."
       >
         <ProjectForm
+          projects={projects}
           categories={categories}
           defaultValues={
             selectedProject

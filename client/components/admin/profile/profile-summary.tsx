@@ -34,9 +34,10 @@ export function ProfileSummary({
                 <div className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-full border bg-muted">
                     {profile.avatar ? (
                         <Image
-                            fill
                             src={profile.avatar}
                             alt={profile.name}
+                            width={80}
+                            height={80}
                             className="size-full object-cover"
                         />
                     ) : (

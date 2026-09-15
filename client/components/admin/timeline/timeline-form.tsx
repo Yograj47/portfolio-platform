@@ -54,13 +54,11 @@ export function TimelineForm({
   loading = false,
   onSubmit,
 }: TimelineFormProps) {
-  // Extract active order for edit mode
   const currentEditOrder =
     defaultValues?.displayOrder !== undefined
       ? Number(defaultValues.displayOrder)
       : null;
 
-  // Keep current item's order enabled during edit mode
   const disabledOrders = useMemo(() => {
     return timelines
       .map((item) => Number(item.displayOrder))

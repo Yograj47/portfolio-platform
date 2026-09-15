@@ -11,7 +11,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   const { id } = await params;
 
   return (
-    <FileView title={`${id}.md`} meta="Markdown">
+    <FileView>
       <ProjectDetail slug={id} />
     </FileView>
   );
