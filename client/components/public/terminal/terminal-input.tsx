@@ -1,14 +1,21 @@
 "use client";
 
-import { KeyboardEvent, useEffect, useRef } from "react";
+import {
+    KeyboardEvent,
+    useEffect,
+    useRef,
+} from "react";
+
 import { TerminalPrompt } from "./terminal-prompt";
 
 interface TerminalInputProps {
     path: string;
-
     value: string;
     onChange: (value: string) => void;
     onSubmit: () => void;
+    type?: "text" | "password" | "email";
+    prompt?: string;
+    disabled?: boolean;
 }
 
 export function TerminalInput({
@@ -16,28 +23,39 @@ export function TerminalInput({
     value,
     onChange,
     onSubmit,
+    type = "text",
+    prompt,
+    disabled = false,
 }: TerminalInputProps) {
-    const inputRef = useRef<HTMLInputElement>(null);
+    const inputRef =
+        useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         inputRef.current?.focus();
-    });
+    }, []);
 
     function handleKeyDown(
         e: KeyboardEvent<HTMLInputElement>
     ) {
         if (e.key === "Enter") {
+            e.preventDefault();
             onSubmit();
         }
     }
 
     return (
         <div className="flex items-center gap-1 font-mono text-sm leading-none">
-
-            <TerminalPrompt path={path} />
+            {prompt ? (
+                <span className="whitespace-nowrap">
+                    {prompt}
+                </span>
+            ) : (
+                <TerminalPrompt path={path} />
+            )}
 
             <input
                 ref={inputRef}
+                type={type}
                 value={value}
                 onChange={(e) =>
                     onChange(e.target.value)
@@ -45,9 +63,9 @@ export function TerminalInput({
                 onKeyDown={handleKeyDown}
                 autoComplete="off"
                 spellCheck={false}
-                className="flex-1 bg-transparent outline-none border-0 p-0"
+                disabled={disabled}
+                className="flex-1 border-0 bg-transparent p-0 outline-none"
             />
-
         </div>
     );
 }

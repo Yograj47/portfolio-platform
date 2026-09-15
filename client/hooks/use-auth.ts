@@ -43,7 +43,7 @@ export function useAuth() {
         onSuccess: () => {
             clearAuth();
 
-            router.replace("/login");
+            router.replace("/");
         },
     });
 

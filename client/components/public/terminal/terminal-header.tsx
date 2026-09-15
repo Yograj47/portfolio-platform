@@ -18,7 +18,7 @@ export function TerminalHeader() {
             <div className="flex items-center gap-6 text-xs text-muted-foreground">
                 <span>main</span>
 
-                <span>v1.0.0</span>
+                <span>v1.1.0</span>
 
                 <span className="text-emerald-500">
                     ● Ready

@@ -4,7 +4,7 @@ export const clearCommand: TerminalCommand = {
     name: "clear",
     description: "Clear terminal history.",
     execute(_, context) {
-        context.clearHistory();
+        context.resetHistory();
 
         return {};
     },

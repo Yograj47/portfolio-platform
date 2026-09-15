@@ -39,8 +39,8 @@ http.interceptors.response.use(
 
                 return http(originalRequest);
             } catch (refreshError) {
-                if (window.location.pathname !== "/login") {
-                    window.location.href = "/login";
+                if (window.location.pathname !== "/") {
+                    window.location.href = "/";
                 }
                 return Promise.reject(refreshError)
             }
@@ -52,7 +52,6 @@ http.interceptors.response.use(
 
 http.interceptors.request.use((config) => {
     const token = useAuthStore.getState().accessToken;
-    console.log("Access Token:", token);
 
     if (token) {
         config.headers.Authorization = `Bearer ${token}`
