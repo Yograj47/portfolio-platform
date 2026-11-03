@@ -1,109 +1,95 @@
 "use client";
 
-import {
-    useMutation,
-    useQuery,
-    useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { projectService } from "@/services/project.service";
 
 import {
-    CreateProjectSchema,
-    UpdateProjectSchema,
+  CreateProjectSchema,
+  UpdateProjectSchema,
 } from "@/lib/validations/project";
 
-import {
-    showSuccess,
-    showError,
-} from "@/lib/toast";
+import { showSuccess, showError } from "@/lib/toast";
 
 export function useProject() {
-    const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
-    const projectsQuery = useQuery({
+  const projectsQuery = useQuery({
+    queryKey: ["projects"],
+    queryFn: async () => {
+      const response = await projectService.findAllAdmin();
+      return response.data.data;
+    },
+  });
+
+  const createMutation = useMutation({
+    mutationFn: (data: CreateProjectSchema) => projectService.create(data),
+
+    onSuccess: () => {
+      showSuccess("Project created.");
+
+      queryClient.invalidateQueries({
         queryKey: ["projects"],
-        queryFn: async () => {
-            const response = await projectService.findAll();
-            return response.data.data;
-        },
-    });
+      });
+    },
 
-    const createMutation = useMutation({
-        mutationFn: (data: CreateProjectSchema) =>
-            projectService.create(data),
+    onError: () => {
+      showError("Failed to create project.");
+    },
+  });
 
-        onSuccess: () => {
-            showSuccess("Project created.");
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UpdateProjectSchema }) =>
+      projectService.update(id, data),
 
-            queryClient.invalidateQueries({
-                queryKey: ["projects"],
-            });
-        },
+    onSuccess: () => {
+      showSuccess("Project updated.");
 
-        onError: () => {
-            showError("Failed to create project.");
-        },
-    });
+      queryClient.invalidateQueries({
+        queryKey: ["projects"],
+      });
+    },
 
-    const updateMutation = useMutation({
-        mutationFn: ({
-            id,
-            data,
-        }: {
-            id: string;
-            data: UpdateProjectSchema;
-        }) => projectService.update(id, data),
+    onError: () => {
+      showError("Failed to update project.");
+    },
+  });
 
-        onSuccess: () => {
-            showSuccess("Project updated.");
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => projectService.remove(id),
 
-            queryClient.invalidateQueries({
-                queryKey: ["projects"],
-            });
-        },
+    onSuccess: () => {
+      showSuccess("Project deleted.");
 
-        onError: () => {
-            showError("Failed to update project.");
-        },
-    });
+      queryClient.invalidateQueries({
+        queryKey: ["projects"],
+      });
+    },
 
-    const deleteMutation = useMutation({
-        mutationFn: (id: string) =>
-            projectService.remove(id),
+    onError: () => {
+      showError("Failed to delete project.");
+    },
+  });
 
-        onSuccess: () => {
-            showSuccess("Project deleted.");
+  return {
+    projects: projectsQuery.data ?? [],
 
-            queryClient.invalidateQueries({
-                queryKey: ["projects"],
-            });
-        },
+    loading: projectsQuery.isLoading,
+    error: projectsQuery.isError,
 
-        onError: () => {
-            showError("Failed to delete project.");
-        },
-    });
+    refetch: projectsQuery.refetch,
 
-    return {
-        projects: projectsQuery.data ?? [],
+    createProject: createMutation.mutate,
+    createProjectAsync: createMutation.mutateAsync,
 
-        loading: projectsQuery.isLoading,
-        error: projectsQuery.isError,
+    updateProject: updateMutation.mutate,
+    updateProjectAsync: updateMutation.mutateAsync,
 
-        refetch: projectsQuery.refetch,
+    deleteProject: deleteMutation.mutate,
+    deleteProjectAsync: deleteMutation.mutateAsync,
 
-        createProject: createMutation.mutate,
-        createProjectAsync: createMutation.mutateAsync,
-
-        updateProject: updateMutation.mutate,
-        updateProjectAsync: updateMutation.mutateAsync,
-
-        deleteProject: deleteMutation.mutate,
-        deleteProjectAsync: deleteMutation.mutateAsync,
-
-        creating: createMutation.isPending,
-        updating: updateMutation.isPending,
-        deleting: deleteMutation.isPending,
-    };
+    creating: createMutation.isPending,
+    updating: updateMutation.isPending,
+    deleting: deleteMutation.isPending,
+  };
 }

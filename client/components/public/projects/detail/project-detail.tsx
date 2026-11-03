@@ -40,7 +40,7 @@ export function ProjectDetail({ slug }: ProjectDetailProps) {
             title={project.title}
             excerpt={project.excerpt}
             category={project.category}
-            isFeatured={project.isFeatured}
+            isFeatured={project.featured}
             liveUrl={project.liveUrl}
             githubUrl={project.githubUrl}
             technologies={project.technologies}
@@ -51,7 +51,7 @@ export function ProjectDetail({ slug }: ProjectDetailProps) {
       {/* 2. Detailed Body / Architecture Article Section */}
       <div className="pt-8 border-t border-border/60">
         <ProjectContent
-          overview={project.overview}
+          overview={project.excerpt}
           description={project.description}
         />
       </div>

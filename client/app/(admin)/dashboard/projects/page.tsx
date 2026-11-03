@@ -20,7 +20,7 @@ import type {
   UpdateProjectSchema,
 } from "@/lib/validations/project";
 
-import type { Project } from "@/components/admin/project/project-columns";
+import type { Project } from "@/types/portfolio";
 import { ProjectImageDialog } from "@/components/admin/project-media/project-image-dialog";
 
 export default function ProjectsPage() {
@@ -29,8 +29,7 @@ export default function ProjectsPage() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [imageOpen, setImageOpen] = useState(false);
 
-  const [selectedProject, setSelectedProject] =
-    useState<Project | null>(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   const {
     projects,
@@ -83,7 +82,7 @@ export default function ProjectsPage() {
           setEditOpen(false);
           setSelectedProject(null);
         },
-      }
+      },
     );
   }
 
@@ -134,7 +133,7 @@ export default function ProjectsPage() {
         description="Create a new project."
       >
         <ProjectForm
-        projects={projects}
+          projects={projects}
           categories={categories}
           loading={creating}
           onSubmit={handleCreate}
@@ -153,16 +152,16 @@ export default function ProjectsPage() {
           defaultValues={
             selectedProject
               ? {
-                title: selectedProject.title,
-                excerpt: selectedProject.excerpt,
-                description: selectedProject.description,
-                githubUrl: selectedProject.githubUrl ?? "",
-                liveUrl: selectedProject.liveUrl ?? "",
-                featured: selectedProject.featured,
-                status: selectedProject.status,
-                displayOrder: selectedProject.displayOrder,
-                categoryId: selectedProject.category.id,
-              }
+                  title: selectedProject.title,
+                  excerpt: selectedProject.excerpt,
+                  description: selectedProject.description,
+                  githubUrl: selectedProject.githubUrl ?? "",
+                  liveUrl: selectedProject.liveUrl ?? "",
+                  featured: selectedProject.featured,
+                  status: selectedProject.status,
+                  displayOrder: selectedProject.displayOrder,
+                  categoryId: selectedProject.category.id,
+                }
               : undefined
           }
           loading={updating}

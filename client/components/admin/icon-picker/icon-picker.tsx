@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import {
     iconMap,
     icons,
-} from "./icons";
+} from "@/lib/skill-icons";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface IconPickerProps {

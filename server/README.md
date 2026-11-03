@@ -1,98 +1,38 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Portfolio server
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+NestJS + Prisma/PostgreSQL backend for Yograj's CV portfolio and private CMS.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Local setup
 
-## Description
+1. Run `npm ci` in this directory.
+2. Copy `.env.example` to `.env` and replace placeholders. The server defaults to port 3001; the Next.js client uses 3000.
+3. Start PostgreSQL using the root Docker Compose configuration, or configure a separate instance.
+4. Inspect `npx prisma migrate status`, then apply migrations with `npm run prisma:deploy` against the intended database. Back up existing data first. Do not reset a populated database.
+5. Run `npm run prisma:generate` and `npm run start:dev`.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+The API prefix defaults to `/api`. `/api/health` checks database readiness. Swagger is available at `/docs` outside production. `npm run start:prod` runs the compiled application after `npm run build`.
 
-## Project setup
+To create/update the single portfolio owner, configure ADMIN_NAME, ADMIN_EMAIL and an 8–72 UTF-8 byte ADMIN_PASSWORD, then run `npx prisma db seed`. Seeding updates the owner password and revokes the saved refresh session; it does not publish sample credentials or portfolio content.
 
-```bash
-$ npm install
+## API contract and checks
+
+See [backend API contract](../docs/api/backend.md) for endpoint, validation, and client integration details. See [backend audit](../docs/architecture/backend-audit.md) for completed fixes and migration context.
+
+```powershell
+npm run check
+npm run test:e2e
 ```
 
-## Compile and run the project
+The HTTP integration suite requires TEST_DATABASE_URL, with a safety check restricting it to a disposable PostgreSQL database named portfolio_test at localhost:55439. Apply migrations there first. Tests create and remove their own fixtures; never point them at the portfolio database.
 
-```bash
-# development
-$ npm run start
+## Hosting configuration
 
-# watch mode
-$ npm run start:dev
+CLIENT_URL must identify the actual client origin. Browser auth requests use credentials and Origin. COOKIE_SAME_SITE defaults to strict; choose none for a cross-site HTTPS client/API deployment. Cookies are HttpOnly and Secure in production (also Secure whenever SameSite=None), and their lifetime follows the minted refresh JWT. Cookie clearing uses the same attributes. Cross-origin writes are rejected; cookie-bearing auth calls without Origin are rejected too. CLI auth clients must send the configured Origin when using refresh cookies.
 
-# production mode
-$ npm run start:prod
-```
+TRUST_PROXY_HOPS defaults to 0. Set it only to the number of trusted reverse proxy hops and ensure the API cannot be reached around those proxies; this controls the IP used for rate limits. Limits are stored atomically in PostgreSQL across API instances. Old expired buckets are cleaned during subsequent limited requests.
 
-## Run tests
+CV_ALLOWED_HOSTS is a comma-separated list of exact trusted HTTPS file hostnames for resumeUrl. `/api/users/resume` previews the PDF and `?download=true` downloads it with attachment headers. Redirects are disabled; upstream requests time out after 10 seconds and PDFs are capped at 10 MiB. The host must serve the actual PDF, not an HTML sharing page. Configure only trusted public asset hosts.
 
-```bash
-# unit tests
-$ npm run test
+Messages are saved to the admin inbox; there is no outgoing email service. REPLIED is a manually managed status. No raw visitor IP or user agent is stored on messages. The public form accepts an optional empty website honeypot, while limits use hashed IP/route/time buckets.
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+A single seeded owner is the administrative model; there is no public signup or multi-role account system. Access tokens remain valid until their short expiry after logout, but deleted accounts are rejected. Refresh sessions rotate atomically, and login replaces the account's previous refresh session.

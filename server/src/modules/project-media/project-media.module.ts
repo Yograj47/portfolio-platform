@@ -4,6 +4,6 @@ import { ProjectMediaService } from './project-media.service';
 
 @Module({
   controllers: [ProjectMediaController],
-  providers: [ProjectMediaService]
+  providers: [ProjectMediaService],
 })
 export class ProjectMediaModule {}

@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { IconPicker } from "../icon-picker/icon-picker";
 import { OrderPicker } from "@/components/forms/order-picker";
-import type { Skill } from "@/components/admin/skill/skill-columns";
+import type { Skill } from "@/types/portfolio";
 import { Pipette } from "lucide-react";
 
 interface SkillFormProps {
@@ -21,9 +21,18 @@ interface SkillFormProps {
 }
 
 const PRESET_COLORS = [
-  "#61DAFB", "#68A063", "#3178C6", "#F0DB4F",
-  "#E34F26", "#1572B6", "#000000", "#47A248",
-  "#339933", "#007ACC", "#FF4081", "#764ABC"
+  "#61DAFB",
+  "#68A063",
+  "#3178C6",
+  "#F0DB4F",
+  "#E34F26",
+  "#1572B6",
+  "#000000",
+  "#47A248",
+  "#339933",
+  "#007ACC",
+  "#FF4081",
+  "#764ABC",
 ];
 
 export function SkillForm({
@@ -47,7 +56,7 @@ export function SkillForm({
     }
     return 1;
   }, [currentDisplayOrder, disabledOrders]);
-  
+
   const {
     register,
     handleSubmit,
@@ -157,7 +166,10 @@ export function SkillForm({
           <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Proficiency Rating
           </Label>
-          <span className="font-mono text-sm font-bold" style={{ color: colorValue }}>
+          <span
+            className="font-mono text-sm font-bold"
+            style={{ color: colorValue }}
+          >
             {levelValue}%
           </span>
         </div>

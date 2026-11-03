@@ -5,33 +5,43 @@ import { PrismaService } from '@/database/prisma/prisma.service';
 
 @Injectable()
 export class SkillService {
-
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   create(createSkillDto: CreateSkillDto) {
     return this.prisma.skill.create({
-      data: createSkillDto
-    })
+      data: createSkillDto,
+    });
   }
 
   findAll() {
     return this.prisma.skill.findMany({
+      include: {
+        projects: {
+          where: { project: { status: 'PUBLISHED', deletedAt: null } },
+          select: {
+            usageNote: true,
+            project: {
+              select: { id: true, title: true, slug: true, excerpt: true },
+            },
+          },
+        },
+      },
       orderBy: {
-        displayOrder: "asc",
+        displayOrder: 'asc',
       },
     });
   }
 
   async findOne(id: string) {
     const skill = await this.prisma.skill.findUnique({
-      where: { id }
-    })
+      where: { id },
+    });
 
     if (!skill) {
-      throw new NotFoundException("Skill not found")
+      throw new NotFoundException('Skill not found');
     }
 
-    return skill
+    return skill;
   }
 
   async update(id: string, updateSkillDto: UpdateSkillDto) {
@@ -39,7 +49,7 @@ export class SkillService {
 
     return this.prisma.skill.update({
       where: { id },
-      data: updateSkillDto
+      data: updateSkillDto,
     });
   }
 
@@ -47,7 +57,7 @@ export class SkillService {
     await this.findOne(id);
 
     return this.prisma.skill.delete({
-      where: { id }
-    })
+      where: { id },
+    });
   }
 }

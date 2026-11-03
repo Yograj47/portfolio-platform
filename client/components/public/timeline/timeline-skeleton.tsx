@@ -23,7 +23,7 @@ export function TimelineSkeleton() {
 
                 {/* Card Container */}
                 <div className="space-y-3 rounded-xl border p-5">
-                  <div className="flex justify-between">
+                  <div className="flex flex-wrap justify-between gap-4">
                     <div className="space-y-2">
                       <Skeleton className="h-4 w-20 rounded-full" />
                       <Skeleton className="h-6 w-44" />

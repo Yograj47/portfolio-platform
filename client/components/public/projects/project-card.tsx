@@ -1,10 +1,15 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowUpRight, ExternalLink, Image as ImageIcon, Sparkles } from "lucide-react";
+import {
+  ArrowUpRight,
+  ExternalLink,
+  Image as ImageIcon,
+  Sparkles,
+} from "lucide-react";
 import { FaGithub } from "react-icons/fa6";
 
 import { Badge } from "@/components/ui/badge";
-import { PublicProject } from "@/lib/validations/project";
+import type { PublicProject } from "@/types/portfolio";
 
 interface ProjectCardProps {
   project: PublicProject;
@@ -31,7 +36,9 @@ export function ProjectCard({ project }: ProjectCardProps) {
           ) : (
             <div className="flex h-full w-full flex-col items-center justify-center gap-1.5 bg-linear-to-br from-muted/80 to-muted/30 text-muted-foreground">
               <ImageIcon className="size-6 opacity-40" />
-              <span className="text-[11px] font-medium">No preview available</span>
+              <span className="text-[11px] font-medium">
+                No preview available
+              </span>
             </div>
           )}
 
@@ -64,12 +71,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
         {/* Card Content */}
         <div className="space-y-1.5 p-4">
           <h3 className="text-base font-semibold tracking-tight text-foreground transition-colors duration-200 group-hover:text-primary sm:text-lg">
-            <Link
-              href={`/projects/${project.slug}`}
-              onClick={() => {
-                sessionStorage.setItem(`project_id_${project.slug}`, project.id);
-              }}
-            >
+            <Link href={`/projects/${project.slug}`}>
               <span className="absolute inset-0 z-0" />
               {project.title}
             </Link>
@@ -85,9 +87,6 @@ export function ProjectCard({ project }: ProjectCardProps) {
       <div className="relative z-10 flex items-center justify-between border-t border-border/40 px-4 py-2.5">
         <Link
           href={`/projects/${project.slug}`}
-          onClick={() => {
-            sessionStorage.setItem(`project_id_${project.slug}`, project.id);
-          }}
           className="group/link inline-flex items-center gap-1 text-xs font-medium text-foreground transition-colors hover:text-primary"
         >
           View Project

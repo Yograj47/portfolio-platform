@@ -1,22 +1,17 @@
 import http from "@/lib/http";
+import { publicHttp } from "@/lib/public-http";
 import type {
-    CreateCategorySchema,
-    UpdateCategorySchema,
+  CreateCategorySchema,
+  UpdateCategorySchema,
 } from "@/lib/validations/category";
 
 export const categoryService = {
-    findAll: () =>
-        http.get("/categories"),
+  findAll: (signal?: AbortSignal) => publicHttp.get("/categories", { signal }),
 
-    findOne: (id: string) =>
-        http.get(`/categories/${id}`),
+  create: (data: CreateCategorySchema) => http.post("/categories", data),
 
-    create: (data: CreateCategorySchema) =>
-        http.post("/categories", data),
+  update: (id: string, data: UpdateCategorySchema) =>
+    http.patch(`/categories/${id}`, data),
 
-    update: (id: string, data: UpdateCategorySchema) =>
-        http.patch(`/categories/${id}`, data),
-
-    remove: (id: string) =>
-        http.delete(`/categories/${id}`),
+  remove: (id: string) => http.delete(`/categories/${id}`),
 };

@@ -15,134 +15,135 @@ import { ConfirmationDialog } from "@/components/dialogs/confirmation-dialog";
 import { useCategory } from "@/hooks/use-category";
 
 import type { CreateCategorySchema } from "@/lib/validations/category";
-import type { Category } from "@/components/admin/category/category-columns";
+import type { Category } from "@/types/portfolio";
 
 export default function CategoriesPage() {
-    const [createOpen, setCreateOpen] = useState(false);
-    const [editOpen, setEditOpen] = useState(false);
-    const [deleteOpen, setDeleteOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
-    const [selectedCategory, setSelectedCategory] =
-        useState<Category | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null,
+  );
 
-    const {
-        categories,
-        loading,
+  const {
+    categories,
+    loading,
 
-        createCategory,
-        updateCategory,
-        deleteCategory,
+    createCategory,
+    updateCategory,
+    deleteCategory,
 
-        creating,
-        updating,
-        deleting,
-    } = useCategory();
+    creating,
+    updating,
+    deleting,
+  } = useCategory();
 
-    function handleCreate(data: CreateCategorySchema) {
-        createCategory(data, {
-            onSuccess: () => {
-                setCreateOpen(false);
-            },
-        });
-    }
+  function handleCreate(data: CreateCategorySchema) {
+    createCategory(data, {
+      onSuccess: () => {
+        setCreateOpen(false);
+      },
+    });
+  }
 
-    function handleEdit(category: Category) {
-        setSelectedCategory(category);
-        setEditOpen(true);
-    }
+  function handleEdit(category: Category) {
+    setSelectedCategory(category);
+    setEditOpen(true);
+  }
 
-    function handleDelete(category: Category) {
-        setSelectedCategory(category);
-        setDeleteOpen(true);
-    }
+  function handleDelete(category: Category) {
+    setSelectedCategory(category);
+    setDeleteOpen(true);
+  }
 
-    function handleConfirmDelete() {
-        if (!selectedCategory) return;
+  function handleConfirmDelete() {
+    if (!selectedCategory) return;
 
-        deleteCategory(selectedCategory.id, {
-            onSuccess: () => {
-                setDeleteOpen(false);
-                setSelectedCategory(null);
-            },
-        });
-    }
+    deleteCategory(selectedCategory.id, {
+      onSuccess: () => {
+        setDeleteOpen(false);
+        setSelectedCategory(null);
+      },
+    });
+  }
 
-    return (
-        <div className="flex flex-1 flex-col min-h-0 h-full gap-4">
-            {/* Page Header */}
-            <PageHeader
-                description="Manage your portfolio categories."
-                action={
-                    <Button
-                        size="sm"
-                        onClick={() => setCreateOpen(true)}
-                        className="cursor-pointer"
-                    >
-                        <Plus className="mr-2 size-4" />
-                        New Category
-                    </Button>
-                }
-            />
+  return (
+    <div className="flex flex-1 flex-col min-h-0 h-full gap-4">
+      {/* Page Header */}
+      <PageHeader
+        description="Manage your portfolio categories."
+        action={
+          <Button
+            size="sm"
+            onClick={() => setCreateOpen(true)}
+            className="cursor-pointer"
+          >
+            <Plus className="mr-2 size-4" />
+            New Category
+          </Button>
+        }
+      />
 
-            {/* Table Container bound to remaining viewport height */}
-            <div className="flex flex-1 flex-col min-h-0">
-                <CategoryTable
-                    data={categories}
-                    loading={loading}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                />
-            </div>
+      {/* Table Container bound to remaining viewport height */}
+      <div className="flex flex-1 flex-col min-h-0">
+        <CategoryTable
+          data={categories}
+          loading={loading}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+      </div>
 
-            {/* Dialogs */}
-            <FormDialog
-                open={createOpen}
-                onOpenChange={setCreateOpen}
-                title="Create Category"
-                description="Create a new category."
-            >
-                <CategoryForm loading={creating} onSubmit={handleCreate} />
-            </FormDialog>
+      {/* Dialogs */}
+      <FormDialog
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        title="Create Category"
+        description="Create a new category."
+      >
+        <CategoryForm loading={creating} onSubmit={handleCreate} />
+      </FormDialog>
 
-            <FormDialog
-                open={editOpen}
-                onOpenChange={setEditOpen}
-                title="Edit Category"
-                description="Update category."
-            >
-                <CategoryForm
-                    defaultValues={{
-                        name: selectedCategory?.name ?? "",
-                        description: selectedCategory?.description ?? "",
-                    }}
-                    loading={updating}
-                    onSubmit={(data) => {
-                        if (!selectedCategory) return;
+      <FormDialog
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        title="Edit Category"
+        description="Update category."
+      >
+        <CategoryForm
+          defaultValues={{
+            name: selectedCategory?.name ?? "",
+            description: selectedCategory?.description ?? "",
+          }}
+          loading={updating}
+          onSubmit={(data) => {
+            if (!selectedCategory) return;
 
-                        updateCategory(
-                            {
-                                id: selectedCategory.id,
-                                data,
-                            },
-                            {
-                                onSuccess: () => {
-                                    setEditOpen(false);
-                                    setSelectedCategory(null);
-                                },
-                            }
-                        );
-                    }}
-                />
-            </FormDialog>
+            updateCategory(
+              {
+                id: selectedCategory.id,
+                data,
+              },
+              {
+                onSuccess: () => {
+                  setEditOpen(false);
+                  setSelectedCategory(null);
+                },
+              },
+            );
+          }}
+        />
+      </FormDialog>
 
-            <ConfirmationDialog
-                open={deleteOpen}
-                onOpenChange={setDeleteOpen}
-                title="Delete Category"
-                message={`Delete "${selectedCategory?.name}"? This action cannot be undone.`}
-                loading={deleting}
-                onConfirm={handleConfirmDelete}
-            />
-        </div>
-    );
+      <ConfirmationDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title="Delete Category"
+        message={`Delete "${selectedCategory?.name}"? This action cannot be undone.`}
+        loading={deleting}
+        onConfirm={handleConfirmDelete}
+      />
+    </div>
+  );
 }

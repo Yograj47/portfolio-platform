@@ -21,6 +21,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     }
   }, [isError, router]);
 
+  if (isError) return null;
+
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-muted/20">
       <DashboardSidebar />

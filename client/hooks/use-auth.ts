@@ -1,77 +1,73 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 
-import {
-    authService,
-} from "@/services/auth.service";
+import { authService } from "@/services/auth.service";
 
 import { useAuthStore } from "@/store/auth.store";
 import { UpdateProfileData } from "@/lib/validations/profile";
 
 export function useAuth() {
-    const router = useRouter();
+  const router = useRouter();
+  const queryClient = useQueryClient();
 
-    const {
-        user,
-        isAuthenticated,
-        setUser,
-        setAccessToken,
-        logout: clearAuth,
-    } = useAuthStore();
+  const {
+    user,
+    isAuthenticated,
+    setUser,
+    setAccessToken,
+    logout: clearAuth,
+  } = useAuthStore();
 
-    const loginMutation = useMutation({
-        mutationFn: authService.login,
+  const loginMutation = useMutation({
+    mutationFn: authService.login,
 
-        onSuccess: async (loginResponse) => {
-            setAccessToken(
-                loginResponse.data.data.accessToken
-            );
+    onSuccess: async (loginResponse) => {
+      setAccessToken(loginResponse.data.data.accessToken);
 
-            const me = await authService.me();
+      const me = await authService.me();
 
-            setUser(me.data.data);
+      setUser(me.data.data);
 
-            router.replace("/dashboard");
-        },
-    });
+      router.replace("/dashboard");
+    },
+  });
 
-    const logoutMutation = useMutation({
-        mutationFn: authService.logout,
+  const logoutMutation = useMutation({
+    mutationFn: authService.logout,
 
-        onSuccess: () => {
-            clearAuth();
+    onSettled: () => {
+      clearAuth();
+      queryClient.clear();
 
-            router.replace("/");
-        },
-    });
+      router.replace("/");
+    },
+  });
 
-    const updateProfileMutation = useMutation({
-        mutationFn: (data: UpdateProfileData) =>
-            authService.updateProfile(data),
+  const updateProfileMutation = useMutation({
+    mutationFn: (data: UpdateProfileData) => authService.updateProfile(data),
 
-        onSuccess: (response) => {
-            setUser(response.data.data);
-        },
-    });
+    onSuccess: (response) => {
+      setUser(response.data.data);
+      void queryClient.invalidateQueries({ queryKey: ["public-profile"] });
+    },
+  });
 
-    return {
-        user,
-        isAuthenticated,
+  return {
+    user,
+    isAuthenticated,
 
-        login: loginMutation.mutate,
-        loginAsync: loginMutation.mutateAsync,
+    login: loginMutation.mutate,
+    loginAsync: loginMutation.mutateAsync,
 
-        logout: logoutMutation.mutate,
+    logout: logoutMutation.mutate,
 
-        updateProfile: updateProfileMutation.mutate,
-        updateProfileAsync:
-            updateProfileMutation.mutateAsync,
+    updateProfile: updateProfileMutation.mutate,
+    updateProfileAsync: updateProfileMutation.mutateAsync,
 
-        loginLoading: loginMutation.isPending,
-        logoutLoading: logoutMutation.isPending,
-        updateProfileLoading:
-            updateProfileMutation.isPending,
-    };
+    loginLoading: loginMutation.isPending,
+    logoutLoading: logoutMutation.isPending,
+    updateProfileLoading: updateProfileMutation.isPending,
+  };
 }

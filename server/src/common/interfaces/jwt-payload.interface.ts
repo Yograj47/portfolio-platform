@@ -1,7 +1,7 @@
 export interface JwtPayload {
-    sub: string;
+  sub: string;
 }
 
 export interface RefreshJwtPayload extends JwtPayload {
-    refreshToken: string;
+  refreshToken: string;
 }

@@ -1,57 +1,71 @@
 import {
-    IsBoolean,
-    IsEmail,
-    IsOptional,
-    IsString,
-    IsUrl,
-} from "class-validator";
+  MaxLength,
+  Length,
+  ValidateIf,
+  IsBoolean,
+  IsEmail,
+  IsOptional,
+  IsString,
+  IsUrl,
+} from 'class-validator';
 
 export class UpdateProfileDto {
-    @IsOptional()
-    @IsString()
-    name?: string;
+  @ValidateIf((_object, value) => value !== undefined)
+  @IsString()
+  @Length(1, 100)
+  name?: string;
 
-    @IsOptional()
-    @IsEmail()
-    email?: string;
+  @ValidateIf((_object, value) => value !== undefined)
+  @IsEmail()
+  email?: string;
 
-    @IsOptional()
-    @IsUrl()
-    avatar?: string;
+  @IsOptional()
+  @IsUrl({ protocols: ['https', 'http'], require_protocol: true })
+  avatar?: string;
 
-    @IsOptional()
-    @IsString()
-    role?: string;
+  @IsOptional()
+  @IsString()
+  @MaxLength(3000)
+  summary?: string;
 
-    @IsOptional()
-    @IsString()
-    location?: string;
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  phone?: string;
 
-    @IsOptional()
-    @IsBoolean()
-    isAvailable?: boolean;
+  @IsOptional()
+  @IsString()
+  role?: string;
 
-    @IsOptional()
-    @IsBoolean()
-    openToFullTime?: boolean;
+  @IsOptional()
+  @IsString()
+  location?: string;
 
-    @IsOptional()
-    @IsBoolean()
-    openToOpenSource?: boolean;
+  @ValidateIf((_object, value) => value !== undefined)
+  @IsBoolean()
+  isAvailable?: boolean;
 
-    @IsOptional()
-    @IsBoolean()
-    openToFreelance?: boolean;
+  @ValidateIf((_object, value) => value !== undefined)
+  @IsBoolean()
+  openToFullTime?: boolean;
 
-    @IsOptional()
-    @IsUrl()
-    githubUrl?: string;
+  @ValidateIf((_object, value) => value !== undefined)
+  @IsBoolean()
+  openToOpenSource?: boolean;
 
-    @IsOptional()
-    @IsUrl()
-    linkedinUrl?: string;
+  @ValidateIf((_object, value) => value !== undefined)
+  @IsBoolean()
+  openToFreelance?: boolean;
 
-    @IsOptional()
-    @IsUrl()
-    resumeUrl?: string;
+  @IsOptional()
+  @IsUrl({ protocols: ['https', 'http'], require_protocol: true })
+  githubUrl?: string;
+
+  @IsOptional()
+  @IsUrl({ protocols: ['https', 'http'], require_protocol: true })
+  linkedinUrl?: string;
+
+  @IsOptional()
+  @IsUrl({ protocols: ['https', 'http'], require_protocol: true })
+  resumeUrl?: string;
 }

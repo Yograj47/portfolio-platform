@@ -9,23 +9,23 @@ import {
   Patch,
   Post,
   UseGuards,
-} from "@nestjs/common";
-import { ProjectService } from "./project.service";
-import { CreateProjectDto } from "./dto/create-project.dto";
-import { UpdateProjectDto } from "./dto/update-project.dto";
-import { AccessTokenGuard } from "../auth/guards/access-token.guard";
-import { CurrentUser } from "@/common/decorators/current-user.decorator";
-import type { JwtPayload } from "@/common/interfaces/jwt-payload.interface";
-import { ResponseMessage } from "@/common/decorators/response-message.decorator";
+} from '@nestjs/common';
+import { ProjectService } from './project.service';
+import { CreateProjectDto } from './dto/create-project.dto';
+import { UpdateProjectDto } from './dto/update-project.dto';
+import { AccessTokenGuard } from '../auth/guards/access-token.guard';
+import { CurrentUser } from '@/common/decorators/current-user.decorator';
+import type { JwtPayload } from '@/common/interfaces/jwt-payload.interface';
+import { ResponseMessage } from '@/common/decorators/response-message.decorator';
 
-@Controller("projects")
+@Controller('projects')
 export class ProjectController {
-  constructor(private readonly projectService: ProjectService) { }
+  constructor(private readonly projectService: ProjectService) {}
 
   @Post()
   @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.CREATED)
-  @ResponseMessage("Project created successfully")
+  @ResponseMessage('Project created successfully')
   create(
     @CurrentUser() user: JwtPayload,
     @Body() createProjectDto: CreateProjectDto,
@@ -35,34 +35,52 @@ export class ProjectController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  @ResponseMessage("Projects fetched successfully")
+  @ResponseMessage('Projects fetched successfully')
   findAll() {
     return this.projectService.findAll();
   }
 
-  @Get(":id")
+  @Get('admin')
+  @UseGuards(AccessTokenGuard)
+  findAllAdmin(@CurrentUser() user: JwtPayload) {
+    return this.projectService.findAll(user.sub);
+  }
+
+  @Get('admin/:id')
+  @UseGuards(AccessTokenGuard)
+  findOneAdmin(@CurrentUser() user: JwtPayload, @Param('id') id: string) {
+    return this.projectService.findOne(id, user.sub);
+  }
+
+  @Get('slug/:slug')
+  findBySlug(@Param('slug') slug: string) {
+    return this.projectService.findOne(slug, undefined, true);
+  }
+
+  @Get(':id')
   @HttpCode(HttpStatus.OK)
-  @ResponseMessage("Project fetched successfully")
-  findOne(@Param("id") id: string) {
+  @ResponseMessage('Project fetched successfully')
+  findOne(@Param('id') id: string) {
     return this.projectService.findOne(id);
   }
 
-  @Patch(":id")
+  @Patch(':id')
   @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.OK)
-  @ResponseMessage("Project updated successfully")
+  @ResponseMessage('Project updated successfully')
   update(
-    @Param("id") id: string,
+    @CurrentUser() user: JwtPayload,
+    @Param('id') id: string,
     @Body() updateProjectDto: UpdateProjectDto,
   ) {
-    return this.projectService.update(id, updateProjectDto);
+    return this.projectService.update(id, updateProjectDto, user.sub);
   }
 
-  @Delete(":id")
+  @Delete(':id')
   @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.OK)
-  @ResponseMessage("Project deleted successfully")
-  remove(@Param("id") id: string) {
-    return this.projectService.remove(id);
+  @ResponseMessage('Project deleted successfully')
+  remove(@CurrentUser() user: JwtPayload, @Param('id') id: string) {
+    return this.projectService.remove(id, user.sub);
   }
 }

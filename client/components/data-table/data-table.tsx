@@ -63,7 +63,9 @@ export function DataTable<TData, TValue>({
   });
 
   if (loading) {
-    return <TableSkeleton />;
+    return (
+      <TableSkeleton columnCount={columns.length} showSearch={showSearch} />
+    );
   }
 
   return (
@@ -103,17 +105,18 @@ export function DataTable<TData, TValue>({
                     return (
                       <TableHead
                         key={header.id}
-                        className={`sticky top-0 z-20 bg-muted/90 backdrop-blur-md border-b border-border/60 ${isActions
+                        className={`sticky top-0 z-20 bg-muted/90 backdrop-blur-md border-b border-border/60 ${
+                          isActions
                             ? "w-14 text-right pr-4 font-semibold text-xs uppercase tracking-wider"
                             : "py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground"
-                          }`}
+                        }`}
                       >
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
                       </TableHead>
                     );
                   })}
@@ -134,12 +137,13 @@ export function DataTable<TData, TValue>({
                       return (
                         <TableCell
                           key={cell.id}
-                          className={`border-b border-border/40 ${isActions ? "w-14 text-right pr-4" : "py-3 text-sm"
-                            }`}
+                          className={`border-b border-border/40 ${
+                            isActions ? "w-14 text-right pr-4" : "py-3 text-sm"
+                          }`}
                         >
                           {flexRender(
                             cell.column.columnDef.cell,
-                            cell.getContext()
+                            cell.getContext(),
                           )}
                         </TableCell>
                       );

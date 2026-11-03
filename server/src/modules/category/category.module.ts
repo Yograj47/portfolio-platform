@@ -6,6 +6,6 @@ import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 @Module({
   controllers: [CategoryController],
   providers: [CategoryService, AccessTokenGuard],
-  exports: [CategoryService]
+  exports: [CategoryService],
 })
-export class CategoryModule { }
+export class CategoryModule {}

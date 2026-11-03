@@ -15,7 +15,7 @@ import type {
   UpdateSkillSchema,
 } from "@/lib/validations/skill";
 
-import type { Skill } from "@/components/admin/skill/skill-columns";
+import type { Skill } from "@/types/portfolio";
 import { PageHeader } from "@/components/admin/dashboard/page-header";
 
 export default function SkillsPage() {
@@ -69,7 +69,7 @@ export default function SkillsPage() {
           setEditOpen(false);
           setSelectedSkill(null);
         },
-      }
+      },
     );
   }
 
@@ -89,7 +89,11 @@ export default function SkillsPage() {
       <PageHeader
         description="Manage your skills."
         action={
-          <Button size="sm" onClick={() => setCreateOpen(true)} className="cursor-pointer">
+          <Button
+            size="sm"
+            onClick={() => setCreateOpen(true)}
+            className="cursor-pointer"
+          >
             <Plus className="mr-2 size-4" />
             New Skill
           </Button>
@@ -113,11 +117,7 @@ export default function SkillsPage() {
         title="Create Skill"
         description="Create a new skill."
       >
-        <SkillForm
-          skills={skills}
-          loading={creating}
-          onSubmit={handleCreate}
-        />
+        <SkillForm skills={skills} loading={creating} onSubmit={handleCreate} />
       </FormDialog>
 
       <FormDialog

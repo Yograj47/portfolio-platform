@@ -6,6 +6,6 @@ import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 @Module({
   controllers: [SkillController],
   providers: [SkillService, AccessTokenGuard],
-  exports: [SkillService]
+  exports: [SkillService],
 })
-export class SkillModule { }
+export class SkillModule {}

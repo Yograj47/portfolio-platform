@@ -1,11 +1,15 @@
+import { CvService } from './cv.service';
+import { IsIn, IsOptional } from 'class-validator';
 import {
-    Body,
-    Controller,
-    Get,
-    HttpCode,
-    HttpStatus,
-    Patch,
-    UseGuards,
+  Query,
+  Header,
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Patch,
+  UseGuards,
 } from '@nestjs/common';
 
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
@@ -16,40 +20,43 @@ import { ResponseMessage } from '@/common/decorators/response-message.decorator'
 import { UsersService } from './users.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 
+class CvQueryDto {
+  @IsOptional() @IsIn(['true', 'false']) download?: string;
+}
+
 @Controller('users')
 export class UsersController {
-    constructor(
-        private readonly usersService: UsersService
-    ) { }
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly cv: CvService,
+  ) {}
 
-    @Get('profile')
-    @HttpCode(HttpStatus.OK)
-    @ResponseMessage('Profile fetched successfully')
-    async profile() {
-        return this.usersService.getPublicProfile();
-    }
+  @Get('resume')
+  @Header('Cache-Control', 'private, no-store')
+  resume(@Query() query: CvQueryDto) {
+    return this.cv.file(query.download === 'true');
+  }
 
-    @Get('me')
-    @UseGuards(AccessTokenGuard)
-    @HttpCode(HttpStatus.OK)
-    @ResponseMessage('Profile fetched successfully')
-    async me(
-        @CurrentUser() user: JwtPayload
-    ) {
-        return this.usersService.findById(user.sub);
-    }
+  @Get('profile')
+  @HttpCode(HttpStatus.OK)
+  @ResponseMessage('Profile fetched successfully')
+  async profile() {
+    return this.usersService.getPublicProfile();
+  }
 
-    @Patch('me')
-    @UseGuards(AccessTokenGuard)
-    @HttpCode(HttpStatus.OK)
-    @ResponseMessage('Information updated')
-    async update(
-        @CurrentUser() user: JwtPayload,
-        @Body() dto: UpdateProfileDto
-    ) {
-        return this.usersService.update(
-            user.sub,
-            dto
-        );
-    }
+  @Get('me')
+  @UseGuards(AccessTokenGuard)
+  @HttpCode(HttpStatus.OK)
+  @ResponseMessage('Profile fetched successfully')
+  async me(@CurrentUser() user: JwtPayload) {
+    return this.usersService.getSafeProfile(user.sub);
+  }
+
+  @Patch('me')
+  @UseGuards(AccessTokenGuard)
+  @HttpCode(HttpStatus.OK)
+  @ResponseMessage('Information updated')
+  async update(@CurrentUser() user: JwtPayload, @Body() dto: UpdateProfileDto) {
+    return this.usersService.update(user.sub, dto);
+  }
 }

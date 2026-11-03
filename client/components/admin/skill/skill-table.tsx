@@ -2,10 +2,8 @@
 
 import { useMemo } from "react";
 import { DataTable } from "@/components/data-table/data-table";
-import {
-  Skill,
-  getSkillColumns,
-} from "./skill-columns";
+import type { Skill } from "@/types/portfolio";
+import { getSkillColumns } from "./skill-columns";
 
 interface SkillTableProps {
   data: Skill[];
@@ -27,7 +25,7 @@ export function SkillTable({
         onEdit,
         onDelete,
       }),
-    [onEdit, onDelete]
+    [onEdit, onDelete],
   );
 
   return (

@@ -1,183 +1,37 @@
-# Terminal Portfolio
+# Yograj Rijal — Portfolio
 
-A developer portfolio built around a terminal and virtual filesystem experience instead of a traditional portfolio layout.
+Personal portfolio with a Next.js client, NestJS API, PostgreSQL/Prisma, and an admin dashboard. The public homepage combines database-backed projects, skills, timeline, contact links, and training credentials in one interactive page. Project details have their own routes.
 
-Users can explore projects, skills, experience, and articles through terminal commands, simulated directories, and interactive navigation.
+## Workspace
 
----
+- `client/` — Next.js public portfolio and admin dashboard.
+- `server/` — NestJS API, Prisma schema and migrations.
+- `docs/` — design proposals, implementation roadmap, and source review.
+- `docker-compose.yml` — local PostgreSQL service using root environment configuration.
 
-## Features
+## Development
 
-### Terminal Experience
+Install dependencies separately with `npm ci` in `client/` and `server/`. Configure the required environment variables before starting services; do not commit secrets.
 
-* Custom terminal interface
-* Command execution system
-* Command history
-* Workspace navigation
-* Relative and absolute path support
+From the repository root:
 
-### Virtual Filesystem
-
-```text
-/
-├── Projects/
-├── Blog/
-├── README.md
-├── Skills.db
-├── Timeline.log
-└── Contact.sh
+```powershell
+docker compose up -d
+npm --prefix server run start:dev
 ```
 
-### Commands
+In a second terminal:
 
-```bash
-help
-ls
-cd
-open
-contact
-root
-clear
+```powershell
+npm --prefix client run dev
 ```
 
-### Explorer
+The root is not a separate Node application. Use the package scripts in each application for builds and checks. Database migrations are managed from `server/`; inspect the target database before running them.
 
-* Sidebar file explorer
-* Workspace-aware navigation
-* Active route highlighting
-* File and folder simulation
+## Redesign documentation
 
-### Contact Module
+Start with [documentation](docs/README.md), then the [CV concept](docs/design/cv-portfolio.md) and [roadmap](docs/design/cv-roadmap.md). These describe proposed work, not completed features.
 
-```bash
-contact
-```
+The provided CV screenshot is the visual reference: centered identity, compact text entries, uppercase section headings, thin rules, and aligned dates. Training & Certifications will be the final content section, including verified AWS training/certification details.
 
-Displays:
-
-* Availability status
-* Email
-* GitHub
-* LinkedIn
-* Resume access
-
-### Security
-
-* Hidden root command
-* Password validation
-* Protected login access
-* Middleware-based route protection
-
----
-
-## Tech Stack
-
-### Frontend
-
-* Next.js
-* TypeScript
-* Tailwind CSS
-* Shadcn UI
-
-### Development
-
-* ESLint
-* Git
-* GitHub
-
-### Deployment
-
-* Vercel
-* Render (planned)
-* PostgreSQL (planned)
-
----
-
-## Getting Started
-
-Clone the repository:
-
-```bash
-git clone <repository-url>
-```
-
-Install dependencies:
-
-```bash
-npm install
-```
-
-Run development server:
-
-```bash
-npm run dev
-```
-
-Open:
-
-```text
-http://localhost:3000
-```
-
----
-
-## Project Philosophy
-
-Most portfolios are built as landing pages.
-
-This project was designed as a workspace.
-
-Instead of scrolling through sections, visitors explore content through commands, directories, files, and interactive navigation.
-
-The goal is to create a more memorable and developer-focused experience.
-
----
-
-## Roadmap
-
-### v1.1
-
-* Project index improvements
-* Blog rendering improvements
-* Additional terminal commands
-* UX refinements
-
-### v2.0
-
-* PostgreSQL integration
-* Authentication system
-* Admin dashboard
-* CMS
-* Analytics
-* Content management
-
----
-
-## Release
-
-Current Production Release:
-
-```text
-v1.0.0
-```
-
-Branch Strategy:
-
-```text
-main                -> development
-release/v1.0.0      -> production
-```
-
----
-
-## Author
-
-Yograj Rijal
-
-Full-Stack Developer
-
-GitHub:
-https://github.com/Yograj47
-
-LinkedIn:
-https://www.linkedin.com/in/yograj-rijal-b84893374/
+Older portfolio media is preserved in [reference assets](docs/reference/README.md).

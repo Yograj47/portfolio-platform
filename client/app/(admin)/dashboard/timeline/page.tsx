@@ -19,15 +19,16 @@ import type {
   UpdateTimelineSchema,
 } from "@/lib/validations/timeline";
 
-import type { Timeline } from "@/components/admin/timeline/timeline-columns";
+import type { Timeline } from "@/types/portfolio";
 
 export default function TimelinePage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
-  const [selectedTimeline, setSelectedTimeline] =
-    useState<Timeline | null>(null);
+  const [selectedTimeline, setSelectedTimeline] = useState<Timeline | null>(
+    null,
+  );
 
   const {
     timelines,
@@ -73,7 +74,7 @@ export default function TimelinePage() {
           setEditOpen(false);
           setSelectedTimeline(null);
         },
-      }
+      },
     );
   }
 
@@ -140,16 +141,16 @@ export default function TimelinePage() {
           defaultValues={
             selectedTimeline
               ? {
-                title: selectedTimeline.title,
-                organization: selectedTimeline.organization,
-                location: selectedTimeline.location ?? "",
-                description: selectedTimeline.description ?? "",
-                type: selectedTimeline.type,
-                startDate: selectedTimeline.startDate,
-                endDate: selectedTimeline.endDate ?? "",
-                current: selectedTimeline.current,
-                displayOrder: selectedTimeline.displayOrder,
-              }
+                  title: selectedTimeline.title,
+                  organization: selectedTimeline.organization,
+                  location: selectedTimeline.location ?? "",
+                  description: selectedTimeline.description ?? "",
+                  type: selectedTimeline.type,
+                  startDate: selectedTimeline.startDate,
+                  endDate: selectedTimeline.endDate ?? "",
+                  current: selectedTimeline.current,
+                  displayOrder: selectedTimeline.displayOrder,
+                }
               : undefined
           }
           loading={updating}

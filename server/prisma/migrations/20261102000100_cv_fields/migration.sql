@@ -1,0 +1,5 @@
+ALTER TYPE "TimelineType" ADD VALUE 'TRAINING';
+ALTER TABLE "User" ADD COLUMN "summary" TEXT, ADD COLUMN "phone" TEXT;
+ALTER TABLE "Skill" ADD COLUMN "group" TEXT;
+ALTER TABLE "Project" ADD COLUMN "technologies" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[];
+ALTER TABLE "Timeline" ADD COLUMN "credentialId" TEXT, ADD COLUMN "credentialUrl" TEXT, ADD COLUMN "expiresAt" TIMESTAMP(3);
