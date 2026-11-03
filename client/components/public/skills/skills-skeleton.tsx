@@ -1,8 +1,8 @@
 export function SkillsSkeleton() {
   return (
-    <div className="flex flex-col items-center justify-between gap-8 py-4 lg:flex-row lg:items-center">
+    <div className="flex flex-col items-center justify-between gap-8 py-4 md:flex-row md:items-center">
       {/* Radial Wheel Skeleton */}
-      <div className="relative flex aspect-square w-full max-w-135 items-center justify-center p-4">
+      <div className="relative flex aspect-square w-full max-w-135 items-center justify-center p-4 md:min-w-0 md:flex-1">
         {/* Outer Circular Ring Skeleton */}
         <div className="size-full animate-pulse rounded-full border-12 border-muted/40 bg-transparent" />
 
@@ -14,7 +14,7 @@ export function SkillsSkeleton() {
       </div>
 
       {/* Side Details Panel Skeleton */}
-      <div className="flex w-full max-w-xs flex-col justify-between gap-6">
+      <div className="flex w-full max-w-xs flex-col justify-between gap-6 md:w-72 md:shrink-0">
         {/* Selected Skill Detail Card Skeleton */}
         <div className="rounded-2xl border bg-card p-6 shadow-sm">
           <div className="flex items-center gap-3">

@@ -80,9 +80,9 @@ export function SkillsWheel({ skills }: SkillsWheelProps) {
   const anglePerSlice = 360 / Math.max(totalSkills, 1);
 
   return (
-    <div className="flex flex-col items-center justify-between gap-8 lg:flex-row lg:items-center">
+    <div className="flex flex-col items-center justify-between gap-8 md:flex-row md:items-center">
       {/* Interactive SVG Wheel */}
-      <div className="relative flex aspect-square w-full max-w-135 items-center justify-center p-4">
+      <div className="relative flex aspect-square w-full max-w-135 items-center justify-center p-4 md:min-w-0 md:flex-1">
         <svg
           viewBox={`0 0 ${size} ${size}`}
           className="size-full overflow-visible"
@@ -215,7 +215,7 @@ export function SkillsWheel({ skills }: SkillsWheelProps) {
       </div>
 
       {/* Side Details Panel & Total Count */}
-      <div className="flex w-full max-w-xs flex-col justify-between gap-6">
+      <div className="flex w-full max-w-xs flex-col justify-between gap-6 md:w-72 md:shrink-0">
         {activeSkill && (
           <div className="rounded-2xl border bg-card p-6 shadow-sm">
             <div className="flex items-center justify-between gap-3">
