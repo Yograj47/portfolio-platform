@@ -16,6 +16,7 @@ import {
 
 import { useAuth } from "@/hooks/use-auth";
 import { sidebarItems } from "./sidebar-item";
+import { MobileNavigation } from "./mobile-navigation";
 
 export function DashboardHeader() {
   const pathname = usePathname();
@@ -43,10 +44,11 @@ export function DashboardHeader() {
       .toUpperCase() ?? "AD";
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b bg-background/80 px-6 backdrop-blur-md select-none">
+    <header className="sticky top-0 z-30 flex h-16 shrink-0 w-full min-w-0 items-center justify-between gap-3 border-b bg-background/80 px-4 sm:px-6 backdrop-blur-md select-none">
       {/* Current Page Title */}
-      <div>
-        <h1 className="text-lg font-semibold tracking-tight text-foreground">
+      <div className="flex min-w-0 items-center gap-3">
+        <MobileNavigation key={pathname} />
+        <h1 className="truncate text-base sm:text-lg font-semibold tracking-tight text-foreground">
           {currentPage}
         </h1>
       </div>
@@ -72,11 +74,11 @@ export function DashboardHeader() {
                 </AvatarFallback>
               </Avatar>
 
-              <div className="hidden text-left sm:block">
-                <p className="text-xs font-semibold leading-none text-foreground">
+              <div className="hidden max-w-48 text-left sm:block">
+                <p className="truncate text-xs font-semibold leading-none text-foreground">
                   {user?.name ?? "Admin"}
                 </p>
-                <p className="mt-1 text-[11px] font-normal leading-none text-muted-foreground">
+                <p className="truncate mt-1 text-[11px] font-normal leading-none text-muted-foreground">
                   {user?.email}
                 </p>
               </div>

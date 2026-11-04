@@ -7,11 +7,22 @@ import { Lock, KeySquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { sidebarItems } from "./sidebar-item";
 
-export function DashboardSidebar() {
+export function DashboardSidebar({
+  className,
+  onNavigate,
+}: {
+  className?: string;
+  onNavigate?: () => void;
+}) {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden h-screen w-64 shrink-0 border-r bg-sidebar sticky top-0 lg:flex lg:flex-col justify-between select-none">
+    <aside
+      className={cn(
+        "hidden h-dvh w-64 shrink-0 border-r bg-sidebar sticky top-0 lg:flex lg:flex-col justify-between select-none",
+        className,
+      )}
+    >
       <div>
         {/* Header Branding */}
         <div className="flex items-center gap-3 border-b px-6 py-5">
@@ -29,7 +40,7 @@ export function DashboardSidebar() {
         </div>
 
         {/* Navigation Items */}
-        <nav className="flex-1 space-y-1 p-4">
+        <nav className="flex-1 space-y-1 p-4" aria-label="Management sections">
           {sidebarItems.map((item) => {
             const Icon = item.icon;
             const isDisabled = Boolean(item.notActive);
@@ -47,9 +58,12 @@ export function DashboardSidebar() {
                 href={item.href}
                 tabIndex={isDisabled ? -1 : 0}
                 aria-disabled={isDisabled}
+                aria-current={active ? "page" : undefined}
                 onClick={(e) => {
                   if (isDisabled) {
                     e.preventDefault();
+                  } else {
+                    onNavigate?.();
                   }
                 }}
                 className={cn(

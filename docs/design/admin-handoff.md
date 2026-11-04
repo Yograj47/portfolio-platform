@@ -21,3 +21,5 @@ The frontend and backend must be deployed together for the new `/portfolio` aggr
 Final checks passed: frontend lint/type checks, 14 regression tests, production build, and nine production route checks. Browser fixtures verified 3 / 2 / 1 project cards at 1440 / 800 / 390 pixels, arrow scrolling, inline skill count, no horizontal page overflow, retained message draft after a simulated 429, and confirmation/reset after simulated success. No real inbox messages were created by these browser checks.
 
 Authentication update: management now lives under /admin/login and /admin/dashboard. See [Admin auth](../architecture/admin-auth.md) for verification, redirects, session revocation, and rollout notes.
+
+Responsive navigation: below 1024px the admin header provides an accessible hamburger drawer reusing the desktop sidebar. It closes after section selection, Escape, backdrop click, or resizing to desktop. The content region supports vertical scrolling and narrow layouts. Verified at 320px, 390px, 800px, and 1280px, including focus trapping/restoration, active links, navigation, and no horizontal page overflow. Targeted lint, TypeScript, and production build passed.
