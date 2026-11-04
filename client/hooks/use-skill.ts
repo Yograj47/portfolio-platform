@@ -1,109 +1,87 @@
 "use client";
+import { useSkillsQuery } from "./use-portfolio-content";
 
-import {
-    useMutation,
-    useQuery,
-    useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { skillService } from "@/services/skill.service";
 
-import {
-    CreateSkillSchema,
-    UpdateSkillSchema,
-} from "@/lib/validations/skill";
+import { CreateSkillSchema, UpdateSkillSchema } from "@/lib/validations/skill";
 
-import {
-    showSuccess,
-    showError,
-} from "@/lib/toast";
+import { showSuccess, showError } from "@/lib/toast";
 
 export function useSkill() {
-    const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
-    const skillsQuery = useQuery({
+  const skillsQuery = useSkillsQuery();
+
+  const createMutation = useMutation({
+    mutationFn: (data: CreateSkillSchema) => skillService.create(data),
+
+    onSuccess: () => {
+      showSuccess("Skill created.");
+
+      queryClient.invalidateQueries({
         queryKey: ["skills"],
-        queryFn: async () => {
-            const response = await skillService.findAll();
-            return response.data.data;
-        },
-    });
+      });
+    },
 
-    const createMutation = useMutation({
-        mutationFn: (data: CreateSkillSchema) =>
-            skillService.create(data),
+    onError: () => {
+      showError("Failed to create skill.");
+    },
+  });
 
-        onSuccess: () => {
-            showSuccess("Skill created.");
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UpdateSkillSchema }) =>
+      skillService.update(id, data),
 
-            queryClient.invalidateQueries({
-                queryKey: ["skills"],
-            });
-        },
+    onSuccess: () => {
+      showSuccess("Skill updated.");
 
-        onError: () => {
-            showError("Failed to create skill.");
-        },
-    });
+      queryClient.invalidateQueries({
+        queryKey: ["skills"],
+      });
+    },
 
-    const updateMutation = useMutation({
-        mutationFn: ({
-            id,
-            data,
-        }: {
-            id: string;
-            data: UpdateSkillSchema;
-        }) => skillService.update(id, data),
+    onError: () => {
+      showError("Failed to update skill.");
+    },
+  });
 
-        onSuccess: () => {
-            showSuccess("Skill updated.");
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => skillService.remove(id),
 
-            queryClient.invalidateQueries({
-                queryKey: ["skills"],
-            });
-        },
+    onSuccess: () => {
+      showSuccess("Skill deleted.");
 
-        onError: () => {
-            showError("Failed to update skill.");
-        },
-    });
+      queryClient.invalidateQueries({
+        queryKey: ["skills"],
+      });
+    },
 
-    const deleteMutation = useMutation({
-        mutationFn: (id: string) =>
-            skillService.remove(id),
+    onError: () => {
+      showError("Failed to delete skill.");
+    },
+  });
 
-        onSuccess: () => {
-            showSuccess("Skill deleted.");
+  return {
+    skills: skillsQuery.data ?? [],
 
-            queryClient.invalidateQueries({
-                queryKey: ["skills"],
-            });
-        },
+    loading: skillsQuery.isLoading,
+    error: skillsQuery.isError,
 
-        onError: () => {
-            showError("Failed to delete skill.");
-        },
-    });
+    refetch: skillsQuery.refetch,
 
-    return {
-        skills: skillsQuery.data ?? [],
+    createSkill: createMutation.mutate,
+    createSkillAsync: createMutation.mutateAsync,
 
-        loading: skillsQuery.isLoading,
-        error: skillsQuery.isError,
+    updateSkill: updateMutation.mutate,
+    updateSkillAsync: updateMutation.mutateAsync,
 
-        refetch: skillsQuery.refetch,
+    deleteSkill: deleteMutation.mutate,
+    deleteSkillAsync: deleteMutation.mutateAsync,
 
-        createSkill: createMutation.mutate,
-        createSkillAsync: createMutation.mutateAsync,
-
-        updateSkill: updateMutation.mutate,
-        updateSkillAsync: updateMutation.mutateAsync,
-
-        deleteSkill: deleteMutation.mutate,
-        deleteSkillAsync: deleteMutation.mutateAsync,
-
-        creating: createMutation.isPending,
-        updating: updateMutation.isPending,
-        deleting: deleteMutation.isPending,
-    };
+    creating: createMutation.isPending,
+    updating: updateMutation.isPending,
+    deleting: deleteMutation.isPending,
+  };
 }

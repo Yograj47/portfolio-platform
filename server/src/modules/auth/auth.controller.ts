@@ -1,81 +1,115 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, Req, Res, UseGuards } from "@nestjs/common";
-import type { Response } from "express";
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import type { CookieOptions } from 'express';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Header,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
+import type { Response } from 'express';
 
-import { AuthService } from "./auth.service";
-import { LoginDto } from "./dto/login.dto";
-import { ResponseMessage } from "@/common/decorators/response-message.decorator";
-import { RefreshTokenGuard } from "./guards/refresh-token.guard";
-import { CurrentUser } from "@/common/decorators/current-user.decorator";
-import type { JwtPayload, RefreshJwtPayload } from "@/common/interfaces/jwt-payload.interface";
+import { AuthService } from './auth.service';
+import { LoginDto } from './dto/login.dto';
+import { ResponseMessage } from '@/common/decorators/response-message.decorator';
+import { RefreshTokenGuard } from './guards/refresh-token.guard';
+import { CurrentUser } from '@/common/decorators/current-user.decorator';
+import type { RefreshJwtPayload } from '@/common/interfaces/jwt-payload.interface';
 
 @Controller('auth')
 export class AuthController {
-    constructor(
-        private readonly authService: AuthService) { }
+  constructor(
+    private readonly authService: AuthService,
+    private readonly config: ConfigService,
+    private readonly jwt: JwtService,
+  ) {}
 
-    @Post("login")
-    @HttpCode(HttpStatus.OK)
-    @ResponseMessage("Login successful")
-    async login(
-        @Body() dto: LoginDto,
-        @Res({ passthrough: true }) response: Response,
-    ) {
-        const tokens = await this.authService.login(dto);
+  private cookieOptions(token?: string): CookieOptions {
+    const sameSite = this.config.get<'strict' | 'lax' | 'none'>(
+      'COOKIE_SAME_SITE',
+      'strict',
+    );
+    return {
+      httpOnly: true,
+      secure:
+        this.config.get('NODE_ENV') === 'production' || sameSite === 'none',
+      sameSite,
+      path: '/',
+      ...(token
+        ? {
+            maxAge: Math.max(
+              0,
+              this.jwt.decode<{ exp: number }>(token).exp * 1000 - Date.now(),
+            ),
+          }
+        : {}),
+    };
+  }
 
-        response.cookie(
-            "refreshToken",
-            tokens.refreshToken,
-            {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "strict",
-                maxAge: 7 * 24 * 60 * 60 * 1000,
-            }
-        );
+  @Post('login')
+  @Header('Cache-Control', 'private, no-store')
+  @HttpCode(HttpStatus.OK)
+  @ResponseMessage('Login successful')
+  async login(
+    @Body() dto: LoginDto,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const tokens = await this.authService.login(dto);
 
-        return {
-            accessToken: tokens.accessToken,
-        }
-    }
+    response.cookie(
+      'refreshToken',
+      tokens.refreshToken,
+      this.cookieOptions(tokens.refreshToken),
+    );
 
-    @Post("refresh")
-    @UseGuards(RefreshTokenGuard)
-    @HttpCode(HttpStatus.OK)
-    @ResponseMessage("Token refreshed successfully")
-    async refresh(
-        @CurrentUser() user: RefreshJwtPayload,
-        @Res({ passthrough: true }) response: Response
-    ) {
-        const tokens = await this.authService.refreshToken(
-            user.sub,
-            user.refreshToken
-        );
+    return {
+      accessToken: tokens.accessToken,
+    };
+  }
 
-        response.cookie("refreshToken", tokens.refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-        });
+  @Post('refresh')
+  @Header('Cache-Control', 'private, no-store')
+  @UseGuards(RefreshTokenGuard)
+  @HttpCode(HttpStatus.OK)
+  @ResponseMessage('Token refreshed successfully')
+  async refresh(
+    @CurrentUser() user: RefreshJwtPayload,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const tokens = await this.authService.refreshToken(
+      user.sub,
+      user.refreshToken,
+      user.version,
+    );
 
-        return {
-            accessToken: tokens.accessToken
-        }
-    }
+    response.cookie(
+      'refreshToken',
+      tokens.refreshToken,
+      this.cookieOptions(tokens.refreshToken),
+    );
 
-    @Post("logout")
-    @UseGuards(RefreshTokenGuard)
-    @HttpCode(HttpStatus.OK)
-    @ResponseMessage("Logged out successfully")
-    async logout(
-        @CurrentUser() user: JwtPayload,
-        @Res({ passthrough: true }) response: Response
-    ) {
-        await this.authService.logout(user.sub);
+    return {
+      accessToken: tokens.accessToken,
+    };
+  }
 
-        response.clearCookie("refreshToken");
+  @Post('logout')
+  @Header('Cache-Control', 'private, no-store')
+  @UseGuards(RefreshTokenGuard)
+  @HttpCode(HttpStatus.OK)
+  @ResponseMessage('Logged out successfully')
+  async logout(
+    @CurrentUser() user: RefreshJwtPayload,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    await this.authService.logout(user.sub, user.refreshToken, user.version);
 
-        return null;
-    }
+    response.clearCookie('refreshToken', this.cookieOptions());
 
+    return null;
+  }
 }

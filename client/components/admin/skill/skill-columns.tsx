@@ -4,14 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { DataTableActions } from "@/components/data-table/data-table-actions";
 
-export interface Skill {
-  id: string;
-  name: string;
-  icon?: string;
-  color?: string;
-  level: number;
-  displayOrder: number;
-}
+import type { Skill } from "@/types/portfolio";
 
 interface Props {
   onEdit: (skill: Skill) => void;

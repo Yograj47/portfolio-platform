@@ -4,12 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { format, isValid } from "date-fns";
 import { DataTableActions } from "@/components/data-table/data-table-actions";
 
-export interface Category {
-  id: string;
-  name: string;
-  description: string | null;
-  createdAt: string;
-}
+import type { Category } from "@/types/portfolio";
 
 interface Props {
   onEdit: (category: Category) => void;
@@ -31,9 +26,7 @@ export function getCategoryColumns({
       accessorKey: "name",
       header: "Name",
       cell: ({ row }) => (
-        <span className="font-medium text-foreground">
-          {row.original.name}
-        </span>
+        <span className="font-medium text-foreground">{row.original.name}</span>
       ),
     },
     {

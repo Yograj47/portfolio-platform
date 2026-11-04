@@ -1,47 +1,66 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { CategoryService } from '../category/category.service';
-import slugify from "slugify";
+import slugify from 'slugify';
 import { PrismaService } from '@/database/prisma/prisma.service';
+import { firstAvailableOrder, orderedWrite } from '@/common/display-order';
 
 @Injectable()
 export class ProjectService {
-
-  constructor(private readonly prisma: PrismaService,
-    private readonly categoryService: CategoryService
-  ) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly categoryService: CategoryService,
+  ) {}
 
   async create(id: string, dto: CreateProjectDto) {
-    await this.categoryService.findOne(dto.categoryId)
+    await this.categoryService.findOne(dto.categoryId);
 
     const slug = slugify(dto.title, {
       lower: true,
       trim: true,
-      strict: true
-    })
+      strict: true,
+    });
 
-    return this.prisma.project.create({
-      data: {
-        authorId: id,
-        slug,
-        ...dto
-      }
-    })
-
+    if (!slug)
+      throw new BadRequestException('Title must contain letters or numbers');
+    const { skills, ...fields } = dto;
+    await this.validateSkills(skills);
+    return orderedWrite(this.prisma, `projects:${id}`, async (tx) =>
+      tx.project.create({
+        data: {
+          authorId: id,
+          slug,
+          ...fields,
+          displayOrder: firstAvailableOrder(
+            await tx.project.findMany({
+              where: { authorId: id, deletedAt: null },
+              select: { displayOrder: true },
+            }),
+          ),
+          skills: skills ? { create: skills } : undefined,
+        },
+      }),
+    );
   }
 
-  async findAll() {
+  async findAll(authorId?: string) {
     return this.prisma.project.findMany({
       where: {
         deletedAt: null,
+        ...(authorId ? { authorId } : { status: 'PUBLISHED' }),
       },
       orderBy: {
         displayOrder: 'asc',
       },
       include: {
         category: true,
-        author: true,
+        skills: { include: { skill: true } },
+        author: { select: { name: true } },
         media: {
           where: {
             isActive: true,
@@ -57,14 +76,16 @@ export class ProjectService {
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, authorId?: string, bySlug = false) {
     const project = await this.prisma.project.findFirst({
       where: {
-        id,
+        ...(bySlug ? { slug: id } : { id }),
         deletedAt: null,
+        ...(authorId ? { authorId } : { status: 'PUBLISHED' }),
       },
       include: {
         category: true,
+        skills: { include: { skill: true } },
         media: {
           where: {
             isActive: true,
@@ -86,10 +107,15 @@ export class ProjectService {
     return project;
   }
 
-  async update(id: string, updateProjectDto: UpdateProjectDto) {
-    await this.findOne(id);
+  async update(
+    id: string,
+    updateProjectDto: UpdateProjectDto,
+    authorId: string,
+  ) {
+    await this.findOne(id, authorId);
 
-    const data = { ...updateProjectDto };
+    const { skills, ...data } = updateProjectDto;
+    await this.validateSkills(skills);
 
     if (data.categoryId) {
       await this.categoryService.findOne(data.categoryId);
@@ -98,20 +124,25 @@ export class ProjectService {
     return this.prisma.project.update({
       where: { id },
       data: {
-        ...updateProjectDto,
-        ...(updateProjectDto.title && {
-          slug: slugify(updateProjectDto.title, {
-            lower: true,
-            trim: true,
-            strict: true,
-          })
-        })
+        ...data,
+        skills: skills ? { deleteMany: {}, create: skills } : undefined,
       },
     });
   }
 
-  async remove(id: string) {
-    await this.findOne(id);
+  private async validateSkills(skills?: { skillId: string }[]) {
+    if (
+      skills &&
+      (await this.prisma.skill.count({
+        where: { id: { in: skills.map((item) => item.skillId) } },
+      })) !== skills.length
+    ) {
+      throw new BadRequestException('One or more skills do not exist');
+    }
+  }
+
+  async remove(id: string, authorId: string) {
+    await this.findOne(id, authorId);
 
     return this.prisma.project.update({
       where: { id },
@@ -119,6 +150,5 @@ export class ProjectService {
         deletedAt: new Date(),
       },
     });
-
   }
 }

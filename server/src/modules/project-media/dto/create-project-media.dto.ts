@@ -1,16 +1,18 @@
-import { IsBoolean, IsInt, IsString, Min } from 'class-validator';
+import { ValidateIf, IsBoolean, IsInt, IsString, Min } from 'class-validator';
 
 export class CreateProjectMediaDto {
-    @IsString()
-    projectId!: string;
+  @IsString()
+  projectId!: string;
 
-    @IsString()
-    mediaId!: string;
+  @IsString()
+  mediaId!: string;
 
-    @IsInt()
-    @Min(0)
-    displayOrder?: number;
+  @ValidateIf((_object, value) => value !== undefined)
+  @IsInt()
+  @Min(0)
+  displayOrder?: number;
 
-    @IsBoolean()
-    isCover?: boolean;
+  @ValidateIf((_object, value) => value !== undefined)
+  @IsBoolean()
+  isCover?: boolean;
 }

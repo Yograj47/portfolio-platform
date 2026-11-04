@@ -8,4 +8,4 @@ import { MediaService } from './media.service';
   providers: [ImageKitService, MediaService],
   exports: [ImageKitService, MediaService],
 })
-export class MediaModule { }
+export class MediaModule {}

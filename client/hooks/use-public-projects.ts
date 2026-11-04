@@ -2,51 +2,51 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { projectService } from "@/services/project.service";
-import { Project } from "@/components/admin/project/project-columns";
+import type { Project } from "@/types/portfolio";
 
 interface UsePublicProjectsProps {
-    category?: string;
-    featured?: boolean;
+  category?: string;
+  featured?: boolean;
 }
 
 export function usePublicProjects({
-    category,
-    featured,
+  category,
+  featured,
 }: UsePublicProjectsProps = {}) {
-    const projectsQuery = useQuery({
-        queryKey: [
-            "public-projects",
-            category,
-            featured,
-        ],
+  const projectsQuery = useQuery({
+    queryKey: ["public-projects"],
 
-        queryFn: async () => {
-            const response = await projectService.findAll();
+    retry: false,
+    queryFn: async ({ signal }) => {
+      const response = await projectService.findAll(signal);
 
-            let projects = response.data.data;
+      return response.data.data;
+    },
+    select: (allProjects) => {
+      let projects = allProjects;
 
-            if (featured !== undefined) {
-                projects = projects.filter(
-                    (project: Project) => project.featured === featured
-                );
-            }
+      if (featured !== undefined) {
+        projects = projects.filter(
+          (project: Project) => project.featured === featured,
+        );
+      }
 
-            if (category) {
-                projects = projects.filter(
-                    (project: Project) =>
-                        project.category?.id === category ||
-                        project.category?.slug === category
-                );
-            }
+      if (category) {
+        projects = projects.filter(
+          (project: Project) =>
+            project.category?.id === category ||
+            project.category?.slug === category,
+        );
+      }
 
-            return projects;
-        },
-    });
+      return projects;
+    },
+  });
 
-    return {
-        projects: projectsQuery.data ?? [],
-        loading: projectsQuery.isLoading,
-        error: projectsQuery.isError,
-        refetch: projectsQuery.refetch,
-    };
+  return {
+    projects: projectsQuery.data ?? [],
+    loading: projectsQuery.isLoading,
+    error: projectsQuery.isError,
+    refetch: projectsQuery.refetch,
+  };
 }

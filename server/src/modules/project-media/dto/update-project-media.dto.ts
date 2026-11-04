@@ -1,6 +1,6 @@
-import { PartialType } from '@nestjs/swagger';
+import { PartialType, PickType } from '@nestjs/swagger';
 import { CreateProjectMediaDto } from './create-project-media.dto';
-
 export class UpdateProjectMediaDto extends PartialType(
-    CreateProjectMediaDto,
-) { }
+  PickType(CreateProjectMediaDto, ['displayOrder', 'isCover'] as const),
+  { skipNullProperties: false },
+) {}

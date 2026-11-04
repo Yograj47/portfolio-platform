@@ -2,10 +2,8 @@
 
 import { useMemo } from "react";
 import { DataTable } from "@/components/data-table/data-table";
-import {
-  Category,
-  getCategoryColumns,
-} from "./category-columns";
+import type { Category } from "@/types/portfolio";
+import { getCategoryColumns } from "./category-columns";
 
 interface Props {
   data: Category[];
@@ -15,19 +13,14 @@ interface Props {
   onDelete: (category: Category) => void;
 }
 
-export function CategoryTable({
-  data,
-  loading,
-  onEdit,
-  onDelete,
-}: Props) {
+export function CategoryTable({ data, loading, onEdit, onDelete }: Props) {
   const columns = useMemo(
     () =>
       getCategoryColumns({
         onEdit,
         onDelete,
       }),
-    [onEdit, onDelete]
+    [onEdit, onDelete],
   );
 
   return (

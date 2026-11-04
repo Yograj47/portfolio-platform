@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import type { ProjectMediaItem } from "@/lib/validations/project";
+import type { ProjectMediaItem } from "@/types/portfolio";
 
 interface ProjectGalleryProps {
   mediaList?: ProjectMediaItem[];
@@ -48,10 +48,11 @@ export function ProjectGallery({ mediaList = [] }: ProjectGalleryProps) {
               key={item.id}
               type="button"
               onClick={() => setSelectedIndex(idx)}
-              className={`relative h-16 w-24 shrink-0 overflow-hidden rounded-xl border-2 transition-all ${selectedIndex === idx
+              className={`relative h-16 w-24 shrink-0 overflow-hidden rounded-xl border-2 transition-all ${
+                selectedIndex === idx
                   ? "border-primary ring-2 ring-primary/20 scale-[0.98]"
                   : "border-transparent opacity-60 hover:opacity-100"
-                }`}
+              }`}
             >
               <Image
                 src={item.media.url}

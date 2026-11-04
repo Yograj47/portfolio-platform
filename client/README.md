@@ -1,109 +1,52 @@
-# Yograj Portfolio
+# Frontend
 
-A full-stack personal portfolio platform featuring an interactive terminal workspace, project showcase, technical articles, media management, and a private dashboard.
+Next.js App Router client for the one-page interactive portfolio and private CMS. Projects, skills, timeline, contact, and training are on the homepage; project details have their own routes.
 
-## Tech Stack
+## Run and verify
 
-### Frontend
+Run commands from this directory:
 
-* Next.js
-* React
-* TypeScript
-* Tailwind CSS
-* shadcn/ui
-* TanStack Query
-* Zustand
-
-### Backend
-
-* NestJS
-* TypeScript
-* Prisma
-* PostgreSQL
-
-### Infrastructure
-
-* Vercel
-* Render
-* ImageKit
-
-## Project Structure
-
-```text
-/
-├── project/
-│   └── <project-slug>
-├── blogs/
-│   └── <article>
-├── skills.db
-├── timeline.log
-├── about.md
-├── contact.sh
-└── ...
+```powershell
+npm ci
+npm run dev
+npm run check
+npm run build
+npm run test:routes
 ```
 
-The terminal uses a virtual filesystem to organize portfolio content and provide interactive commands.
+The development command uses webpack with a one-second polling watcher. The native Turbopack watcher repeatedly rebuilt and reloaded pages in this OneDrive workspace, causing visible flicker. Polling keeps Fast Refresh available for actual edits. Override WATCHPACK_POLLING to change the interval. The frontend defaults explicitly to port 3000 and fails if that port is occupied instead of falling back to the API port 3001. Stop an existing preview before starting another frontend. Extra Next.js CLI arguments are forwarded, for example npm run dev -- --port 3002. Production build/start commands are unchanged.
 
-### Workspace Entries
+Set NEXT_PUBLIC_API_URL to the backend's complete API base URL, for example http://localhost:3001/api, in .env.local. The backend CLIENT_URL must match the browser origin. Browser authentication sends credentials and relies on the backend's refresh cookie; no public terminal password is used.
 
-| Type      | Name     | Aliases                                            | Description               |
-| --------- | -------- | -------------------------------------------------- | ------------------------- |
-| directory | Projects | `project`, `projects`                              | Browse portfolio projects |
-| file      | Skills   | `skills.db`, `skill`                               | Technical skills database |
-| file      | Timeline | `timeline.log`, `timeline`, `career`, `experience` | Career timeline           |
-| directory | Blogs    | `blog`, `blogs`, `article`, `articles`             | Technical articles        |
+check runs lint, generated route types plus TypeScript, and focused regression tests. The production build fetches the existing Google Fonts and therefore needs network access. test:routes requires a completed build, temporarily starts Next.js on loopback port 3113 and stops it after checking routes. It checks server HTML/status responses, not an interactive browser login or backend data loading.
 
-Terminal commands and aliases are case-insensitive.
+## Structure
 
-## Terminal
+| Area | Responsibility |
+| --- | --- |
+| app/ | Route pages, route groups, shared layouts and global styles |
+| components/public/ | Homepage sections, contact form, and project detail presentation |
+| components/admin/ | Dashboard presentation and forms |
+| components/ui/, forms/, feedback/, skeletons/ | Reusable controls and feedback |
+| hooks/ | Public reads, session state, and admin mutation workflows |
+| services/ | HTTP endpoint calls and request payload preparation |
+| types/ | Domain/response types shared by public and admin UI |
+| lib/ | HTTP refresh coordination, validation, startup loading, shared icons |
+| store/ | In-memory authentication state |
+| test/ | Refresh/payload regression tests and production route smoke check |
 
-The portfolio includes an interactive terminal interface.
+Domain types belong in types/portfolio.ts rather than table column components. Public read hooks do not depend on admin mutation hooks. Forms validate user input; services prepare API payloads; components render UI. Keep these boundaries and extract shared code when duplication has a concrete cost instead of adding a generic framework around each CRUD screen.
 
-Example commands:
+## Routes
 
-```text
-help
-ls
-ls project
-cd blog
-open project/grocerypro
-contact
-clear
-```
+Public homepage: /. Project details: /projects/[slug]. Management login: /admin/login. The old /terminal, /projects, /skills, and /timeline pages have been removed.
 
-Projects can be opened using their slug:
+Private dashboard: /admin/dashboard and its projects, skills, timeline, categories, profile and media sections. The frontend session boundary handles redirects/loading; backend guards own data authorization. Project detail routes fetch directly by slug and do not depend on prior navigation or browser storage.
 
-```text
-open project/<slug>
-```
+The login page uses backend email/password authentication. The unused /api/route-auth route and unsupported Blog explorer entry have been removed. Project detail URLs use the project slug.
 
-## Projects
+See [frontend cleanup handoff](../docs/architecture/frontend-cleanup.md) for completion status and the next phase, and [backend API contract](../docs/api/backend.md) for integration requirements.
 
-Projects are presented through the portfolio workspace and can include:
+## Startup loading
 
-* Project descriptions
-* Project media
-* Technology information
-* External links
-* Detailed Markdown-based content
-
-## Media Management
-
-The dashboard provides project media management with:
-
-* Image uploads
-* General media library
-* Project media assignment
-* Media ordering
-* Cover image management
-* ImageKit integration
-
-## Authentication
-
-The dashboard uses email/password authentication.
-
-Authentication is separate from the public terminal workspace.
-
-## License
-
-See [LICENSE](LICENSE).
+The homepage checks the backend health endpoint, then requests the complete GET /portfolio response before revealing the CV. Cold starts show a responsive CV skeleton with bounded retries and manual recovery. Both frontend and backend updates must be deployed together. The complete CV response remains file-backed on the server until the PostgreSQL/CMS import. See [startup flow](../docs/architecture/portfolio-startup.md).

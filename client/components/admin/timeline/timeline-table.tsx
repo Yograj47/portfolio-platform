@@ -2,12 +2,10 @@
 
 import { useMemo } from "react";
 
-import { DataTable } from "@/components/data-table/data-table";
+import { OrderedDataTable } from "@/components/data-table/ordered-data-table";
 
-import {
-  Timeline,
-  getTimelineColumns,
-} from "./timeline-columns";
+import type { Timeline } from "@/types/portfolio";
+import { getTimelineColumns } from "./timeline-columns";
 
 interface TimelineTableProps {
   data: Timeline[];
@@ -29,11 +27,12 @@ export function TimelineTable({
         onEdit,
         onDelete,
       }),
-    [onEdit, onDelete]
+    [onEdit, onDelete],
   );
 
   return (
-    <DataTable
+    <OrderedDataTable
+      collection="timeline"
       columns={columns}
       data={data}
       loading={loading}

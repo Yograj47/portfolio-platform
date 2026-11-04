@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { Resolver, useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -12,7 +12,6 @@ import {
 import { TIMELINE_TYPE_OPTIONS } from "@/lib/constants/timeline-type-options";
 import { FormFieldError } from "@/components/forms/form-field-error";
 import { FormSubmitButton } from "@/components/forms/form-submit-button";
-import { OrderPicker } from "@/components/forms/order-picker";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,15 +28,7 @@ import {
 
 import { TimelineType } from "@/lib/enums/timeline";
 
-export interface TimelineItem {
-  id: string;
-  title: string;
-  organization: string;
-  displayOrder: number;
-}
-
 interface TimelineFormProps {
-  timelines?: TimelineItem[];
   defaultValues?: Partial<CreateTimelineSchema> & { id?: string };
   loading?: boolean;
   onSubmit: (data: CreateTimelineSchema) => void;
@@ -49,30 +40,10 @@ const formatDateForInput = (dateString?: string | null) => {
 };
 
 export function TimelineForm({
-  timelines = [],
   defaultValues,
   loading = false,
   onSubmit,
 }: TimelineFormProps) {
-  const currentEditOrder =
-    defaultValues?.displayOrder !== undefined
-      ? Number(defaultValues.displayOrder)
-      : null;
-
-  const disabledOrders = useMemo(() => {
-    return timelines
-      .map((item) => Number(item.displayOrder))
-      .filter((order) => order !== currentEditOrder);
-  }, [timelines, currentEditOrder]);
-
-  const defaultOrder = useMemo(() => {
-    if (currentEditOrder !== null) return currentEditOrder;
-    for (let i = 1; i <= 25; i++) {
-      if (!disabledOrders.includes(i)) return i;
-    }
-    return 1;
-  }, [currentEditOrder, disabledOrders]);
-
   const {
     register,
     handleSubmit,
@@ -82,9 +53,14 @@ export function TimelineForm({
     clearErrors,
     formState: { errors },
   } = useForm<CreateTimelineSchema>({
-    resolver: zodResolver(createTimelineSchema) as Resolver<CreateTimelineSchema>,
+    resolver: zodResolver(
+      createTimelineSchema,
+    ) as Resolver<CreateTimelineSchema>,
     defaultValues: {
       title: defaultValues?.title ?? "",
+      credentialId: defaultValues?.credentialId ?? "",
+      credentialUrl: defaultValues?.credentialUrl ?? "",
+      expiresAt: formatDateForInput(defaultValues?.expiresAt),
       organization: defaultValues?.organization ?? "",
       location: defaultValues?.location ?? "",
       description: defaultValues?.description ?? "",
@@ -92,7 +68,6 @@ export function TimelineForm({
       startDate: formatDateForInput(defaultValues?.startDate),
       endDate: formatDateForInput(defaultValues?.endDate),
       current: defaultValues?.current ?? false,
-      displayOrder: defaultOrder,
     },
   });
 
@@ -107,6 +82,9 @@ export function TimelineForm({
 
     reset({
       title: defaultValues.title ?? "",
+      credentialId: defaultValues.credentialId ?? "",
+      credentialUrl: defaultValues.credentialUrl ?? "",
+      expiresAt: formatDateForInput(defaultValues.expiresAt),
       organization: defaultValues.organization ?? "",
       location: defaultValues.location ?? "",
       description: defaultValues.description ?? "",
@@ -114,9 +92,8 @@ export function TimelineForm({
       startDate: formatDateForInput(defaultValues.startDate),
       endDate: formatDateForInput(defaultValues.endDate),
       current: defaultValues.current ?? false,
-      displayOrder: Number(defaultValues.displayOrder ?? defaultOrder),
     });
-  }, [defaultValues, defaultOrder, reset]);
+  }, [defaultValues, reset]);
 
   // Handle current toggle
   useEffect(() => {
@@ -151,7 +128,10 @@ export function TimelineForm({
           <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Location
           </Label>
-          <Input placeholder="e.g. Kathmandu, Nepal" {...register("location")} />
+          <Input
+            placeholder="e.g. Kathmandu, Nepal"
+            {...register("location")}
+          />
           <FormFieldError message={errors.location?.message} />
         </div>
       </div>
@@ -210,11 +190,7 @@ export function TimelineForm({
           <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             End Date
           </Label>
-          <Input
-            type="date"
-            disabled={isCurrent}
-            {...register("endDate")}
-          />
+          <Input type="date" disabled={isCurrent} {...register("endDate")} />
           <FormFieldError message={errors.endDate?.message} />
         </div>
       </div>
@@ -222,7 +198,7 @@ export function TimelineForm({
       {/* Current Checkbox Switch Card */}
       <div className="flex items-center justify-between rounded-xl border bg-card p-4 shadow-xs">
         <div className="space-y-0.5">
-          <Label className="text-sm font-medium">Currently Working Here</Label>
+          <Label className="text-sm font-medium">Ongoing entry</Label>
           <p className="text-xs text-muted-foreground">
             Ongoing position or active experience
           </p>
@@ -245,24 +221,35 @@ export function TimelineForm({
         />
       </div>
 
-      {/* Order Picker */}
-      <div className="space-y-2">
-        <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Timeline Display Order (1–25)
-        </Label>
-        <Controller
-          name="displayOrder"
-          control={control}
-          render={({ field }) => (
-            <OrderPicker
-              value={field.value}
-              onChange={field.onChange}
-              disabledOrders={disabledOrders}
-            />
-          )}
-        />
-        <FormFieldError message={errors.displayOrder?.message} />
-      </div>
+      <section className="space-y-4 rounded-xl border p-4">
+        <h3 className="font-medium">Credential details</h3>
+        <p className="text-xs text-muted-foreground">
+          Optional verification details for training and certificates.
+        </p>
+        <div className="space-y-2">
+          <Label htmlFor="credential-id">Credential ID</Label>
+          <Input id="credential-id" {...register("credentialId")} />
+          <FormFieldError message={errors.credentialId?.message} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="credential-url">Verification URL</Label>
+          <Input
+            id="credential-url"
+            placeholder="https://www.credly.com/badges/…"
+            {...register("credentialUrl")}
+          />
+          <FormFieldError message={errors.credentialUrl?.message} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="credential-expiry">Expires on</Label>
+          <Input
+            id="credential-expiry"
+            type="date"
+            {...register("expiresAt")}
+          />
+          <FormFieldError message={errors.expiresAt?.message} />
+        </div>
+      </section>
 
       {/* Action Footer */}
       <div className="flex justify-end pt-2">

@@ -24,7 +24,9 @@ import { Input } from "@/components/ui/input";
 import { TableSkeleton } from "@/components/skeletons/table-skeleton";
 import { EmptyState } from "@/components/feedback/empty-state";
 
-interface DataTableProps<TData, TValue> {
+export interface DataTableProps<TData, TValue> {
+  getRowId?: (item: TData) => string;
+  renderRow?: (row: Row<TData>, cells: React.ReactNode) => React.ReactNode;
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   loading?: boolean;
@@ -48,13 +50,25 @@ export function DataTable<TData, TValue>({
   onSearchChange,
   searchPlaceholder = "Search records...",
   renderExpandedRow,
+  getRowId,
+  renderRow,
 }: DataTableProps<TData, TValue>) {
   const [expanded, setExpanded] = useState({});
+  const [localSearch, setLocalSearch] = useState("");
+  const currentSearch = onSearchChange ? searchValue : localSearch;
+  const filteredData = React.useMemo(() => {
+    const term = currentSearch.trim().toLowerCase();
+    if (!term || onSearchChange) return data;
+    return data.filter((item) =>
+      JSON.stringify(item).toLowerCase().includes(term),
+    );
+  }, [data, currentSearch, onSearchChange]);
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
-    data,
+    data: filteredData,
     columns,
+    getRowId,
     state: { expanded },
     onExpandedChange: setExpanded,
     getCoreRowModel: getCoreRowModel(),
@@ -63,7 +77,9 @@ export function DataTable<TData, TValue>({
   });
 
   if (loading) {
-    return <TableSkeleton />;
+    return (
+      <TableSkeleton columnCount={columns.length} showSearch={showSearch} />
+    );
   }
 
   return (
@@ -75,11 +91,19 @@ export function DataTable<TData, TValue>({
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder={searchPlaceholder}
-              value={searchValue}
-              onChange={(e) => onSearchChange?.(e.target.value)}
+              aria-label={searchPlaceholder}
+              value={currentSearch}
+              onChange={(e) =>
+                onSearchChange
+                  ? onSearchChange(e.target.value)
+                  : setLocalSearch(e.target.value)
+              }
               className="h-9 w-full bg-muted/30 pl-9 text-xs transition-colors focus-visible:bg-background"
             />
           </div>
+          <span className="ml-3 shrink-0 text-xs text-muted-foreground">
+            {filteredData.length} records
+          </span>
         </div>
       )}
 
@@ -103,17 +127,18 @@ export function DataTable<TData, TValue>({
                     return (
                       <TableHead
                         key={header.id}
-                        className={`sticky top-0 z-20 bg-muted/90 backdrop-blur-md border-b border-border/60 ${isActions
+                        className={`sticky top-0 z-20 bg-muted/90 backdrop-blur-md border-b border-border/60 ${
+                          isActions
                             ? "w-14 text-right pr-4 font-semibold text-xs uppercase tracking-wider"
                             : "py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground"
-                          }`}
+                        }`}
                       >
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
                       </TableHead>
                     );
                   })}
@@ -124,27 +149,39 @@ export function DataTable<TData, TValue>({
             <TableBody>
               {table.getRowModel().rows.map((row) => (
                 <React.Fragment key={row.id}>
-                  <TableRow
-                    className="transition-colors hover:bg-muted/30 cursor-default"
-                    onClick={() => renderExpandedRow && row.toggleExpanded()}
-                  >
-                    {row.getVisibleCells().map((cell) => {
-                      const isActions = cell.column.id === "actions";
-
-                      return (
+                  {renderRow ? (
+                    renderRow(
+                      row,
+                      row.getVisibleCells().map((cell) => (
                         <TableCell
                           key={cell.id}
-                          className={`border-b border-border/40 ${isActions ? "w-14 text-right pr-4" : "py-3 text-sm"
-                            }`}
+                          className={`border-b border-border/40 ${cell.column.id === "actions" ? "w-14 text-right pr-4" : "py-3 text-sm"}`}
                         >
                           {flexRender(
                             cell.column.columnDef.cell,
-                            cell.getContext()
+                            cell.getContext(),
                           )}
                         </TableCell>
-                      );
-                    })}
-                  </TableRow>
+                      )),
+                    )
+                  ) : (
+                    <TableRow
+                      className="transition-colors hover:bg-muted/30 cursor-default"
+                      onClick={() => renderExpandedRow && row.toggleExpanded()}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell
+                          key={cell.id}
+                          className={`border-b border-border/40 ${cell.column.id === "actions" ? "w-14 text-right pr-4" : "py-3 text-sm"}`}
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  )}
 
                   {/* Render Expanded Sub-Row if active */}
                   {row.getIsExpanded() && renderExpandedRow && (

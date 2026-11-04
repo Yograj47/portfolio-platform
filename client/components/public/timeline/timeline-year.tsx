@@ -1,4 +1,4 @@
-import type { Timeline } from "@/components/admin/timeline/timeline-columns";
+import type { Timeline } from "@/types/portfolio";
 import { TimelineItem } from "./timeline-item";
 
 interface TimelineYearProps {

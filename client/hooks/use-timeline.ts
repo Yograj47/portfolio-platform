@@ -1,109 +1,90 @@
 "use client";
+import { useTimelinesQuery } from "./use-portfolio-content";
 
-import {
-    useMutation,
-    useQuery,
-    useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { timelineService } from "@/services/timeline.service";
 
 import {
-    CreateTimelineSchema,
-    UpdateTimelineSchema,
+  CreateTimelineSchema,
+  UpdateTimelineSchema,
 } from "@/lib/validations/timeline";
 
-import {
-    showSuccess,
-    showError,
-} from "@/lib/toast";
+import { showSuccess, showError } from "@/lib/toast";
 
 export function useTimeline() {
-    const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
-    const timelinesQuery = useQuery({
+  const timelinesQuery = useTimelinesQuery();
+
+  const createMutation = useMutation({
+    mutationFn: (data: CreateTimelineSchema) => timelineService.create(data),
+
+    onSuccess: () => {
+      showSuccess("Timeline created.");
+
+      queryClient.invalidateQueries({
         queryKey: ["timelines"],
-        queryFn: async () => {
-            const response = await timelineService.findAll();
-            return response.data.data;
-        },
-    });
+      });
+    },
 
-    const createMutation = useMutation({
-        mutationFn: (data: CreateTimelineSchema) =>
-            timelineService.create(data),
+    onError: () => {
+      showError("Failed to create timeline.");
+    },
+  });
 
-        onSuccess: () => {
-            showSuccess("Timeline created.");
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UpdateTimelineSchema }) =>
+      timelineService.update(id, data),
 
-            queryClient.invalidateQueries({
-                queryKey: ["timelines"],
-            });
-        },
+    onSuccess: () => {
+      showSuccess("Timeline updated.");
 
-        onError: () => {
-            showError("Failed to create timeline.");
-        },
-    });
+      queryClient.invalidateQueries({
+        queryKey: ["timelines"],
+      });
+    },
 
-    const updateMutation = useMutation({
-        mutationFn: ({
-            id,
-            data,
-        }: {
-            id: string;
-            data: UpdateTimelineSchema;
-        }) => timelineService.update(id, data),
+    onError: () => {
+      showError("Failed to update timeline.");
+    },
+  });
 
-        onSuccess: () => {
-            showSuccess("Timeline updated.");
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => timelineService.remove(id),
 
-            queryClient.invalidateQueries({
-                queryKey: ["timelines"],
-            });
-        },
+    onSuccess: () => {
+      showSuccess("Timeline deleted.");
 
-        onError: () => {
-            showError("Failed to update timeline.");
-        },
-    });
+      queryClient.invalidateQueries({
+        queryKey: ["timelines"],
+      });
+    },
 
-    const deleteMutation = useMutation({
-        mutationFn: (id: string) =>
-            timelineService.remove(id),
+    onError: () => {
+      showError("Failed to delete timeline.");
+    },
+  });
 
-        onSuccess: () => {
-            showSuccess("Timeline deleted.");
+  return {
+    timelines: timelinesQuery.data ?? [],
 
-            queryClient.invalidateQueries({
-                queryKey: ["timelines"],
-            });
-        },
+    loading: timelinesQuery.isLoading,
+    error: timelinesQuery.isError,
 
-        onError: () => {
-            showError("Failed to delete timeline.");
-        },
-    });
+    refetch: timelinesQuery.refetch,
 
-    return {
-        timelines: timelinesQuery.data ?? [],
+    createTimeline: createMutation.mutate,
+    createTimelineAsync: createMutation.mutateAsync,
 
-        loading: timelinesQuery.isLoading,
-        error: timelinesQuery.isError,
+    updateTimeline: updateMutation.mutate,
+    updateTimelineAsync: updateMutation.mutateAsync,
 
-        refetch: timelinesQuery.refetch,
+    deleteTimeline: deleteMutation.mutate,
+    deleteTimelineAsync: deleteMutation.mutateAsync,
 
-        createTimeline: createMutation.mutate,
-        createTimelineAsync: createMutation.mutateAsync,
-
-        updateTimeline: updateMutation.mutate,
-        updateTimelineAsync: updateMutation.mutateAsync,
-
-        deleteTimeline: deleteMutation.mutate,
-        deleteTimelineAsync: deleteMutation.mutateAsync,
-
-        creating: createMutation.isPending,
-        updating: updateMutation.isPending,
-        deleting: deleteMutation.isPending,
-    };
+    creating: createMutation.isPending,
+    updating: updateMutation.isPending,
+    deleting: deleteMutation.isPending,
+  };
 }

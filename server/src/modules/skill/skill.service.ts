@@ -2,36 +2,54 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateSkillDto } from './dto/create-skill.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 import { PrismaService } from '@/database/prisma/prisma.service';
+import { firstAvailableOrder, orderedWrite } from '@/common/display-order';
 
 @Injectable()
 export class SkillService {
-
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   create(createSkillDto: CreateSkillDto) {
-    return this.prisma.skill.create({
-      data: createSkillDto
-    })
+    return orderedWrite(this.prisma, 'skills', async (tx) =>
+      tx.skill.create({
+        data: {
+          ...createSkillDto,
+          displayOrder: firstAvailableOrder(
+            await tx.skill.findMany({ select: { displayOrder: true } }),
+          ),
+        },
+      }),
+    );
   }
 
   findAll() {
     return this.prisma.skill.findMany({
+      include: {
+        projects: {
+          where: { project: { status: 'PUBLISHED', deletedAt: null } },
+          select: {
+            usageNote: true,
+            project: {
+              select: { id: true, title: true, slug: true, excerpt: true },
+            },
+          },
+        },
+      },
       orderBy: {
-        displayOrder: "asc",
+        displayOrder: 'asc',
       },
     });
   }
 
   async findOne(id: string) {
     const skill = await this.prisma.skill.findUnique({
-      where: { id }
-    })
+      where: { id },
+    });
 
     if (!skill) {
-      throw new NotFoundException("Skill not found")
+      throw new NotFoundException('Skill not found');
     }
 
-    return skill
+    return skill;
   }
 
   async update(id: string, updateSkillDto: UpdateSkillDto) {
@@ -39,7 +57,7 @@ export class SkillService {
 
     return this.prisma.skill.update({
       where: { id },
-      data: updateSkillDto
+      data: updateSkillDto,
     });
   }
 
@@ -47,7 +65,7 @@ export class SkillService {
     await this.findOne(id);
 
     return this.prisma.skill.delete({
-      where: { id }
-    })
+      where: { id },
+    });
   }
 }

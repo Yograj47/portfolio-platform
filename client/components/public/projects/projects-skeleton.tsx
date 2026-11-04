@@ -1,4 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import styles from "./project-grid.module.css";
 
 interface ProjectsSkeletonProps {
   cardCount?: number;
@@ -7,13 +8,8 @@ interface ProjectsSkeletonProps {
 export function ProjectsSkeleton({ cardCount = 6 }: ProjectsSkeletonProps) {
   return (
     <div className="space-y-8">
-      {/* 1. Filter & Search Bar Skeleton */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        {/* Search Input */}
-        <Skeleton className="h-10 w-full sm:w-72 rounded-xl" />
-
-        {/* Category Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+      <div className="flex justify-end border-b pb-6">
+        <div className="flex flex-wrap items-center gap-2">
           <Skeleton className="h-9 w-16 shrink-0 rounded-full" />
           <Skeleton className="h-9 w-24 shrink-0 rounded-full" />
           <Skeleton className="h-9 w-20 shrink-0 rounded-full" />
@@ -22,7 +18,7 @@ export function ProjectsSkeleton({ cardCount = 6 }: ProjectsSkeletonProps) {
       </div>
 
       {/* 2. Project Cards Grid Skeleton */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2">
+      <div className={styles.track} data-count={cardCount}>
         {Array.from({ length: cardCount }).map((_, index) => (
           <div
             key={index}

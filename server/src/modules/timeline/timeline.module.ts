@@ -6,6 +6,6 @@ import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 @Module({
   controllers: [TimelineController],
   providers: [TimelineService, AccessTokenGuard],
-  exports: [TimelineService]
+  exports: [TimelineService],
 })
-export class TimelineModule { }
+export class TimelineModule {}

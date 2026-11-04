@@ -1,1 +1,1 @@
-export const RESPONSE_MESSAGE_KEY = "response-message";
+export const RESPONSE_MESSAGE_KEY = 'response-message';

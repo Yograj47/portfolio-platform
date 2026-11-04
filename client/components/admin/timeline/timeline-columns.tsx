@@ -4,21 +4,9 @@ import { ColumnDef } from "@tanstack/react-table";
 import { format, isValid } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { DataTableActions } from "@/components/data-table/data-table-actions";
-import { TimelineType } from "@/lib/enums/timeline";
 import { TIMELINE_TYPE_OPTIONS } from "@/lib/constants/timeline-type-options";
 
-export interface Timeline {
-  id: string;
-  title: string;
-  organization: string;
-  location?: string | null;
-  description?: string | null;
-  type: TimelineType;
-  startDate: string;
-  endDate?: string | null;
-  current: boolean;
-  displayOrder: number;
-}
+import type { Timeline } from "@/types/portfolio";
 
 interface Props {
   onEdit: (timeline: Timeline) => void;
@@ -53,7 +41,9 @@ export function getTimelineColumns({
         return (
           <div className="flex flex-col">
             <span className="font-medium text-foreground">{title}</span>
-            <span className="text-xs text-muted-foreground">{organization}</span>
+            <span className="text-xs text-muted-foreground">
+              {organization}
+            </span>
           </div>
         );
       },
@@ -72,7 +62,7 @@ export function getTimelineColumns({
       header: "Type",
       cell: ({ row }) => {
         const typeOption = TIMELINE_TYPE_OPTIONS.find(
-          (opt) => opt.value === row.original.type
+          (opt) => opt.value === row.original.type,
         );
         return (
           <Badge variant="secondary" className="capitalize">

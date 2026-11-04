@@ -11,6 +11,7 @@ logs
 
 # Build
 dist/
+dist-dev/
 build/
 .next/
 
@@ -37,3 +38,5 @@ coverage/
 .env
 
 docker/postgres/data
+# Share configuration names without secrets
+!server/.env.example

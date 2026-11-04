@@ -1,11 +1,9 @@
 "use client";
 
 import { useMemo } from "react";
-import { DataTable } from "@/components/data-table/data-table";
-import {
-  Project,
-  getProjectColumns,
-} from "./project-columns";
+import { OrderedDataTable } from "@/components/data-table/ordered-data-table";
+import type { Project } from "@/types/portfolio";
+import { getProjectColumns } from "./project-columns";
 
 interface ProjectTableProps {
   data: Project[];
@@ -29,11 +27,12 @@ export function ProjectTable({
         onDelete,
         onImages,
       }),
-    [onEdit, onDelete, onImages]
+    [onEdit, onDelete, onImages],
   );
 
   return (
-    <DataTable
+    <OrderedDataTable
+      collection="projects"
       columns={columns}
       data={data}
       loading={loading}

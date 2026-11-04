@@ -1,63 +1,72 @@
 import { useAuthStore } from "@/store/auth.store";
-import axios from "axios";
-
+import axios, { type InternalAxiosRequestConfig } from "axios";
+import type { ApiResponse } from "@/types/api";
 const http = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL,
-    withCredentials: true,
-    headers: {
-        "Content-Type": "application/json",
-    }
-})
-
-type RetryConfig = {
-    _retry?: boolean;
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  withCredentials: true,
+  timeout: 75000,
+  headers: { "Content-Type": "application/json" },
+});
+type RetryConfig = InternalAxiosRequestConfig & { _retry?: boolean };
+let refreshRequest: Promise<string> | null = null;
+async function refreshAccessToken() {
+  if (!refreshRequest) {
+    const version = useAuthStore.getState().sessionVersion;
+    refreshRequest = http
+      .post<ApiResponse<{ accessToken: string }>>("/auth/refresh")
+      .then((response) => {
+        if (useAuthStore.getState().sessionVersion !== version)
+          throw new Error("Session changed during refresh");
+        const token = response.data.data.accessToken;
+        useAuthStore.getState().setAccessToken(token);
+        return token;
+      })
+      .catch((error: unknown) => {
+        if (
+          useAuthStore.getState().sessionVersion === version &&
+          axios.isAxiosError(error) &&
+          [401, 403].includes(error.response?.status ?? 0)
+        )
+          useAuthStore.getState().logout();
+        throw error;
+      })
+      .finally(() => {
+        refreshRequest = null;
+      });
+  }
+  return refreshRequest;
 }
-
-http.interceptors.response.use(
-    (response) => response,
-
-    async (error) => {
-        const originalRequest = error.config as RetryConfig & typeof error.config;
-        const url = originalRequest.url;
-
-        if (error.response?.status === 401 &&
-            !originalRequest._retry &&
-            url !== "/auth/login" &&
-            url !== "/auth/refresh"
-        ) {
-            originalRequest._retry = true;
-
-            try {
-                const response = await http.post("/auth/refresh");
-
-                useAuthStore
-                    .getState()
-                    .setAccessToken(response.data.data.accessToken);
-
-                originalRequest.headers.Authorization =
-                    `Bearer ${response.data.data.accessToken}`;
-
-                return http(originalRequest);
-            } catch (refreshError) {
-                if (window.location.pathname !== "/") {
-                    window.location.href = "/";
-                }
-                return Promise.reject(refreshError)
-            }
-        }
-
-        return Promise.reject(error);
-    }
-)
-
 http.interceptors.request.use((config) => {
-    const token = useAuthStore.getState().accessToken;
-
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`
+  const token = useAuthStore.getState().accessToken;
+  if (token) config.headers.set("Authorization", "Bearer " + token);
+  return config;
+});
+http.interceptors.response.use(
+  (response) => response,
+  async (error: unknown) => {
+    if (!axios.isAxiosError(error)) return Promise.reject(error);
+    const request = error.config as RetryConfig | undefined;
+    if (
+      error.response?.status !== 401 ||
+      !request ||
+      request._retry ||
+      request.url?.startsWith("/auth/")
+    )
+      return Promise.reject(error);
+    request._retry = true;
+    try {
+      const currentToken = useAuthStore.getState().accessToken;
+      const previousToken = request.headers.get("Authorization");
+      // A late 401 may belong to the token that a concurrent request already replaced.
+      const token =
+        currentToken && previousToken !== "Bearer " + currentToken
+          ? currentToken
+          : await refreshAccessToken();
+      request.headers.set("Authorization", "Bearer " + token);
+      return http(request);
+    } catch (refreshError) {
+      return Promise.reject(refreshError);
     }
-
-    return config;
-})
-
-export default http;  
+  },
+);
+export default http;

@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,6 +30,7 @@ interface AttachProjectDialogProps {
   media: Media | null;
   projects: ProjectOption[];
   loading?: boolean;
+  error?: boolean;
   onConfirm: (mediaId: string, projectId: string) => void;
 }
 
@@ -38,6 +40,7 @@ export function AttachProjectDialog({
   media,
   projects,
   loading = false,
+  error = false,
   onConfirm,
 }: AttachProjectDialogProps) {
   const [selectedProjectId, setSelectedProjectId] = useState<string>("");
@@ -52,9 +55,25 @@ export function AttachProjectDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Attach Media to Project</DialogTitle>
+          <DialogDescription>
+            Reuse this image in another project. The original file stays in your
+            library.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
+          {error && (
+            <p role="alert" className="text-sm text-destructive">
+              Projects could not be loaded. Close this dialog and refresh the
+              page.
+            </p>
+          )}
+          {!loading && !error && !projects.length && (
+            <p className="text-sm text-muted-foreground">
+              No available projects. Create a project first, or this file is
+              already attached to all projects.
+            </p>
+          )}
           <p className="text-sm text-muted-foreground">
             Select a project to attach{" "}
             <span className="font-semibold text-foreground">
@@ -90,7 +109,11 @@ export function AttachProjectDialog({
           </Button>
           <Button
             onClick={handleConfirm}
-            disabled={!selectedProjectId || loading}
+            disabled={
+              !projects.some((project) => project.id === selectedProjectId) ||
+              loading ||
+              error
+            }
           >
             {loading ? "Attaching..." : "Attach"}
           </Button>

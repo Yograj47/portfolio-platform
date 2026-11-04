@@ -9,56 +9,48 @@ import {
   Patch,
   Post,
   UseGuards,
-} from "@nestjs/common";
-import { TimelineService } from "./timeline.service";
-import { CreateTimelineDto } from "./dto/create-timeline.dto";
-import { UpdateTimelineDto } from "./dto/update-timeline.dto";
-import { AccessTokenGuard } from "../auth/guards/access-token.guard";
-import { ResponseMessage } from "@/common/decorators/response-message.decorator";
+} from '@nestjs/common';
+import { TimelineService } from './timeline.service';
+import { CreateTimelineDto } from './dto/create-timeline.dto';
+import { UpdateTimelineDto } from './dto/update-timeline.dto';
+import { AccessTokenGuard } from '../auth/guards/access-token.guard';
+import { ResponseMessage } from '@/common/decorators/response-message.decorator';
 
-@Controller("timelines")
+@Controller('timelines')
 export class TimelineController {
-  constructor(private readonly timelineService: TimelineService) { }
+  constructor(private readonly timelineService: TimelineService) {}
 
   @Post()
   @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.CREATED)
-  @ResponseMessage("Timeline created successfully")
+  @ResponseMessage('Timeline created successfully')
   create(@Body() createTimelineDto: CreateTimelineDto) {
-    console.log(createTimelineDto)
     return this.timelineService.create(createTimelineDto);
   }
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  @ResponseMessage("Timelines fetched successfully")
+  @ResponseMessage('Timelines fetched successfully')
   findAll() {
     return this.timelineService.findAll();
   }
 
-  @Get(":id")
-  @HttpCode(HttpStatus.OK)
-  @ResponseMessage("Timeline fetched successfully")
-  findOne(@Param("id") id: string) {
-    return this.timelineService.findOne(id);
-  }
-
-  @Patch(":id")
+  @Patch(':id')
   @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.OK)
-  @ResponseMessage("Timeline updated successfully")
+  @ResponseMessage('Timeline updated successfully')
   update(
-    @Param("id") id: string,
+    @Param('id') id: string,
     @Body() updateTimelineDto: UpdateTimelineDto,
   ) {
     return this.timelineService.update(id, updateTimelineDto);
   }
 
-  @Delete(":id")
+  @Delete(':id')
   @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.OK)
-  @ResponseMessage("Timeline deleted successfully")
-  remove(@Param("id") id: string) {
+  @ResponseMessage('Timeline deleted successfully')
+  remove(@Param('id') id: string) {
     return this.timelineService.remove(id);
   }
 }

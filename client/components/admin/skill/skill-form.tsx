@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { Resolver, useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createSkillSchema, CreateSkillSchema } from "@/lib/validations/skill";
@@ -9,45 +9,34 @@ import { FormSubmitButton } from "@/components/forms/form-submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { IconPicker } from "../icon-picker/icon-picker";
-import { OrderPicker } from "@/components/forms/order-picker";
-import type { Skill } from "@/components/admin/skill/skill-columns";
 import { Pipette } from "lucide-react";
 
 interface SkillFormProps {
-  skills?: Skill[];
   defaultValues?: Partial<CreateSkillSchema>;
   loading?: boolean;
   onSubmit: (data: CreateSkillSchema) => void;
 }
 
 const PRESET_COLORS = [
-  "#61DAFB", "#68A063", "#3178C6", "#F0DB4F",
-  "#E34F26", "#1572B6", "#000000", "#47A248",
-  "#339933", "#007ACC", "#FF4081", "#764ABC"
+  "#61DAFB",
+  "#68A063",
+  "#3178C6",
+  "#F0DB4F",
+  "#E34F26",
+  "#1572B6",
+  "#000000",
+  "#47A248",
+  "#339933",
+  "#007ACC",
+  "#FF4081",
+  "#764ABC",
 ];
 
 export function SkillForm({
-  skills = [],
   defaultValues,
   loading = false,
   onSubmit,
 }: SkillFormProps) {
-  const currentDisplayOrder = defaultValues?.displayOrder;
-
-  const disabledOrders = useMemo(() => {
-    return skills
-      .map((skill) => skill.displayOrder)
-      .filter((order) => order !== currentDisplayOrder);
-  }, [skills, currentDisplayOrder]);
-
-  const defaultOrder = useMemo(() => {
-    if (currentDisplayOrder) return currentDisplayOrder;
-    for (let i = 1; i <= 25; i++) {
-      if (!disabledOrders.includes(i)) return i;
-    }
-    return 1;
-  }, [currentDisplayOrder, disabledOrders]);
-  
   const {
     register,
     handleSubmit,
@@ -59,10 +48,10 @@ export function SkillForm({
     resolver: zodResolver(createSkillSchema) as Resolver<CreateSkillSchema>,
     defaultValues: {
       name: "",
+      group: "",
       icon: "",
       color: "#3b82f6",
       level: 60,
-      displayOrder: defaultOrder,
       ...defaultValues,
     },
   });
@@ -74,12 +63,12 @@ export function SkillForm({
     if (!defaultValues) return;
     reset({
       name: defaultValues.name ?? "",
+      group: defaultValues.group ?? "",
       icon: defaultValues.icon ?? "",
       color: defaultValues.color ?? "#3b82f6",
       level: defaultValues.level ?? 60,
-      displayOrder: defaultValues.displayOrder ?? defaultOrder,
     });
-  }, [defaultValues, defaultOrder, reset]);
+  }, [defaultValues, reset]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -92,7 +81,16 @@ export function SkillForm({
         <FormFieldError message={errors.name?.message} />
       </div>
 
-      {/* Icon Picker */}
+      <div className="space-y-2">
+        <Label htmlFor="skill-group">Skill group</Label>
+        <Input
+          id="skill-group"
+          placeholder="Frontend, Backend, Tools…"
+          maxLength={100}
+          {...register("group")}
+        />
+        <FormFieldError message={errors.group?.message} />
+      </div>
       <div className="space-y-2">
         <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           Icon
@@ -140,6 +138,7 @@ export function SkillForm({
             {PRESET_COLORS.map((preset) => (
               <button
                 key={preset}
+                aria-label={`Use color ${preset}`}
                 type="button"
                 className="size-5 rounded-full border border-black/10 transition-transform hover:scale-110"
                 style={{ backgroundColor: preset }}
@@ -157,7 +156,10 @@ export function SkillForm({
           <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Proficiency Rating
           </Label>
-          <span className="font-mono text-sm font-bold" style={{ color: colorValue }}>
+          <span
+            className="font-mono text-sm font-bold"
+            style={{ color: colorValue }}
+          >
             {levelValue}%
           </span>
         </div>
@@ -170,6 +172,7 @@ export function SkillForm({
             return (
               <button
                 key={i}
+                aria-label={`Set proficiency to ${stepPercent}%`}
                 type="button"
                 onClick={() => setValue("level", stepPercent)}
                 className="h-7 flex-1 rounded-sm transition-all hover:opacity-80"
@@ -192,23 +195,6 @@ export function SkillForm({
       </div>
 
       {/* Wheel Order Position Calendar Picker */}
-      <div className="space-y-2">
-        <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Wheel Position Order (1–25)
-        </Label>
-        <Controller
-          name="displayOrder"
-          control={control}
-          render={({ field }) => (
-            <OrderPicker
-              value={field.value}
-              onChange={field.onChange}
-              disabledOrders={disabledOrders}
-            />
-          )}
-        />
-        <FormFieldError message={errors.displayOrder?.message} />
-      </div>
 
       <div className="flex justify-end pt-2">
         <FormSubmitButton loading={loading} label="Save Skill" />

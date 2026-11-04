@@ -1,7 +1,7 @@
 export interface ApiError {
-    success: boolean;
-    statuscode: number;
-    message: string | string[];
-    path: string;
-    timestamp: string;
+  success: boolean;
+  statusCode: number;
+  message: string | string[];
+  path: string;
+  timestamp: string;
 }

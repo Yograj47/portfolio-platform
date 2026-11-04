@@ -1,7 +1,7 @@
 "use client";
 
 import { PageHeaderSkeleton } from "./page-header.skeleton";
-import { TableSkeleton } from "./table-skeleton";
+import { TableSkeleton } from "@/components/skeletons/table-skeleton";
 
 interface TablePageSkeletonProps {
   rowCount?: number;

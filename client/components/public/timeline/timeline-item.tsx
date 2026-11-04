@@ -1,7 +1,13 @@
 import { format } from "date-fns";
-import { GraduationCap, Briefcase, Award, MapPin, Calendar } from "lucide-react";
+import {
+  GraduationCap,
+  Briefcase,
+  Award,
+  MapPin,
+  Calendar,
+} from "lucide-react";
 
-import type { Timeline } from "@/components/admin/timeline/timeline-columns";
+import type { Timeline } from "@/types/portfolio";
 import { TimelineType } from "@/lib/enums/timeline";
 
 interface TimelineItemProps {
@@ -22,6 +28,16 @@ const typeConfig: Record<
     icon: Briefcase,
     color: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20",
   },
+  TRAINING: {
+    label: "Training",
+    icon: GraduationCap,
+    color: "text-blue-500 bg-blue-500/10 border-blue-500/20",
+  },
+  ACHIEVEMENT: {
+    label: "Achievement",
+    icon: Award,
+    color: "text-amber-500 bg-amber-500/10 border-amber-500/20",
+  },
   CERTIFICATION: {
     label: "Certification",
     icon: Award,
@@ -36,12 +52,12 @@ export function TimelineItem({ item }: TimelineItemProps) {
   const startDateFormatted = item.startDate
     ? format(new Date(item.startDate), "MMM yyyy")
     : "";
-    
+
   const endDateFormatted = item.current
     ? "Present"
     : item.endDate
-    ? format(new Date(item.endDate), "MMM yyyy")
-    : "";
+      ? format(new Date(item.endDate), "MMM yyyy")
+      : "";
 
   return (
     <article className="group relative border-l-2 border-border/60 pl-6 sm:pl-8 pb-2 transition-colors hover:border-border">

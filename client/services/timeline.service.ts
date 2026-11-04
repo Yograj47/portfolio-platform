@@ -1,28 +1,34 @@
+import { normalizeOptionalFields } from "@/lib/api-payload";
+import type { Timeline } from "@/types/portfolio";
+import type { ApiResponse } from "@/types/api";
 import http from "@/lib/http";
+import { publicHttp } from "@/lib/public-http";
 
 import type {
-    CreateTimelineSchema,
-    UpdateTimelineSchema,
+  CreateTimelineSchema,
+  UpdateTimelineSchema,
 } from "@/lib/validations/timeline";
 
 export const timelineService = {
-    findAll() {
-        return http.get("/timelines");
-    },
+  findAll(signal?: AbortSignal) {
+    return publicHttp.get<ApiResponse<Timeline[]>>("/timelines", { signal });
+  },
 
-    findOne(id: string) {
-        return http.get(`/timelines/${id}`);
-    },
+  create(data: CreateTimelineSchema) {
+    return http.post(
+      "/timelines",
+      normalizeOptionalFields(data, ["endDate", "credentialUrl", "expiresAt"]),
+    );
+  },
 
-    create(data: CreateTimelineSchema) {
-        return http.post("/timelines", data);
-    },
+  update(id: string, data: UpdateTimelineSchema) {
+    return http.patch(
+      `/timelines/${id}`,
+      normalizeOptionalFields(data, ["endDate", "credentialUrl", "expiresAt"]),
+    );
+  },
 
-    update(id: string, data: UpdateTimelineSchema) {
-        return http.patch(`/timelines/${id}`, data);
-    },
-
-    remove(id: string) {
-        return http.delete(`/timelines/${id}`);
-    },
+  remove(id: string) {
+    return http.delete(`/timelines/${id}`);
+  },
 };

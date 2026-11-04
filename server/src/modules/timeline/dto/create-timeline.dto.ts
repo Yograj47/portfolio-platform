@@ -1,37 +1,64 @@
-import { TimelineType } from "@prisma/client";
-import { IsBoolean, IsDateString, IsEnum, IsInt, IsOptional, IsString, Min } from "class-validator";
+import { TimelineType } from '@prisma/client';
+import {
+  Length,
+  MaxLength,
+  ValidateIf,
+  IsBoolean,
+  IsDateString,
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsString,
+  IsUrl,
+  Min,
+} from 'class-validator';
 
 export class CreateTimelineDto {
-    @IsString()
-    title!: string;
+  @IsOptional() @IsString() credentialId?: string;
+  @IsOptional()
+  @IsUrl({ protocols: ['https'], require_protocol: true })
+  credentialUrl?: string;
+  @IsOptional() @IsDateString() expiresAt?: string;
 
-    @IsString()
-    organization!: string;
+  @IsString()
+  @Length(1, 200)
+  title!: string;
 
-    @IsOptional()
-    @IsString()
-    location?: string;
+  @IsString()
+  @Length(1, 200)
+  organization!: string;
 
-    @IsOptional()
-    @IsString()
-    description?: string;
+  @IsOptional()
+  @IsString()
+  location?: string;
 
-    @IsEnum(TimelineType)
-    type!: TimelineType;
+  @IsOptional()
+  @IsString()
+  @MaxLength(10000)
+  description?: string;
 
-    @IsDateString({ strict: true }, { message: "Start date must be a valid ISO 8601 date (YYYY-MM-DD)" })
-    startDate!: string;
+  @IsEnum(TimelineType)
+  type!: TimelineType;
 
-    @IsOptional()
-    @IsDateString({ strict: true }, { message: "End date must be a valid ISO 8601 date (YYYY-MM-DD)" })
-    endDate?: string;
+  @IsDateString(
+    { strict: true },
+    { message: 'Start date must be a valid ISO 8601 date (YYYY-MM-DD)' },
+  )
+  startDate!: string;
 
-    @IsOptional()
-    @IsBoolean()
-    current?: boolean;
+  @IsOptional()
+  @IsDateString(
+    { strict: true },
+    { message: 'End date must be a valid ISO 8601 date (YYYY-MM-DD)' },
+  )
+  endDate?: string;
 
-    @IsOptional()
-    @IsInt()
-    @Min(0)
-    displayOrder?: number;
+  @ValidateIf((_object, value) => value !== undefined)
+  @IsBoolean()
+  current?: boolean;
+
+  @ValidateIf((_object, value) => value !== undefined)
+  @IsInt()
+  @Min(0)
+  displayOrder?: number;
 }
