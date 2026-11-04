@@ -1,4 +1,5 @@
 import { PortfolioModule } from './modules/portfolio/portfolio.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { HealthController } from './health.controller';
 import { APP_GUARD } from '@nestjs/core';
 import { WriteRequestGuard } from './common/guards/write-request.guard';
@@ -33,6 +34,7 @@ import { ProjectMediaModule } from './modules/project-media/project-media.module
     AuthModule,
     MessagesModule,
     PortfolioModule,
+    DashboardModule,
     UsersModule,
     CategoryModule,
     SkillModule,

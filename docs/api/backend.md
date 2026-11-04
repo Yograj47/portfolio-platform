@@ -90,3 +90,7 @@ GET /portfolio returns the complete CV view model in the normal public API envel
 ## One-page portfolio aggregate
 
 GET /api/portfolio returns data.profile (safe public fields), data.projects (published only), data.skills, and data.timelines. This replaces the earlier file-backed CV response. The frontend validates the full aggregate before revealing the homepage. Deploy the frontend and backend together.
+
+## Dashboard summary
+
+GET /api/dashboard/summary requires a valid current-session bearer token. Returns project publication counts, recorded media bytes/file count, content totals, enquiry status counts, and bounded recent project/enquiry lists. Projects and media are scoped to the authenticated owner; deleted projects are excluded. It uses a consistent database snapshot and private/no-store headers. See [Dashboard overview](../architecture/dashboard-overview.md) for the response contract.

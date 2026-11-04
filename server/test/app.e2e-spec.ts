@@ -415,4 +415,100 @@ describe('Portfolio API with isolated PostgreSQL', () => {
       ).response.status,
     ).toBe(429);
   });
+  it('returns real dashboard counts without other owners or deleted projects', async () => {
+    const other = await prisma.user.create({
+      data: {
+        name: 'Other owner',
+        email: 'dashboard-other@example.com',
+        passwordHash: 'unused-test-hash',
+      },
+    });
+    let removedId: string | undefined;
+    try {
+      const otherProject = await prisma.project.create({
+        data: {
+          title: 'Other owner project',
+          slug: 'other-owner-dashboard',
+          excerpt: 'Fixture',
+          description: 'Fixture',
+          status: 'PUBLISHED',
+          authorId: other.id,
+          categoryId,
+        },
+      });
+      const removed = await prisma.project.create({
+        data: {
+          title: 'Deleted fixture',
+          slug: 'deleted-dashboard',
+          excerpt: 'Fixture',
+          description: 'Fixture',
+          status: 'PUBLISHED',
+          authorId: userId,
+          categoryId,
+          deletedAt: new Date(),
+        },
+      });
+      removedId = removed.id;
+      await prisma.media.create({
+        data: {
+          publicId: 'other-owner-media',
+          url: 'https://assets.example.com/other.png',
+          fileName: 'other.png',
+          mimeType: 'image/png',
+          type: 'IMAGE',
+          size: 999999,
+          uploadedBy: other.id,
+        },
+      });
+      expect((await call('/dashboard/summary')).response.status).toBe(401);
+      const result = await call('/dashboard/summary', 'GET', undefined, true);
+      expect(result.response.status).toBe(200);
+      expect(result.response.headers.get('cache-control')).toContain(
+        'no-store',
+      );
+      const owned = { authorId: userId, deletedAt: null };
+      expect(result.json.data.projects.total).toBe(
+        await prisma.project.count({ where: owned }),
+      );
+      expect(result.json.data.projects.published).toBe(
+        await prisma.project.count({
+          where: { ...owned, status: 'PUBLISHED' },
+        }),
+      );
+      const media = await prisma.media.aggregate({
+        where: { uploadedBy: userId },
+        _count: { _all: true },
+        _sum: { size: true },
+      });
+      expect(result.json.data.media).toEqual({
+        files: media._count._all,
+        bytes: media._sum.size ?? 0,
+      });
+      expect(result.json.data.messages.total).toBe(
+        await prisma.message.count(),
+      );
+      expect(result.json.data.messages.unread).toBe(
+        await prisma.message.count({ where: { status: 'UNREAD' } }),
+      );
+      expect(result.json.data.content.skills).toBe(await prisma.skill.count());
+      expect(
+        result.json.data.recentProjects.map((item: { id: string }) => item.id),
+      ).not.toContain(otherProject.id);
+      expect(
+        result.json.data.recentProjects.map((item: { id: string }) => item.id),
+      ).not.toContain(removed.id);
+      expect(result.json.data.recentMessages.length).toBeLessThanOrEqual(5);
+      expect(JSON.stringify(result.json.data)).not.toContain('passwordHash');
+      expect(
+        result.json.data.recentMessages.every(
+          (item: Record<string, unknown>) => !('message' in item),
+        ),
+      ).toBe(true);
+    } finally {
+      if (removedId) await prisma.project.delete({ where: { id: removedId } });
+      await prisma.project.deleteMany({ where: { authorId: other.id } });
+      await prisma.media.deleteMany({ where: { uploadedBy: other.id } });
+      await prisma.user.delete({ where: { id: other.id } });
+    }
+  });
 });

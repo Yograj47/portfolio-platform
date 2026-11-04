@@ -23,3 +23,5 @@ Final checks passed: frontend lint/type checks, 14 regression tests, production 
 Authentication update: management now lives under /admin/login and /admin/dashboard. See [Admin auth](../architecture/admin-auth.md) for verification, redirects, session revocation, and rollout notes.
 
 Responsive navigation: below 1024px the admin header provides an accessible hamburger drawer reusing the desktop sidebar. It closes after section selection, Escape, backdrop click, or resizing to desktop. The content region supports vertical scrolling and narrow layouts. Verified at 320px, 390px, 800px, and 1280px, including focus trapping/restoration, active links, navigation, and no horizontal page overflow. Targeted lint, TypeScript, and production build passed.
+
+Dashboard overview is now implemented with real database totals and recent activity via the protected /api/dashboard/summary endpoint. See [Dashboard overview](../architecture/dashboard-overview.md). The next inbox UI can reuse the existing message endpoints; recent enquiry previews currently do not change message status.

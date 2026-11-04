@@ -31,3 +31,5 @@ Current direction (supersedes earlier layout proposals): [One-page interactive p
 Next session: [Admin handoff](design/admin-handoff.md).
 
 Admin authentication and secure entry flow: [Admin auth](architecture/admin-auth.md).
+
+Real-data dashboard and summary contract: [Dashboard overview](architecture/dashboard-overview.md).
