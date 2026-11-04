@@ -1,6 +1,7 @@
 import { PortfolioModule } from './modules/portfolio/portfolio.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { HealthController } from './health.controller';
+import { OrderingController } from './modules/ordering/ordering.controller';
 import { APP_GUARD } from '@nestjs/core';
 import { WriteRequestGuard } from './common/guards/write-request.guard';
 import { MessagesModule } from './modules/messages/messages.module';
@@ -44,7 +45,7 @@ import { ProjectMediaModule } from './modules/project-media/project-media.module
     ProjectMediaModule,
   ],
 
-  controllers: [HealthController],
+  controllers: [HealthController, OrderingController],
   providers: [
     { provide: APP_GUARD, useClass: WriteRequestGuard },
     {

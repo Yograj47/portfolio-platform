@@ -24,7 +24,9 @@ import { Input } from "@/components/ui/input";
 import { TableSkeleton } from "@/components/skeletons/table-skeleton";
 import { EmptyState } from "@/components/feedback/empty-state";
 
-interface DataTableProps<TData, TValue> {
+export interface DataTableProps<TData, TValue> {
+  getRowId?: (item: TData) => string;
+  renderRow?: (row: Row<TData>, cells: React.ReactNode) => React.ReactNode;
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   loading?: boolean;
@@ -48,6 +50,8 @@ export function DataTable<TData, TValue>({
   onSearchChange,
   searchPlaceholder = "Search records...",
   renderExpandedRow,
+  getRowId,
+  renderRow,
 }: DataTableProps<TData, TValue>) {
   const [expanded, setExpanded] = useState({});
   const [localSearch, setLocalSearch] = useState("");
@@ -64,6 +68,7 @@ export function DataTable<TData, TValue>({
   const table = useReactTable({
     data: filteredData,
     columns,
+    getRowId,
     state: { expanded },
     onExpandedChange: setExpanded,
     getCoreRowModel: getCoreRowModel(),
@@ -144,28 +149,39 @@ export function DataTable<TData, TValue>({
             <TableBody>
               {table.getRowModel().rows.map((row) => (
                 <React.Fragment key={row.id}>
-                  <TableRow
-                    className="transition-colors hover:bg-muted/30 cursor-default"
-                    onClick={() => renderExpandedRow && row.toggleExpanded()}
-                  >
-                    {row.getVisibleCells().map((cell) => {
-                      const isActions = cell.column.id === "actions";
-
-                      return (
+                  {renderRow ? (
+                    renderRow(
+                      row,
+                      row.getVisibleCells().map((cell) => (
                         <TableCell
                           key={cell.id}
-                          className={`border-b border-border/40 ${
-                            isActions ? "w-14 text-right pr-4" : "py-3 text-sm"
-                          }`}
+                          className={`border-b border-border/40 ${cell.column.id === "actions" ? "w-14 text-right pr-4" : "py-3 text-sm"}`}
                         >
                           {flexRender(
                             cell.column.columnDef.cell,
                             cell.getContext(),
                           )}
                         </TableCell>
-                      );
-                    })}
-                  </TableRow>
+                      )),
+                    )
+                  ) : (
+                    <TableRow
+                      className="transition-colors hover:bg-muted/30 cursor-default"
+                      onClick={() => renderExpandedRow && row.toggleExpanded()}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell
+                          key={cell.id}
+                          className={`border-b border-border/40 ${cell.column.id === "actions" ? "w-14 text-right pr-4" : "py-3 text-sm"}`}
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  )}
 
                   {/* Render Expanded Sub-Row if active */}
                   {row.getIsExpanded() && renderExpandedRow && (

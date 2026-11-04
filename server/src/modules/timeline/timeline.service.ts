@@ -6,6 +6,7 @@ import {
 import { CreateTimelineDto } from './dto/create-timeline.dto';
 import { UpdateTimelineDto } from './dto/update-timeline.dto';
 import { PrismaService } from '@/database/prisma/prisma.service';
+import { firstAvailableOrder, orderedWrite } from '@/common/display-order';
 
 @Injectable()
 export class TimelineService {
@@ -18,16 +19,21 @@ export class TimelineService {
       ? new Date(createTimelineDto.endDate)
       : undefined;
 
-    return this.prisma.timeline.create({
-      data: {
-        ...createTimelineDto,
-        startDate,
-        endDate: createTimelineDto.current ? null : endDate,
-        expiresAt: createTimelineDto.expiresAt
-          ? new Date(createTimelineDto.expiresAt)
-          : undefined,
-      },
-    });
+    return orderedWrite(this.prisma, 'timeline', async (tx) =>
+      tx.timeline.create({
+        data: {
+          ...createTimelineDto,
+          displayOrder: firstAvailableOrder(
+            await tx.timeline.findMany({ select: { displayOrder: true } }),
+          ),
+          startDate,
+          endDate: createTimelineDto.current ? null : endDate,
+          expiresAt: createTimelineDto.expiresAt
+            ? new Date(createTimelineDto.expiresAt)
+            : undefined,
+        },
+      }),
+    );
   }
 
   findAll() {

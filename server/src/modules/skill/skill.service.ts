@@ -2,15 +2,23 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateSkillDto } from './dto/create-skill.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 import { PrismaService } from '@/database/prisma/prisma.service';
+import { firstAvailableOrder, orderedWrite } from '@/common/display-order';
 
 @Injectable()
 export class SkillService {
   constructor(private readonly prisma: PrismaService) {}
 
   create(createSkillDto: CreateSkillDto) {
-    return this.prisma.skill.create({
-      data: createSkillDto,
-    });
+    return orderedWrite(this.prisma, 'skills', async (tx) =>
+      tx.skill.create({
+        data: {
+          ...createSkillDto,
+          displayOrder: firstAvailableOrder(
+            await tx.skill.findMany({ select: { displayOrder: true } }),
+          ),
+        },
+      }),
+    );
   }
 
   findAll() {

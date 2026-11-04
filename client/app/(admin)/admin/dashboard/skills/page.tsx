@@ -129,7 +129,7 @@ export default function SkillsPage() {
         title="Create Skill"
         description="Create a new skill."
       >
-        <SkillForm skills={skills} loading={creating} onSubmit={handleCreate} />
+        <SkillForm loading={creating} onSubmit={handleCreate} />
       </FormDialog>
 
       <FormDialog
@@ -139,7 +139,6 @@ export default function SkillsPage() {
         description="Update skill."
       >
         <SkillForm
-          skills={skills}
           defaultValues={
             selectedSkill
               ? {
@@ -148,7 +147,6 @@ export default function SkillsPage() {
                   icon: selectedSkill.icon ?? "",
                   color: selectedSkill.color ?? "",
                   level: selectedSkill.level,
-                  displayOrder: selectedSkill.displayOrder,
                 }
               : undefined
           }

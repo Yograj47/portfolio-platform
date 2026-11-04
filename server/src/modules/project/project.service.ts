@@ -8,6 +8,7 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 import { CategoryService } from '../category/category.service';
 import slugify from 'slugify';
 import { PrismaService } from '@/database/prisma/prisma.service';
+import { firstAvailableOrder, orderedWrite } from '@/common/display-order';
 
 @Injectable()
 export class ProjectService {
@@ -29,14 +30,22 @@ export class ProjectService {
       throw new BadRequestException('Title must contain letters or numbers');
     const { skills, ...fields } = dto;
     await this.validateSkills(skills);
-    return this.prisma.project.create({
-      data: {
-        authorId: id,
-        slug,
-        ...fields,
-        skills: skills ? { create: skills } : undefined,
-      },
-    });
+    return orderedWrite(this.prisma, `projects:${id}`, async (tx) =>
+      tx.project.create({
+        data: {
+          authorId: id,
+          slug,
+          ...fields,
+          displayOrder: firstAvailableOrder(
+            await tx.project.findMany({
+              where: { authorId: id, deletedAt: null },
+              select: { displayOrder: true },
+            }),
+          ),
+          skills: skills ? { create: skills } : undefined,
+        },
+      }),
+    );
   }
 
   async findAll(authorId?: string) {

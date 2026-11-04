@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { Resolver, useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createSkillSchema, CreateSkillSchema } from "@/lib/validations/skill";
@@ -9,12 +9,9 @@ import { FormSubmitButton } from "@/components/forms/form-submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { IconPicker } from "../icon-picker/icon-picker";
-import { OrderPicker } from "@/components/forms/order-picker";
-import type { Skill } from "@/types/portfolio";
 import { Pipette } from "lucide-react";
 
 interface SkillFormProps {
-  skills?: Skill[];
   defaultValues?: Partial<CreateSkillSchema>;
   loading?: boolean;
   onSubmit: (data: CreateSkillSchema) => void;
@@ -36,27 +33,10 @@ const PRESET_COLORS = [
 ];
 
 export function SkillForm({
-  skills = [],
   defaultValues,
   loading = false,
   onSubmit,
 }: SkillFormProps) {
-  const currentDisplayOrder = defaultValues?.displayOrder;
-
-  const disabledOrders = useMemo(() => {
-    return skills
-      .map((skill) => skill.displayOrder)
-      .filter((order) => order !== currentDisplayOrder);
-  }, [skills, currentDisplayOrder]);
-
-  const defaultOrder = useMemo(() => {
-    if (currentDisplayOrder) return currentDisplayOrder;
-    for (let i = 1; i <= 25; i++) {
-      if (!disabledOrders.includes(i)) return i;
-    }
-    return 1;
-  }, [currentDisplayOrder, disabledOrders]);
-
   const {
     register,
     handleSubmit,
@@ -72,7 +52,6 @@ export function SkillForm({
       icon: "",
       color: "#3b82f6",
       level: 60,
-      displayOrder: defaultOrder,
       ...defaultValues,
     },
   });
@@ -88,9 +67,8 @@ export function SkillForm({
       icon: defaultValues.icon ?? "",
       color: defaultValues.color ?? "#3b82f6",
       level: defaultValues.level ?? 60,
-      displayOrder: defaultValues.displayOrder ?? defaultOrder,
     });
-  }, [defaultValues, defaultOrder, reset]);
+  }, [defaultValues, reset]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -217,23 +195,6 @@ export function SkillForm({
       </div>
 
       {/* Wheel Order Position Calendar Picker */}
-      <div className="space-y-2">
-        <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Wheel Position Order (1–25)
-        </Label>
-        <Controller
-          name="displayOrder"
-          control={control}
-          render={({ field }) => (
-            <OrderPicker
-              value={field.value}
-              onChange={field.onChange}
-              disabledOrders={disabledOrders}
-            />
-          )}
-        />
-        <FormFieldError message={errors.displayOrder?.message} />
-      </div>
 
       <div className="flex justify-end pt-2">
         <FormSubmitButton loading={loading} label="Save Skill" />

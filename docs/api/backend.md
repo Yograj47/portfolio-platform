@@ -107,3 +107,12 @@ GET /api/dashboard/summary requires a valid current-session bearer token. Return
 `DELETE /media/:id` returns 409 while an active nondeleted project or profile references the file. It locks the media record while checking usage and removing storage/record. Provider failures preserve the record; provider 404 allows stale-record cleanup. Detaching via `DELETE /project-media/:id` never deletes a file. Gallery attachments accept owned images only. The first attachment becomes cover; detaching a cover promotes the next ordered image.
 
 Migration `20261104000200_profile_media_relations` adds restricted profile foreign keys and owner/lookup indexes. It backfills matching owned image/PDF URLs while preserving external URLs. See [Admin media and inbox](../architecture/admin-media-inbox.md).
+
+
+## Display order
+
+New projects, skills and timeline entries automatically receive the first unused positive position in their list; supplied creation positions are ignored. Project ordering is scoped to the authenticated owner and excludes deleted projects. Skills and timeline use their shared single-owner CMS lists.
+
+`PATCH /ordering/projects`, `/ordering/skills` and `/ordering/timeline` accept `{ ids: ["first-id", "second-id", ...] }` and require a verified access token. Send the entire current list, with unique IDs (maximum 1000). The server validates membership/ownership and saves dense positions starting at one in a single transaction. Incomplete or stale membership returns 409; duplicate IDs return 400. Creation and reorder share a transactional advisory lock to avoid assigning duplicate positions during concurrent creates.
+
+Admin forms omit manual order selection. Drag handles in the three tables support pointer/touch and keyboard controls (Space, arrows, Space). Search must be cleared before reordering. Failed saves show an error and reload server order. Profile stays in the sidebar; logout is in its footer. The desktop header is removed and mobile keeps a navigation button.

@@ -22,7 +22,7 @@ const baseTimelineSchema = z.object({
     .or(z.literal(""))
     .optional(),
   current: z.boolean().default(false),
-  displayOrder: z.number().int().min(0).default(0),
+  displayOrder: z.number().int().min(0).optional(),
 });
 
 export const createTimelineSchema = baseTimelineSchema.superRefine(

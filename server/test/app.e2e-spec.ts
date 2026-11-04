@@ -206,6 +206,133 @@ describe('Portfolio API with isolated PostgreSQL', () => {
       (await call('/projects/slug/api-test-project')).response.status,
     ).toBe(200);
   });
+  it('assigns vacant orders automatically and saves complete lists atomically', async () => {
+    const createdIds: string[] = [];
+    let extraProjectId: string | undefined;
+    let timelineId: string | undefined;
+    try {
+      const created = await Promise.all(
+        ['Order A', 'Order B'].map((name) =>
+          call('/skills', 'POST', { name, level: 50 }, true),
+        ),
+      );
+      expect(created.every((item) => item.response.status === 201)).toBe(true);
+      for (const item of created) createdIds.push(item.json.data.id);
+      expect(created.map((item) => item.json.data.displayOrder).sort()).toEqual(
+        [1, 2],
+      );
+      const first = created.find((item) => item.json.data.displayOrder === 1)!;
+      await prisma.skill.delete({ where: { id: first.json.data.id } });
+      const filled = await call(
+        '/skills',
+        'POST',
+        { name: 'Fill gap', level: 50, displayOrder: 99 },
+        true,
+      );
+      expect(filled.json.data.displayOrder).toBe(1);
+      createdIds.push(filled.json.data.id);
+      const ids = (
+        await prisma.skill.findMany({
+          orderBy: { displayOrder: 'asc' },
+          select: { id: true },
+        })
+      )
+        .map((item) => item.id)
+        .reverse();
+      expect(
+        (await call('/ordering/skills', 'PATCH', { ids })).response.status,
+      ).toBe(401);
+      expect(
+        (await call('/ordering/skills', 'PATCH', { ids }, true)).response
+          .status,
+      ).toBe(200);
+      const saved = await prisma.skill.findMany({
+        orderBy: { displayOrder: 'asc' },
+      });
+      expect(saved.map((item) => item.id)).toEqual(ids);
+      expect(saved.map((item) => item.displayOrder)).toEqual([1, 2, 3]);
+      expect(
+        (
+          await call(
+            '/ordering/skills',
+            'PATCH',
+            { ids: [ids[0], ids[0]] },
+            true,
+          )
+        ).response.status,
+      ).toBe(400);
+      expect(
+        (
+          await call(
+            '/ordering/skills',
+            'PATCH',
+            { ids: ['unknown', ...ids.slice(1)] },
+            true,
+          )
+        ).response.status,
+      ).toBe(409);
+      expect(
+        (await prisma.skill.findMany({ orderBy: { displayOrder: 'asc' } })).map(
+          (item) => item.id,
+        ),
+      ).toEqual(ids);
+      const extra = await call(
+        '/projects',
+        'POST',
+        {
+          title: 'Ordered fixture',
+          excerpt: 'Fixture',
+          description: 'Fixture',
+          categoryId,
+        },
+        true,
+      );
+      extraProjectId = extra.json.data.id;
+      expect(extra.json.data.displayOrder).toBe(2);
+      expect(
+        (
+          await call(
+            '/ordering/projects',
+            'PATCH',
+            { ids: [extraProjectId, projectId] },
+            true,
+          )
+        ).response.status,
+      ).toBe(200);
+      expect(
+        (await call('/projects/admin', 'GET', undefined, true)).json.data.map(
+          (item: { id: string }) => item.id,
+        ),
+      ).toEqual([extraProjectId, projectId]);
+      expect(
+        (await call('/ordering/projects', 'PATCH', { ids: [projectId] }, true))
+          .response.status,
+      ).toBe(409);
+      const entry = await call(
+        '/timelines',
+        'POST',
+        {
+          title: 'Ordered course',
+          organization: 'Fixture',
+          type: 'TRAINING',
+          startDate: '2024-01-01',
+        },
+        true,
+      );
+      timelineId = entry.json.data.id;
+      expect(entry.json.data.displayOrder).toBe(1);
+      expect(
+        (await call('/ordering/timeline', 'PATCH', { ids: [timelineId] }, true))
+          .response.status,
+      ).toBe(200);
+    } finally {
+      await prisma.skill.deleteMany({ where: { id: { in: createdIds } } });
+      if (extraProjectId)
+        await prisma.project.delete({ where: { id: extraProjectId } });
+      if (timelineId)
+        await prisma.timeline.delete({ where: { id: timelineId } });
+    }
+  });
   it('validates data and protects the inbox', async () => {
     expect((await call('/messages')).response.status).toBe(401);
     expect(

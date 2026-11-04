@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { DataTable } from "@/components/data-table/data-table";
+import { OrderedDataTable } from "@/components/data-table/ordered-data-table";
 import type { Skill } from "@/types/portfolio";
 import { getSkillColumns } from "./skill-columns";
 
@@ -29,7 +29,8 @@ export function SkillTable({
   );
 
   return (
-    <DataTable
+    <OrderedDataTable
+      collection="skills"
       columns={columns}
       data={data}
       loading={loading}

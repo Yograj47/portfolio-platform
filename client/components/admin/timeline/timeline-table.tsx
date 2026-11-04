@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 
-import { DataTable } from "@/components/data-table/data-table";
+import { OrderedDataTable } from "@/components/data-table/ordered-data-table";
 
 import type { Timeline } from "@/types/portfolio";
 import { getTimelineColumns } from "./timeline-columns";
@@ -31,7 +31,8 @@ export function TimelineTable({
   );
 
   return (
-    <DataTable
+    <OrderedDataTable
+      collection="timeline"
       columns={columns}
       data={data}
       loading={loading}

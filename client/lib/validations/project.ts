@@ -27,7 +27,7 @@ export const createProjectSchema = z.object({
 
   status: z.nativeEnum(ProjectStatus).default(ProjectStatus.DRAFT),
 
-  displayOrder: z.number().int().min(0).default(0),
+  displayOrder: z.number().int().min(0).optional(),
 
   categoryId: z.string().min(1, "Category is required"),
 });

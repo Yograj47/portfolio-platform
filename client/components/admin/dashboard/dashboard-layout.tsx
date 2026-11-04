@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { DashboardSidebar } from "./dashboard-sidebar";
-import { DashboardHeader } from "./dashboard-header";
+import { MobileNavigation } from "./mobile-navigation";
 import { useSession } from "@/hooks/use-session";
 import { adminLoginHref } from "@/lib/admin-routes";
 import { ErrorState } from "@/components/feedback/error-state";
@@ -46,7 +46,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     >
       <DashboardSidebar />
       <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-        <DashboardHeader />
+        <div className="px-4 pt-4 lg:hidden">
+          <MobileNavigation key={pathname} />
+        </div>
         <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto overscroll-y-contain p-4 sm:p-6">
           <div className="flex min-w-0 flex-1 flex-col">{children}</div>
         </main>

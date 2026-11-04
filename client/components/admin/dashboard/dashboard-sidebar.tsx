@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Lock, KeySquare } from "lucide-react";
+import { Lock, KeySquare, LogOut } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/use-auth";
+import { Button } from "@/components/ui/button";
 import { sidebarItems } from "./sidebar-item";
 
 export function DashboardSidebar({
@@ -15,6 +17,7 @@ export function DashboardSidebar({
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
+  const { logout, logoutLoading } = useAuth();
 
   return (
     <aside
@@ -106,7 +109,16 @@ export function DashboardSidebar({
       </div>
 
       {/* Footer Info */}
-      <div className="border-t p-4">
+      <div className="space-y-3 border-t p-4">
+        <Button
+          variant="ghost"
+          className="w-full justify-start text-destructive"
+          disabled={logoutLoading}
+          onClick={() => logout()}
+        >
+          <LogOut className="size-4" />
+          {logoutLoading ? "Signing out�" : "Log out"}
+        </Button>
         <div className="rounded-lg border bg-card/50 p-3 text-xs text-muted-foreground">
           <Link
             href="/"

@@ -10,7 +10,7 @@ export const createSkillSchema = z.object({
 
   level: z.number().int().min(0).max(100),
 
-  displayOrder: z.number().int().min(0).default(0),
+  displayOrder: z.number().int().min(0).optional(),
 });
 
 export const updateSkillSchema = createSkillSchema.partial();

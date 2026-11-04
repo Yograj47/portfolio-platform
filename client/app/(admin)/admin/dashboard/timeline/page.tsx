@@ -135,11 +135,7 @@ export default function TimelinePage() {
         title="Create Timeline"
         description="Create a new timeline entry."
       >
-        <TimelineForm
-          timelines={timelines}
-          loading={creating}
-          onSubmit={handleCreate}
-        />
+        <TimelineForm loading={creating} onSubmit={handleCreate} />
       </FormDialog>
 
       <FormDialog
@@ -149,7 +145,6 @@ export default function TimelinePage() {
         description="Update timeline entry."
       >
         <TimelineForm
-          timelines={timelines}
           defaultValues={
             selectedTimeline
               ? {
@@ -164,7 +159,6 @@ export default function TimelinePage() {
                   startDate: selectedTimeline.startDate,
                   endDate: selectedTimeline.endDate ?? "",
                   current: selectedTimeline.current,
-                  displayOrder: selectedTimeline.displayOrder,
                 }
               : undefined
           }

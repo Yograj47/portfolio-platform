@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { Resolver, useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -12,7 +12,6 @@ import {
 import { TIMELINE_TYPE_OPTIONS } from "@/lib/constants/timeline-type-options";
 import { FormFieldError } from "@/components/forms/form-field-error";
 import { FormSubmitButton } from "@/components/forms/form-submit-button";
-import { OrderPicker } from "@/components/forms/order-picker";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,15 +28,7 @@ import {
 
 import { TimelineType } from "@/lib/enums/timeline";
 
-export interface TimelineItem {
-  id: string;
-  title: string;
-  organization: string;
-  displayOrder: number;
-}
-
 interface TimelineFormProps {
-  timelines?: TimelineItem[];
   defaultValues?: Partial<CreateTimelineSchema> & { id?: string };
   loading?: boolean;
   onSubmit: (data: CreateTimelineSchema) => void;
@@ -49,30 +40,10 @@ const formatDateForInput = (dateString?: string | null) => {
 };
 
 export function TimelineForm({
-  timelines = [],
   defaultValues,
   loading = false,
   onSubmit,
 }: TimelineFormProps) {
-  const currentEditOrder =
-    defaultValues?.displayOrder !== undefined
-      ? Number(defaultValues.displayOrder)
-      : null;
-
-  const disabledOrders = useMemo(() => {
-    return timelines
-      .map((item) => Number(item.displayOrder))
-      .filter((order) => order !== currentEditOrder);
-  }, [timelines, currentEditOrder]);
-
-  const defaultOrder = useMemo(() => {
-    if (currentEditOrder !== null) return currentEditOrder;
-    for (let i = 1; i <= 25; i++) {
-      if (!disabledOrders.includes(i)) return i;
-    }
-    return 1;
-  }, [currentEditOrder, disabledOrders]);
-
   const {
     register,
     handleSubmit,
@@ -97,7 +68,6 @@ export function TimelineForm({
       startDate: formatDateForInput(defaultValues?.startDate),
       endDate: formatDateForInput(defaultValues?.endDate),
       current: defaultValues?.current ?? false,
-      displayOrder: defaultOrder,
     },
   });
 
@@ -122,9 +92,8 @@ export function TimelineForm({
       startDate: formatDateForInput(defaultValues.startDate),
       endDate: formatDateForInput(defaultValues.endDate),
       current: defaultValues.current ?? false,
-      displayOrder: Number(defaultValues.displayOrder ?? defaultOrder),
     });
-  }, [defaultValues, defaultOrder, reset]);
+  }, [defaultValues, reset]);
 
   // Handle current toggle
   useEffect(() => {
@@ -281,23 +250,6 @@ export function TimelineForm({
           <FormFieldError message={errors.expiresAt?.message} />
         </div>
       </section>
-      <div className="space-y-2">
-        <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Timeline Display Order (1–25)
-        </Label>
-        <Controller
-          name="displayOrder"
-          control={control}
-          render={({ field }) => (
-            <OrderPicker
-              value={field.value}
-              onChange={field.onChange}
-              disabledOrders={disabledOrders}
-            />
-          )}
-        />
-        <FormFieldError message={errors.displayOrder?.message} />
-      </div>
 
       {/* Action Footer */}
       <div className="flex justify-end pt-2">

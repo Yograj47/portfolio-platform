@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, Resolver, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -22,8 +22,6 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { PROJECT_STATUS_OPTIONS } from "@/lib/constants/project-status-options";
-import { OrderPicker } from "@/components/forms/order-picker";
-import type { Project } from "@/types/portfolio";
 import { useSkill } from "@/hooks/use-skill";
 
 function TechnologiesInput({
@@ -60,7 +58,6 @@ export interface CategoryOption {
 }
 
 interface ProjectFormProps {
-  projects?: Project[];
   defaultValues?: Partial<CreateProjectSchema>;
   categories: CategoryOption[];
   loading?: boolean;
@@ -68,32 +65,12 @@ interface ProjectFormProps {
 }
 
 export function ProjectForm({
-  projects = [],
   defaultValues,
   categories,
   loading = false,
   onSubmit,
 }: ProjectFormProps) {
   const { skills: availableSkills, error: skillError } = useSkill();
-  const currentEditOrder =
-    defaultValues?.displayOrder !== undefined
-      ? Number(defaultValues.displayOrder)
-      : null;
-
-  const disabledOrders = useMemo(() => {
-    return projects
-      .map((item) => Number(item.displayOrder))
-      .filter((order) => order !== currentEditOrder);
-  }, [projects, currentEditOrder]);
-
-  const defaultOrder = useMemo(() => {
-    if (currentEditOrder !== null) return currentEditOrder;
-    for (let i = 1; i <= 25; i++) {
-      if (!disabledOrders.includes(i)) return i;
-    }
-    return 1;
-  }, [currentEditOrder, disabledOrders]);
-
   const {
     register,
     handleSubmit,
@@ -111,7 +88,6 @@ export function ProjectForm({
       liveUrl: "",
       featured: false,
       status: ProjectStatus.DRAFT,
-      displayOrder: defaultOrder,
       categoryId: "",
       technologies: [],
       skills: [],
@@ -135,12 +111,11 @@ export function ProjectForm({
       liveUrl: defaultValues.liveUrl ?? "",
       featured: defaultValues.featured ?? false,
       status: defaultValues.status ?? ProjectStatus.DRAFT,
-      displayOrder: Number(defaultValues.displayOrder ?? defaultOrder),
       categoryId: defaultValues.categoryId ?? "",
       technologies: defaultValues.technologies ?? [],
       skills: defaultValues.skills ?? [],
     });
-  }, [defaultValues, defaultOrder, reset]);
+  }, [defaultValues, reset]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -318,23 +293,6 @@ export function ProjectForm({
             </div>
           )}
         />
-      </div>
-      <div className="space-y-2">
-        <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Project display order (1–25)
-        </Label>
-        <Controller
-          name="displayOrder"
-          control={control}
-          render={({ field }) => (
-            <OrderPicker
-              value={field.value}
-              onChange={field.onChange}
-              disabledOrders={disabledOrders}
-            />
-          )}
-        />
-        <FormFieldError message={errors.displayOrder?.message} />
       </div>
 
       <div className="flex items-center justify-between rounded-lg border p-4">
