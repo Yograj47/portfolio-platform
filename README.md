@@ -26,6 +26,8 @@ In a second terminal:
 npm --prefix client run dev
 ```
 
+Backend development uses `dist-dev/`, while production builds use `dist/`. This keeps `npm run build` from deleting files used by the running development watcher. Run one frontend on port 3000 and one API on port 3001.
+
 The root is not a separate Node application. Use the package scripts in each application for builds and checks. Database migrations are managed from `server/`; inspect the target database before running them.
 
 ## Redesign documentation
