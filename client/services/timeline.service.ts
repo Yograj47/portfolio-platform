@@ -15,13 +15,16 @@ export const timelineService = {
   },
 
   create(data: CreateTimelineSchema) {
-    return http.post("/timelines", normalizeOptionalFields(data, ["endDate"]));
+    return http.post(
+      "/timelines",
+      normalizeOptionalFields(data, ["endDate", "credentialUrl", "expiresAt"]),
+    );
   },
 
   update(id: string, data: UpdateTimelineSchema) {
     return http.patch(
       `/timelines/${id}`,
-      normalizeOptionalFields(data, ["endDate"]),
+      normalizeOptionalFields(data, ["endDate", "credentialUrl", "expiresAt"]),
     );
   },
 

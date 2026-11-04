@@ -47,6 +47,9 @@ try {
     "/",
     "/admin/login",
     "/admin/dashboard",
+    "/admin/dashboard/messages",
+    "/admin/dashboard/media",
+    "/admin/dashboard/profile",
     "/projects/example-slug",
   ]) {
     const response = await fetch(base + route, {

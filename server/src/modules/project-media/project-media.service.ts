@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  BadRequestException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -37,12 +38,13 @@ export class ProjectMediaService {
   }
   async create(userId: string, dto: CreateProjectMediaDto) {
     return this.locked(dto.projectId, userId, async (tx) => {
-      if (
-        !(await tx.media.findFirst({
-          where: { id: dto.mediaId, uploadedBy: userId },
-        }))
-      )
-        throw new NotFoundException('Media not found');
+      await tx.$queryRaw`SELECT "id" FROM "Media" WHERE "id" = ${dto.mediaId} FOR UPDATE`;
+      const media = await tx.media.findFirst({
+        where: { id: dto.mediaId, uploadedBy: userId },
+      });
+      if (!media) throw new NotFoundException('Media not found');
+      if (media.type !== 'IMAGE')
+        throw new BadRequestException('Project galleries accept images only');
       const where = {
         projectId_mediaId: { projectId: dto.projectId, mediaId: dto.mediaId },
       };
@@ -51,14 +53,19 @@ export class ProjectMediaService {
         throw new ConflictException(
           'Media is already attached to this project',
         );
-      if (dto.isCover)
+      const makeCover =
+        dto.isCover ||
+        !(await tx.projectMedia.count({
+          where: { projectId: dto.projectId, isActive: true, isCover: true },
+        }));
+      if (makeCover)
         await tx.projectMedia.updateMany({
           where: { projectId: dto.projectId },
           data: { isCover: false },
         });
       const data = {
         isActive: true,
-        isCover: dto.isCover ?? false,
+        isCover: makeCover,
         displayOrder: dto.displayOrder ?? 0,
       };
       return tx.projectMedia.upsert({
@@ -108,21 +115,47 @@ export class ProjectMediaService {
       const current = await tx.projectMedia.findUnique({ where: { id } });
       if (current?.isActive)
         throw new ConflictException('Project media is already active');
+      await tx.$queryRaw`SELECT "id" FROM "Media" WHERE "id" = ${item.mediaId} FOR UPDATE`;
+      const media = await tx.media.findFirst({
+        where: { id: item.mediaId, uploadedBy: userId, type: 'IMAGE' },
+      });
+      if (!media) throw new NotFoundException('Image not found');
       return tx.projectMedia.update({
         where: { id },
-        data: { isActive: true, isCover: false },
+        data: {
+          isActive: true,
+          isCover: !(await tx.projectMedia.count({
+            where: { projectId: item.projectId, isActive: true, isCover: true },
+          })),
+        },
         include: { media: true },
       });
     });
   }
   async remove(id: string, userId: string) {
     const item = await this.relation(id, userId);
-    return this.locked(item.projectId, userId, (tx) =>
-      tx.projectMedia.update({
+    return this.locked(item.projectId, userId, async (tx) => {
+      const current = await tx.projectMedia.findFirst({
+        where: { id, isActive: true },
+      });
+      if (!current) throw new NotFoundException('Project media not found');
+      const result = await tx.projectMedia.update({
         where: { id },
         data: { isActive: false, isCover: false },
         include: { media: true },
-      }),
-    );
+      });
+      if (current.isCover) {
+        const next = await tx.projectMedia.findFirst({
+          where: { projectId: item.projectId, isActive: true },
+          orderBy: [{ displayOrder: 'asc' }, { id: 'asc' }],
+        });
+        if (next)
+          await tx.projectMedia.update({
+            where: { id: next.id },
+            data: { isCover: true },
+          });
+      }
+      return result;
+    });
   }
 }

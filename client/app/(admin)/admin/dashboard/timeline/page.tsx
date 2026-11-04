@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ErrorState } from "@/components/feedback/error-state";
 import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,8 @@ export default function TimelinePage() {
   const {
     timelines,
     loading,
+    error,
+    refetch,
 
     createTimeline,
     updateTimeline,
@@ -89,6 +92,15 @@ export default function TimelinePage() {
     });
   }
 
+  if (error)
+    return (
+      <ErrorState
+        title="Content could not be loaded"
+        description="Your saved content is safe. Reconnect to the server to continue."
+        onRetry={() => void refetch()}
+      />
+    );
+
   return (
     <div className="flex flex-1 flex-col min-h-0 h-full gap-4">
       {/* Page Header */}
@@ -142,6 +154,9 @@ export default function TimelinePage() {
             selectedTimeline
               ? {
                   title: selectedTimeline.title,
+                  credentialId: selectedTimeline.credentialId ?? "",
+                  credentialUrl: selectedTimeline.credentialUrl ?? "",
+                  expiresAt: selectedTimeline.expiresAt ?? "",
                   organization: selectedTimeline.organization,
                   location: selectedTimeline.location ?? "",
                   description: selectedTimeline.description ?? "",

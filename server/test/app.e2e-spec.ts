@@ -321,6 +321,214 @@ describe('Portfolio API with isolated PostgreSQL', () => {
       }),
     ).toBe(1);
   });
+  it('links owned profile media, protects referenced files, and detaches without deleting uploads', async () => {
+    const image = await prisma.media.findFirstOrThrow({
+      where: { uploadedBy: userId, type: 'IMAGE' },
+    });
+    const pdf = await prisma.media.create({
+      data: {
+        publicId: 'resume-fixture',
+        url: 'https://assets.example.com/resume-fixture.pdf',
+        fileName: 'resume.pdf',
+        mimeType: 'application/pdf',
+        type: 'DOCUMENT',
+        size: 123,
+        uploadedBy: userId,
+      },
+    });
+    const result = await call(
+      '/users/me',
+      'PATCH',
+      { avatarMediaId: image.id, resumeMediaId: pdf.id },
+      true,
+    );
+    expect(result.response.status).toBe(200);
+    expect(result.json.data.avatar).toBe(image.url);
+    expect(result.json.data.resumeUrl).toBe(pdf.url);
+    const library = await call('/media', 'GET', undefined, true);
+    const files = [
+      ...library.json.data.projectMedia,
+      ...library.json.data.generalMedia,
+    ];
+    expect(
+      files.find((file: { id: string }) => file.id === image.id).avatarUsers[0]
+        .id,
+    ).toBe(userId);
+    for (const id of [image.id, pdf.id])
+      expect(
+        (await call('/media/' + id, 'DELETE', undefined, true)).response.status,
+      ).toBe(409);
+    expect(
+      (
+        await call(
+          '/project-media',
+          'POST',
+          { projectId, mediaId: pdf.id },
+          true,
+        )
+      ).response.status,
+    ).toBe(400);
+    expect(
+      (await call('/users/me', 'PATCH', { avatarMediaId: pdf.id }, true))
+        .response.status,
+    ).toBe(400);
+    const other = await prisma.user.create({
+      data: {
+        name: 'Media other',
+        email: 'media-other@example.com',
+        passwordHash: 'unused',
+      },
+    });
+    const otherFile = await prisma.media.create({
+      data: {
+        publicId: 'other-fixture',
+        url: 'https://assets.example.com/other.png',
+        fileName: 'other.png',
+        mimeType: 'image/png',
+        type: 'IMAGE',
+        size: 20,
+        uploadedBy: other.id,
+      },
+    });
+    try {
+      expect(
+        (
+          await call(
+            '/users/me',
+            'PATCH',
+            { avatarMediaId: otherFile.id },
+            true,
+          )
+        ).response.status,
+      ).toBe(400);
+      expect(
+        (
+          await call(
+            '/project-media',
+            'POST',
+            { projectId, mediaId: otherFile.id },
+            true,
+          )
+        ).response.status,
+      ).toBe(404);
+      expect(
+        (await call('/media/' + otherFile.id, 'DELETE', undefined, true))
+          .response.status,
+      ).toBe(404);
+    } finally {
+      await prisma.media.delete({ where: { id: otherFile.id } });
+      await prisma.user.delete({ where: { id: other.id } });
+    }
+    const secondProject = await prisma.project.create({
+      data: {
+        title: 'Reuse fixture',
+        slug: 'reuse-fixture',
+        excerpt: 'Fixture',
+        description: 'Fixture',
+        categoryId,
+        authorId: userId,
+      },
+    });
+    expect(
+      (
+        await call(
+          '/project-media',
+          'POST',
+          { projectId: secondProject.id, mediaId: image.id },
+          true,
+        )
+      ).json.data.isCover,
+    ).toBe(true);
+    const reused = await call('/media/' + image.id, 'GET', undefined, true);
+    expect(reused.json.data.projects).toHaveLength(2);
+    const relation = await prisma.projectMedia.findFirstOrThrow({
+      where: { mediaId: image.id, projectId, isActive: true },
+    });
+    await call(
+      '/project-media/' + relation.id,
+      'PATCH',
+      { isCover: true },
+      true,
+    );
+    expect(
+      (await call('/project-media/' + relation.id, 'DELETE', undefined, true))
+        .response.status,
+    ).toBe(200);
+    expect(
+      await prisma.media.findUnique({ where: { id: image.id } }),
+    ).not.toBeNull();
+    expect(
+      await prisma.projectMedia.count({
+        where: { projectId, isActive: true, isCover: true },
+      }),
+    ).toBe(1);
+    expect(
+      (
+        await call(
+          '/project-media/' + relation.id + '/restore',
+          'PATCH',
+          undefined,
+          true,
+        )
+      ).response.status,
+    ).toBe(200);
+    expect(
+      await prisma.projectMedia.count({
+        where: { projectId, isActive: true, isCover: true },
+      }),
+    ).toBe(1);
+
+    expect(
+      (
+        await call(
+          '/users/me',
+          'PATCH',
+          {
+            avatarMediaId: null,
+            avatar: null,
+            resumeMediaId: null,
+            resumeUrl: null,
+          },
+          true,
+        )
+      ).response.status,
+    ).toBe(200);
+  });
+  it('filters, searches and manages message status without sending email', async () => {
+    const found = await call(
+      '/messages?search=PLEASE%20CONTACT&limit=1',
+      'GET',
+      undefined,
+      true,
+    );
+    expect(found.response.status).toBe(200);
+    expect(found.json.data.items).toHaveLength(1);
+    const id = found.json.data.items[0].id;
+    expect(
+      (await call('/messages/' + id, 'PATCH', { status: 'REPLIED' }, true))
+        .response.status,
+    ).toBe(200);
+    const filtered = await call(
+      '/messages?status=REPLIED',
+      'GET',
+      undefined,
+      true,
+    );
+    expect(
+      filtered.json.data.items.some((item: { id: string }) => item.id === id),
+    ).toBe(true);
+    expect(
+      (await call('/messages/' + id, 'PATCH', { status: 'INVALID' }, true))
+        .response.status,
+    ).toBe(400);
+    expect(
+      (await call('/messages/' + id, 'DELETE', undefined, true)).response
+        .status,
+    ).toBe(200);
+    expect(
+      (await call('/messages/' + id, 'GET', undefined, true)).response.status,
+    ).toBe(404);
+  });
   it('blocks cross-origin writes and refresh replay', async () => {
     const blocked = await fetch(base + '/auth/refresh', {
       method: 'POST',

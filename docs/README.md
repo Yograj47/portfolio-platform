@@ -1,8 +1,8 @@
 # Portfolio documentation
 
-Reviewed: 2 November 2026.
+Reviewed: 4 November 2026.
 
-This documentation follows the focused-guide approach used in ChatCord. The CV redesign is a proposal, not an implemented release.
+This documentation follows the focused-guide approach used in ChatCord. The one-page portfolio and admin CMS are implemented; older CV guides record the original design direction.
 
 | Guide | Purpose |
 | --- | --- |
@@ -33,3 +33,5 @@ Next session: [Admin handoff](design/admin-handoff.md).
 Admin authentication and secure entry flow: [Admin auth](architecture/admin-auth.md).
 
 Real-data dashboard and summary contract: [Dashboard overview](architecture/dashboard-overview.md).
+
+Media lifecycle, profile relationships and inbox: [Admin media and inbox](architecture/admin-media-inbox.md).

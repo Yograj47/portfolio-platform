@@ -8,7 +8,7 @@ import { authService } from "@/services/auth.service";
 import { useAuthStore } from "@/store/auth.store";
 import { UpdateProfileData } from "@/lib/validations/profile";
 import { adminDestination, ADMIN_LOGIN } from "@/lib/admin-routes";
-import { showError } from "@/lib/toast";
+import { showError, showSuccess } from "@/lib/toast";
 
 export function useAuth(redirectTo?: string) {
   const router = useRouter();
@@ -71,7 +71,11 @@ export function useAuth(redirectTo?: string) {
     onSuccess: (response) => {
       setUser(response.data.data);
       void queryClient.invalidateQueries({ queryKey: ["public-profile"] });
+      void queryClient.invalidateQueries({ queryKey: ["media"] });
+      showSuccess("Profile saved.");
     },
+    onError: () =>
+      showError("Profile could not be saved. Check the fields and try again."),
   });
 
   return {

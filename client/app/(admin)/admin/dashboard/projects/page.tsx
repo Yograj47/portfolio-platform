@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ErrorState } from "@/components/feedback/error-state";
 import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,8 @@ export default function ProjectsPage() {
   const {
     projects,
     loading,
+    error,
+    refetch,
 
     createProject,
     updateProject,
@@ -97,6 +100,15 @@ export default function ProjectsPage() {
     });
   }
 
+  if (error)
+    return (
+      <ErrorState
+        title="Content could not be loaded"
+        description="Your saved content is safe. Reconnect to the server to continue."
+        onRetry={() => void refetch()}
+      />
+    );
+
   return (
     <div className="flex flex-1 flex-col min-h-0 h-full gap-4">
       {/* Page Header without redundant title */}
@@ -153,6 +165,12 @@ export default function ProjectsPage() {
             selectedProject
               ? {
                   title: selectedProject.title,
+                  technologies: selectedProject.technologies ?? [],
+                  skills:
+                    selectedProject.skills?.map((item) => ({
+                      skillId: item.skillId,
+                      usageNote: item.usageNote ?? "",
+                    })) ?? [],
                   excerpt: selectedProject.excerpt,
                   description: selectedProject.description,
                   githubUrl: selectedProject.githubUrl ?? "",

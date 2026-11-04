@@ -1,27 +1,17 @@
 # Admin handoff
 
-Next session: improve the admin experience for the database-backed one-page portfolio.
+Updated: 4 November 2026. Admin content and media work is implemented; the next phase is deployment configuration and verification.
 
-## Current public UI
+## Available screens
 
-- Responsive horizontal project list: one item on mobile, two on medium screens, three on wide screens; native swipe/scroll and previous/next controls. Two actual projects fill the desktop strip evenly.
-- Skill details and total count share one panel header; keyboard selection remains available.
-- Contact includes a message form using `POST /api/messages`, with a honeypot, validation, pending state, retained draft on failure, rate-limit feedback, and confirmation on success.
-- Project details remain on `/projects/[slug]`. Other public section routes and terminal are removed.
+All management routes live below `/admin/dashboard`: overview, projects, media, categories, skills, timeline, profile and messages. Each uses the verified session gate and responsive hamburger navigation. The unused locked Settings entry was removed; public profile settings are accessible directly in the sidebar.
 
-## Admin work to prioritize
+- Overview uses the protected real-data summary endpoint. Successful CMS mutations invalidate overview and public content caches.
+- Projects support publication, technologies, related skills and usage notes, existing/uploaded images, cover selection, ordering and safe detach.
+- Media supports image/PDF uploads, filename/alt search, usage filters, usage labels, metadata editing and protected permanent deletion.
+- Profile supports summary, phone, availability, social links, a linked library avatar and a linked resume PDF or external resume URL.
+- Skills include groups. Timeline includes credential ID, verification URL and expiry for certificates/training.
+- Messages include pagination, status filters, server-side search, read/unread/replied controls, email-app reply links and confirmed deletion. Opening an unread enquiry marks it read. Marking replied records a status; it does not send mail.
+- Shared table search now filters records, toolbars display result counts, and load failures offer retry rather than presenting an empty dataset.
 
-- Build the message inbox UI using the existing protected `GET /api/messages`, `GET /api/messages/:id`, `PATCH /api/messages/:id`, and `DELETE /api/messages/:id` endpoints.
-- Support pagination and UNREAD / READ / REPLIED status filters. Marking REPLIED records a status; the backend does not send an email reply.
-- Review profile, project, skill, education, and training editors against the homepage data model.
-- Preserve existing content and credentials; improve editor feedback and navigation as needed.
-
-The frontend and backend must be deployed together for the new `/portfolio` aggregate contract. The current resume source is a Google Drive viewer; View CV links to it directly.
-
-Final checks passed: frontend lint/type checks, 14 regression tests, production build, and nine production route checks. Browser fixtures verified 3 / 2 / 1 project cards at 1440 / 800 / 390 pixels, arrow scrolling, inline skill count, no horizontal page overflow, retained message draft after a simulated 429, and confirmation/reset after simulated success. No real inbox messages were created by these browser checks.
-
-Authentication update: management now lives under /admin/login and /admin/dashboard. See [Admin auth](../architecture/admin-auth.md) for verification, redirects, session revocation, and rollout notes.
-
-Responsive navigation: below 1024px the admin header provides an accessible hamburger drawer reusing the desktop sidebar. It closes after section selection, Escape, backdrop click, or resizing to desktop. The content region supports vertical scrolling and narrow layouts. Verified at 320px, 390px, 800px, and 1280px, including focus trapping/restoration, active links, navigation, and no horizontal page overflow. Targeted lint, TypeScript, and production build passed.
-
-Dashboard overview is now implemented with real database totals and recent activity via the protected /api/dashboard/summary endpoint. See [Dashboard overview](../architecture/dashboard-overview.md). The next inbox UI can reuse the existing message endpoints; recent enquiry previews currently do not change message status.
+See [Admin media and inbox](../architecture/admin-media-inbox.md) for file lifecycle, relationships, migration and deployment notes. Existing authentication remains documented in [Admin auth](../architecture/admin-auth.md); overview details are in [Dashboard overview](../architecture/dashboard-overview.md).

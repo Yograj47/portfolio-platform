@@ -92,7 +92,7 @@ export function DashboardOverview() {
       value: data.messages.unread,
       detail: `${data.messages.total} received · ${data.messages.replied} replied`,
       icon: Mail,
-      href: "#recent-messages",
+      href: "/admin/dashboard/messages",
     },
     {
       label: "Recorded media usage",
@@ -270,7 +270,9 @@ export function DashboardOverview() {
         <section className={styles.panel} id="recent-messages">
           <div className={styles.panelHeading}>
             <div>
-              <h3>Recent enquiries</h3>
+              <h3>
+                <Link href="/admin/dashboard/messages">Recent enquiries</Link>
+              </h3>
               <p>The latest five messages from your contact form.</p>
             </div>
             <span className={styles.total}>{data.messages.unread} unread</span>

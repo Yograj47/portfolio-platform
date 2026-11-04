@@ -3,6 +3,16 @@ import { z } from "zod";
 import { ProjectStatus } from "@/lib/enums/project";
 
 export const createProjectSchema = z.object({
+  technologies: z.array(z.string().trim().min(1).max(100)).max(30).optional(),
+  skills: z
+    .array(
+      z.object({
+        skillId: z.string().min(1),
+        usageNote: z.string().max(500).optional(),
+      }),
+    )
+    .max(50)
+    .optional(),
   title: z.string().min(1, "Title is required").max(200),
 
   excerpt: z.string().min(1, "Excerpt is required"),

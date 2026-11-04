@@ -1,6 +1,6 @@
 # Backend API contract
 
-Updated: 2 November 2026. Paths below are relative to `/api`. All JSON endpoints use `{ success, statusCode, message, data, timestamp }`. Errors add path and contain no database details. The PDF endpoint streams binary PDF instead of a JSON envelope.
+Updated: 4 November 2026. Paths below are relative to `/api`. All JSON endpoints use `{ success, statusCode, message, data, timestamp }`. Errors add path and contain no database details. The PDF endpoint streams binary PDF instead of a JSON envelope.
 
 ## Public reads
 
@@ -42,7 +42,7 @@ All admin routes require Authorization: Bearer ACCESS_TOKEN, except login and co
 | POST /project-media | Attach or reattach owned media to owned project |
 | GET /project-media/project/:projectId | Ordered active attachments |
 | GET/PATCH/DELETE /project-media/:id | Read, update order/cover, or detach |
-| PATCH /project-media/:id/restore | Restore detached attachment without cover status |
+| PATCH /project-media/:id/restore | Restore detached attachment; becomes cover if no active cover exists |
 
 Project write values: title, excerpt, description, categoryId; optional githubUrl/liveUrl, featured, status (DRAFT/PUBLISHED/ARCHIVED), displayOrder, technologies array, skills array. Evidence format: `skills: [{ skillId, usageNote }]`. Omit skills to leave associations unchanged; send [] to clear them. Missing/duplicate skill IDs are rejected. Project create/update association changes are atomic nested writes.
 
@@ -70,7 +70,7 @@ Name: 1–100 characters, email: valid and at most 254, subject: optional and at
 
 Protected inbox routes:
 
-- GET /messages?page=1&limit=20&status=UNREAD returns `{ items, total, page, limit }`. Maximum limit: 100. Status is optional.
+- GET /messages?page=1&limit=20&status=UNREAD returns `{ items, total, page, limit }`. Maximum limit: 100. Status is optional. `search` optionally searches name, email, subject and body (case-insensitive, maximum 100 characters).
 - GET /messages/:id reads one message; it does not implicitly change status.
 - PATCH /messages/:id accepts `{ status: "READ" }`, UNREAD or REPLIED.
 - DELETE /messages/:id permanently removes a message.
@@ -94,3 +94,16 @@ GET /api/portfolio returns data.profile (safe public fields), data.projects (pub
 ## Dashboard summary
 
 GET /api/dashboard/summary requires a valid current-session bearer token. Returns project publication counts, recorded media bytes/file count, content totals, enquiry status counts, and bounded recent project/enquiry lists. Projects and media are scoped to the authenticated owner; deleted projects are excluded. It uses a consistent database snapshot and private/no-store headers. See [Dashboard overview](../architecture/dashboard-overview.md) for the response contract.
+
+
+## Media lifecycle and profile attachments
+
+`PATCH /users/me` accepts nullable `avatarMediaId` (owned IMAGE) and `resumeMediaId` (owned DOCUMENT). The server resolves URLs from the chosen files. Null clears an attachment unless a nonempty external URL is also supplied. Existing URL clients are supported; known library URLs resolve to owned media relations. Profile summary and phone remain editable.
+
+`POST /media` verifies file metadata with the configured ImageKit account, persists the provider URL/name/MIME/size/dimensions, accepts supported images and PDFs up to 10 MB, and is idempotent for an already registered file owned by the same user. Client metadata is not trusted for storage totals. Provider verification failure leaves a retryable browser registration step rather than creating an unverified record.
+
+`GET /media` returns `projectMedia`, `generalMedia` and `total`. Each file includes all active project uses excluding deleted projects, plus `avatarUsers` and `resumeUsers` with only id/name. General media means no active project links; profile usage may still exist. Files can be reused across projects.
+
+`DELETE /media/:id` returns 409 while an active nondeleted project or profile references the file. It locks the media record while checking usage and removing storage/record. Provider failures preserve the record; provider 404 allows stale-record cleanup. Detaching via `DELETE /project-media/:id` never deletes a file. Gallery attachments accept owned images only. The first attachment becomes cover; detaching a cover promotes the next ordered image.
+
+Migration `20261104000200_profile_media_relations` adds restricted profile foreign keys and owner/lookup indexes. It backfills matching owned image/PDF URLs while preserving external URLs. See [Admin media and inbox](../architecture/admin-media-inbox.md).

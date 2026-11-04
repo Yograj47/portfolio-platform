@@ -32,11 +32,15 @@ enum MessageStatus {
 }
 
 model User {
-  id           String  @id @default(cuid())
-  name         String
-  email        String  @unique
-  passwordHash String
-  avatar       String?
+  id            String  @id @default(cuid())
+  name          String
+  email         String  @unique
+  passwordHash  String
+  avatar        String?
+  avatarMediaId String?
+  resumeMediaId String?
+  avatarMedia   Media?  @relation("ProfileAvatar", fields: [avatarMediaId], references: [id], onDelete: Restrict)
+  resumeMedia   Media?  @relation("ProfileResume", fields: [resumeMediaId], references: [id], onDelete: Restrict)
 
   // Portfolio profile
   summary          String?
@@ -53,7 +57,7 @@ model User {
 
   // Authentication
   refreshTokenHash String?
-  authVersion      Int @default(0)
+  authVersion      Int       @default(0)
   lastLoginAt      DateTime?
 
   // Relations
@@ -62,6 +66,9 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([avatarMediaId])
+  @@index([resumeMediaId])
 }
 
 model Category {
@@ -77,14 +84,14 @@ model Category {
 }
 
 model Skill {
-  id           String  @id @default(cuid())
+  id           String         @id @default(cuid())
   name         String
   icon         String?
   color        String?
   group        String?
   projects     ProjectSkill[]
   level        Int
-  displayOrder Int     @default(0)
+  displayOrder Int            @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -98,8 +105,8 @@ model Project {
   description String
 
   technologies String[] @default([])
-  githubUrl String?
-  liveUrl   String?
+  githubUrl    String?
+  liveUrl      String?
 
   featured     Boolean       @default(false)
   status       ProjectStatus @default(DRAFT)
@@ -112,7 +119,7 @@ model Project {
   author   User     @relation(fields: [authorId], references: [id])
 
   skills ProjectSkill[]
-  media ProjectMedia[]
+  media  ProjectMedia[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -132,9 +139,9 @@ model Timeline {
   description  String?
   type         TimelineType
 
-  credentialId String?
+  credentialId  String?
   credentialUrl String?
-  expiresAt DateTime?
+  expiresAt     DateTime?
 
   startDate DateTime
   endDate   DateTime?
@@ -167,10 +174,14 @@ model Media {
   uploadedBy String
   user       User   @relation(fields: [uploadedBy], references: [id])
 
-  projects ProjectMedia[]
+  projects    ProjectMedia[]
+  avatarUsers User[]         @relation("ProfileAvatar")
+  resumeUsers User[]         @relation("ProfileResume")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([uploadedBy])
 }
 
 model ProjectMedia {
@@ -213,17 +224,19 @@ model Message {
 
 model ProjectSkill {
   projectId String
-  skillId String
+  skillId   String
   usageNote String?
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  skill Skill @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  skill     Skill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
   @@id([projectId, skillId])
   @@index([skillId])
 }
 
 model ApiRateLimit {
-  key String @id
-  count Int @default(1)
+  key       String   @id
+  count     Int      @default(1)
   expiresAt DateTime
+
   @@index([expiresAt])
 }

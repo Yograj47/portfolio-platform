@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const createSkillSchema = z.object({
+  group: z.string().trim().max(100).optional(),
   name: z.string().min(1, "Name is required"),
 
   icon: z.string().optional(),

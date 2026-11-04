@@ -16,6 +16,13 @@ export class ImageKitService {
   }
 
   async deleteFile(publicId: string) {
-    return this.client.files.delete(publicId);
+    return this.client.files.delete(publicId, {
+      timeout: 12000,
+      maxRetries: 0,
+    });
+  }
+
+  async getFile(publicId: string) {
+    return this.client.files.get(publicId, { timeout: 10000, maxRetries: 0 });
   }
 }

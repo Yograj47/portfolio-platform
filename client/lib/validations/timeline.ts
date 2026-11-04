@@ -2,6 +2,14 @@ import { z } from "zod";
 import { TimelineType } from "@/lib/enums/timeline";
 
 const baseTimelineSchema = z.object({
+  credentialId: z.string().max(200).optional(),
+  credentialUrl: z
+    .string()
+    .url()
+    .startsWith("https://", "Use an HTTPS credential link")
+    .or(z.literal(""))
+    .optional(),
+  expiresAt: z.string().date().or(z.literal("")).optional(),
   title: z.string().min(1, "Title is required"),
   organization: z.string().min(1, "Organization is required"),
   location: z.string().optional(),

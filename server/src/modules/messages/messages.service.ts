@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '@/database/prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 import {
   CreateMessageDto,
   MessageQueryDto,
@@ -26,7 +27,16 @@ export class MessagesService {
     return { received: true };
   }
   async findAll(query: MessageQueryDto) {
-    const where = { status: query.status };
+    const where: Prisma.MessageWhereInput = {
+      status: query.status,
+      ...(query.search
+        ? {
+            OR: ['name', 'email', 'subject', 'message'].map((field) => ({
+              [field]: { contains: query.search, mode: 'insensitive' },
+            })),
+          }
+        : {}),
+    };
     const [items, total] = await this.prisma.$transaction([
       this.prisma.message.findMany({
         where,

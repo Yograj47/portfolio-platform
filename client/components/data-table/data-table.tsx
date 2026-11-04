@@ -50,10 +50,19 @@ export function DataTable<TData, TValue>({
   renderExpandedRow,
 }: DataTableProps<TData, TValue>) {
   const [expanded, setExpanded] = useState({});
+  const [localSearch, setLocalSearch] = useState("");
+  const currentSearch = onSearchChange ? searchValue : localSearch;
+  const filteredData = React.useMemo(() => {
+    const term = currentSearch.trim().toLowerCase();
+    if (!term || onSearchChange) return data;
+    return data.filter((item) =>
+      JSON.stringify(item).toLowerCase().includes(term),
+    );
+  }, [data, currentSearch, onSearchChange]);
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
-    data,
+    data: filteredData,
     columns,
     state: { expanded },
     onExpandedChange: setExpanded,
@@ -77,11 +86,19 @@ export function DataTable<TData, TValue>({
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder={searchPlaceholder}
-              value={searchValue}
-              onChange={(e) => onSearchChange?.(e.target.value)}
+              aria-label={searchPlaceholder}
+              value={currentSearch}
+              onChange={(e) =>
+                onSearchChange
+                  ? onSearchChange(e.target.value)
+                  : setLocalSearch(e.target.value)
+              }
               className="h-9 w-full bg-muted/30 pl-9 text-xs transition-colors focus-visible:bg-background"
             />
           </div>
+          <span className="ml-3 shrink-0 text-xs text-muted-foreground">
+            {filteredData.length} records
+          </span>
         </div>
       )}
 

@@ -108,8 +108,15 @@ export function DashboardSidebar({
       {/* Footer Info */}
       <div className="border-t p-4">
         <div className="rounded-lg border bg-card/50 p-3 text-xs text-muted-foreground">
-          <p className="font-medium text-foreground">CMS Version 1.0</p>
-          <p className="mt-0.5 text-[11px]">System active & connected</p>
+          <Link
+            href="/"
+            target="_blank"
+            rel="noreferrer"
+            className="font-medium text-foreground hover:underline"
+          >
+            View public portfolio ↗
+          </Link>
+          <p className="mt-0.5 text-[11px]">Manage your content from here</p>
         </div>
       </div>
     </aside>

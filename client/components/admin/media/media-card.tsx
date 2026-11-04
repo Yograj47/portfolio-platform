@@ -5,9 +5,9 @@ import {
   Trash2,
   ExternalLink,
   FolderPlus,
-  RotateCcw,
   Unlink,
-  Image as ImageIcon,
+  Pencil,
+  FileText,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -25,19 +25,21 @@ export interface MediaCardProps {
   media: Media;
   onDelete: (media: Media) => void;
   onAttach?: () => void;
-  onDetach?: () => void;
-  onRestore?: (projectMediaId: string) => void;
+  onEdit?: (media: Media) => void;
+  onDetachRelation?: (id: string) => void;
 }
 
 export function MediaCard({
   media,
   onDelete,
   onAttach,
-  onDetach,
-  onRestore,
+  onEdit,
+  onDetachRelation,
 }: MediaCardProps) {
   const activeRelation = media.projects?.find((p) => p.isActive);
-  const inactiveRelation = media.projects?.find((p) => !p.isActive);
+  const inUse = Boolean(
+    activeRelation || media.avatarUsers?.length || media.resumeUsers?.length,
+  );
 
   return (
     <div className="group overflow-hidden rounded-xl border border-border/60 bg-card shadow-xs">
@@ -47,11 +49,12 @@ export function MediaCard({
             src={media.url}
             alt={media.alt ?? media.fileName}
             fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
           />
         ) : (
           <div className="flex size-full items-center justify-center">
-            <ImageIcon className="size-10 text-muted-foreground" />
+            <FileText className="size-10 text-muted-foreground" />
           </div>
         )}
 
@@ -61,7 +64,7 @@ export function MediaCard({
           </div>
         )}
 
-        <div className="absolute right-3 top-3 opacity-0 transition-opacity group-hover:opacity-100">
+        <div className="absolute right-3 top-3">
           <DropdownMenu>
             <DropdownMenuTrigger
               render={(props) => (
@@ -92,40 +95,26 @@ export function MediaCard({
                 )}
               />
 
-              {/* Restore action for soft-deleted project media links */}
-              {inactiveRelation && onRestore && (
-                <DropdownMenuItem
-                  onClick={() => onRestore(inactiveRelation.id)}
-                  className="cursor-pointer"
-                >
-                  <RotateCcw className="mr-2 size-4" />
-                  Restore
-                </DropdownMenuItem>
-              )}
-
-              {/* Attach action available for General Media */}
-              {!activeRelation && onAttach && (
+              {/* Files may be reused across projects. */}
+              {media.type === "IMAGE" && onAttach && (
                 <DropdownMenuItem
                   onClick={() => onAttach()}
                   className="cursor-pointer"
                 >
                   <FolderPlus className="mr-2 size-4" />
-                  Attach
+                  Attach to project
                 </DropdownMenuItem>
               )}
 
-              {/* Detach action available for active Project Media */}
-              {activeRelation && onDetach && (
-                <DropdownMenuItem
-                  onClick={() => onDetach()}
-                  className="cursor-pointer"
-                >
-                  <Unlink className="mr-2 size-4" />
-                  Detach
+              {onEdit && (
+                <DropdownMenuItem onClick={() => onEdit(media)}>
+                  <Pencil className="mr-2 size-4" />
+                  Edit details
                 </DropdownMenuItem>
               )}
 
               <DropdownMenuItem
+                disabled={inUse}
                 onClick={() => onDelete(media)}
                 className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive"
               >
@@ -150,6 +139,47 @@ export function MediaCard({
           </span>
 
           <span>{(media.size / 1024).toFixed(1)} KB</span>
+        </div>
+        <div className="flex flex-wrap gap-1.5 pt-2 text-xs">
+          {Boolean(media.avatarUsers?.length) && (
+            <span className="rounded-md bg-primary/10 px-2 py-1 text-primary">
+              Profile image
+            </span>
+          )}
+          {Boolean(media.resumeUsers?.length) && (
+            <span className="rounded-md bg-primary/10 px-2 py-1 text-primary">
+              Resume
+            </span>
+          )}
+          {media.projects
+            ?.filter((relation) => relation.isActive)
+            .map((relation) => (
+              <span
+                key={relation.id}
+                className="flex max-w-full items-center gap-1 rounded-md bg-muted px-2 py-1"
+              >
+                <span className="truncate">
+                  {relation.project.title}
+                  {relation.isCover ? " · Cover" : ""}
+                </span>
+                {onDetachRelation && (
+                  <button
+                    type="button"
+                    title={`Detach from ${relation.project.title}`}
+                    aria-label={`Detach from ${relation.project.title}`}
+                    className="rounded p-1 hover:bg-background"
+                    onClick={() => onDetachRelation(relation.id)}
+                  >
+                    <Unlink className="size-3" />
+                  </button>
+                )}
+              </span>
+            ))}
+          {!inUse && (
+            <span className="text-muted-foreground">
+              Unused · Safe to delete
+            </span>
+          )}
         </div>
       </div>
     </div>

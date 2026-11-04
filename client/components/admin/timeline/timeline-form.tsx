@@ -82,9 +82,14 @@ export function TimelineForm({
     clearErrors,
     formState: { errors },
   } = useForm<CreateTimelineSchema>({
-    resolver: zodResolver(createTimelineSchema) as Resolver<CreateTimelineSchema>,
+    resolver: zodResolver(
+      createTimelineSchema,
+    ) as Resolver<CreateTimelineSchema>,
     defaultValues: {
       title: defaultValues?.title ?? "",
+      credentialId: defaultValues?.credentialId ?? "",
+      credentialUrl: defaultValues?.credentialUrl ?? "",
+      expiresAt: formatDateForInput(defaultValues?.expiresAt),
       organization: defaultValues?.organization ?? "",
       location: defaultValues?.location ?? "",
       description: defaultValues?.description ?? "",
@@ -107,6 +112,9 @@ export function TimelineForm({
 
     reset({
       title: defaultValues.title ?? "",
+      credentialId: defaultValues.credentialId ?? "",
+      credentialUrl: defaultValues.credentialUrl ?? "",
+      expiresAt: formatDateForInput(defaultValues.expiresAt),
       organization: defaultValues.organization ?? "",
       location: defaultValues.location ?? "",
       description: defaultValues.description ?? "",
@@ -151,7 +159,10 @@ export function TimelineForm({
           <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Location
           </Label>
-          <Input placeholder="e.g. Kathmandu, Nepal" {...register("location")} />
+          <Input
+            placeholder="e.g. Kathmandu, Nepal"
+            {...register("location")}
+          />
           <FormFieldError message={errors.location?.message} />
         </div>
       </div>
@@ -210,11 +221,7 @@ export function TimelineForm({
           <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             End Date
           </Label>
-          <Input
-            type="date"
-            disabled={isCurrent}
-            {...register("endDate")}
-          />
+          <Input type="date" disabled={isCurrent} {...register("endDate")} />
           <FormFieldError message={errors.endDate?.message} />
         </div>
       </div>
@@ -222,7 +229,7 @@ export function TimelineForm({
       {/* Current Checkbox Switch Card */}
       <div className="flex items-center justify-between rounded-xl border bg-card p-4 shadow-xs">
         <div className="space-y-0.5">
-          <Label className="text-sm font-medium">Currently Working Here</Label>
+          <Label className="text-sm font-medium">Ongoing entry</Label>
           <p className="text-xs text-muted-foreground">
             Ongoing position or active experience
           </p>
@@ -245,7 +252,35 @@ export function TimelineForm({
         />
       </div>
 
-      {/* Order Picker */}
+      <section className="space-y-4 rounded-xl border p-4">
+        <h3 className="font-medium">Credential details</h3>
+        <p className="text-xs text-muted-foreground">
+          Optional verification details for training and certificates.
+        </p>
+        <div className="space-y-2">
+          <Label htmlFor="credential-id">Credential ID</Label>
+          <Input id="credential-id" {...register("credentialId")} />
+          <FormFieldError message={errors.credentialId?.message} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="credential-url">Verification URL</Label>
+          <Input
+            id="credential-url"
+            placeholder="https://www.credly.com/badges/…"
+            {...register("credentialUrl")}
+          />
+          <FormFieldError message={errors.credentialUrl?.message} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="credential-expiry">Expires on</Label>
+          <Input
+            id="credential-expiry"
+            type="date"
+            {...register("expiresAt")}
+          />
+          <FormFieldError message={errors.expiresAt?.message} />
+        </div>
+      </section>
       <div className="space-y-2">
         <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           Timeline Display Order (1–25)

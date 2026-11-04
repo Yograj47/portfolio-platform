@@ -1,5 +1,10 @@
 import { PrismaService } from '@/database/prisma/prisma.service';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
@@ -61,7 +66,45 @@ export class UsersService {
   }
 
   async update(id: string, data: UpdateProfileDto) {
-    await this.prisma.user.update({ where: { id }, data });
+    await this.prisma.$transaction(async (tx) => {
+      const update: Prisma.UserUncheckedUpdateInput = { ...data };
+      for (const [idKey, urlKey, type] of [
+        ['avatarMediaId', 'avatar', 'IMAGE'],
+        ['resumeMediaId', 'resumeUrl', 'DOCUMENT'],
+      ] as const) {
+        if (data[idKey] === undefined && data[urlKey] === undefined) continue;
+        let mediaId = data[idKey] ?? null;
+        if (!mediaId && data[urlKey]) {
+          const candidate = await tx.media.findFirst({
+            where: { url: data[urlKey] },
+          });
+          if (
+            candidate &&
+            (candidate.uploadedBy !== id || candidate.type !== type)
+          )
+            throw new BadRequestException(
+              `Choose an owned ${type.toLowerCase()} for ${urlKey}`,
+            );
+          mediaId = candidate?.id ?? null;
+        }
+        if (mediaId) {
+          await tx.$queryRaw`SELECT "id" FROM "Media" WHERE "id" = ${mediaId} FOR UPDATE`;
+          const media = await tx.media.findFirst({
+            where: { id: mediaId, uploadedBy: id, type },
+          });
+          if (!media)
+            throw new BadRequestException(
+              `Choose an owned ${type.toLowerCase()} for ${urlKey}`,
+            );
+          update[idKey] = media.id;
+          update[urlKey] = media.url;
+        } else {
+          update[idKey] = null;
+          update[urlKey] = data[urlKey] ?? null;
+        }
+      }
+      await tx.user.update({ where: { id }, data: update });
+    });
     return this.getSafeProfile(id);
   }
 

@@ -43,6 +43,8 @@ export type Media = {
   createdAt: string;
   updatedAt: string;
   projects?: MediaProjectRelation[];
+  avatarUsers?: { id: string; name: string }[];
+  resumeUsers?: { id: string; name: string }[];
 };
 
 export type FindAllMediaResponse = {

@@ -7,6 +7,10 @@ export interface User {
   name: string;
   email: string;
   avatar?: string | null;
+  avatarMediaId?: string | null;
+  resumeMediaId?: string | null;
+  summary?: string | null;
+  phone?: string | null;
 
   role?: string | null;
   location?: string | null;

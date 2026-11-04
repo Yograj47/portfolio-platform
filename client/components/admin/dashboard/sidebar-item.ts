@@ -5,8 +5,8 @@ import {
   Code2,
   GraduationCap,
   Mail,
-  Settings,
   Images,
+  UserRound,
   type LucideIcon,
 } from "lucide-react";
 
@@ -52,12 +52,10 @@ export const sidebarItems: SidebarItem[] = [
     title: "Messages",
     href: "/admin/dashboard/messages",
     icon: Mail,
-    notActive: true,
   },
   {
-    title: "Settings",
-    href: "/admin/dashboard/settings",
-    icon: Settings,
-    notActive: true,
+    title: "Profile",
+    href: "/admin/dashboard/profile",
+    icon: UserRound,
   },
 ];

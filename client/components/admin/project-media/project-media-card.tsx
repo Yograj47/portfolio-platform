@@ -46,6 +46,7 @@ export function ProjectMediaCard({
       {/* Media Image */}
       <Image
         fill
+        sizes="(max-width: 768px) 45vw, 300px"
         src={item.media.url}
         alt={item.media.alt ?? item.media.fileName}
         className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
@@ -68,13 +69,14 @@ export function ProjectMediaCard({
           {...listeners}
           className="pointer-events-auto flex size-6 shrink-0 items-center justify-center rounded-md bg-black/70 text-white backdrop-blur-md transition-colors hover:bg-black cursor-grab active:cursor-grabbing"
           title="Drag to reorder"
+          aria-label={`Reorder ${item.media.fileName}`}
         >
           <GripVertical className="size-3.5" />
         </button>
       </div>
 
       {/* Hover Action Overlay: Compact icon buttons that guaranteed fit */}
-      <div className="absolute inset-0 z-20 flex items-center justify-center gap-1.5 bg-black/60 backdrop-blur-[2px] opacity-0 transition-opacity duration-200 group-hover:opacity-100 p-2">
+      <div className="absolute inset-x-0 bottom-0 z-20 flex items-center justify-center gap-1.5 bg-black/60 p-2 transition-opacity duration-200 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
         {isBusy ? (
           <Loader2 className="size-5 animate-spin text-white" />
         ) : (
@@ -87,6 +89,7 @@ export function ProjectMediaCard({
                 className="size-7 shrink-0 rounded-md bg-white text-slate-900 hover:bg-slate-100"
                 onClick={() => onSetCover(item)}
                 title="Set as Cover"
+                aria-label="Set as cover"
               >
                 <Star className="size-3.5" />
               </Button>
@@ -97,7 +100,8 @@ export function ProjectMediaCard({
               variant="destructive"
               className="size-7 shrink-0 rounded-md bg-red-600 text-white hover:bg-red-700"
               onClick={() => onRemove(item.id)}
-              title="Delete Image"
+              title="Detach image"
+              aria-label="Detach image"
             >
               <Trash2 className="size-3.5" />
             </Button>

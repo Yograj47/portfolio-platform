@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Controller, Resolver, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -24,6 +24,35 @@ import { Switch } from "@/components/ui/switch";
 import { PROJECT_STATUS_OPTIONS } from "@/lib/constants/project-status-options";
 import { OrderPicker } from "@/components/forms/order-picker";
 import type { Project } from "@/types/portfolio";
+import { useSkill } from "@/hooks/use-skill";
+
+function TechnologiesInput({
+  values,
+  onChange,
+}: {
+  values?: string[];
+  onChange: (values: string[]) => void;
+}) {
+  const [text, setText] = useState(values?.join(", ") ?? "");
+  return (
+    <Input
+      id="project-technologies"
+      placeholder="React, TypeScript, PostgreSQL"
+      value={text}
+      onChange={(event) => {
+        setText(event.target.value);
+        onChange([
+          ...new Set(
+            event.target.value
+              .split(",")
+              .map((value) => value.trim())
+              .filter(Boolean),
+          ),
+        ]);
+      }}
+    />
+  );
+}
 
 export interface CategoryOption {
   id: string;
@@ -45,6 +74,7 @@ export function ProjectForm({
   loading = false,
   onSubmit,
 }: ProjectFormProps) {
+  const { skills: availableSkills, error: skillError } = useSkill();
   const currentEditOrder =
     defaultValues?.displayOrder !== undefined
       ? Number(defaultValues.displayOrder)
@@ -83,6 +113,8 @@ export function ProjectForm({
       status: ProjectStatus.DRAFT,
       displayOrder: defaultOrder,
       categoryId: "",
+      technologies: [],
+      skills: [],
 
       ...defaultValues,
     },
@@ -105,6 +137,8 @@ export function ProjectForm({
       status: defaultValues.status ?? ProjectStatus.DRAFT,
       displayOrder: Number(defaultValues.displayOrder ?? defaultOrder),
       categoryId: defaultValues.categoryId ?? "",
+      technologies: defaultValues.technologies ?? [],
+      skills: defaultValues.skills ?? [],
     });
   }, [defaultValues, defaultOrder, reset]);
 
@@ -201,10 +235,93 @@ export function ProjectForm({
         <FormFieldError message={errors.status?.message} />
       </div>
 
-      {/* Timeline Display Order taking full width */}
+      <div className="space-y-2">
+        <Label htmlFor="project-technologies">Technologies</Label>
+        <Controller
+          name="technologies"
+          control={control}
+          render={({ field }) => (
+            <TechnologiesInput
+              key={defaultValues?.title ?? "new-project"}
+              values={field.value}
+              onChange={field.onChange}
+            />
+          )}
+        />
+        <p className="text-xs text-muted-foreground">
+          Separate technology names with commas.
+        </p>
+        <FormFieldError message={errors.technologies?.message} />
+      </div>
+      <div className="space-y-3">
+        <Label>Related skills</Label>
+        <p className="text-xs text-muted-foreground">
+          Connect this project to your skills and describe how each was used.
+        </p>
+        {skillError && (
+          <p role="alert" className="text-sm text-destructive">
+            Skills could not be loaded. Existing associations will be preserved.
+          </p>
+        )}
+        <Controller
+          name="skills"
+          control={control}
+          render={({ field }) => (
+            <div className="space-y-2">
+              {availableSkills.map((skill) => {
+                const selected = field.value?.find(
+                  (item) => item.skillId === skill.id,
+                );
+                return (
+                  <div key={skill.id} className="rounded-lg border p-3">
+                    <label className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={Boolean(selected)}
+                        disabled={loading}
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.checked
+                              ? [
+                                  ...(field.value ?? []),
+                                  { skillId: skill.id, usageNote: "" },
+                                ]
+                              : field.value?.filter(
+                                  (item) => item.skillId !== skill.id,
+                                ),
+                          )
+                        }
+                      />
+                      {skill.name}
+                    </label>
+                    {selected && (
+                      <Input
+                        className="mt-2"
+                        aria-label={`How ${skill.name} was used`}
+                        placeholder="How was this skill used?"
+                        maxLength={500}
+                        value={selected.usageNote ?? ""}
+                        onChange={(e) =>
+                          field.onChange(
+                            field.value?.map((item) =>
+                              item.skillId === skill.id
+                                ? { ...item, usageNote: e.target.value }
+                                : item,
+                            ),
+                          )
+                        }
+                      />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        />
+      </div>
       <div className="space-y-2">
         <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Timeline Display Order (1–25)
+          Project display order (1–25)
         </Label>
         <Controller
           name="displayOrder"

@@ -21,6 +21,7 @@ export class CreateMessageDto {
   @IsOptional() @IsString() @MaxLength(200) website?: string;
 }
 export class MessageQueryDto {
+  @IsOptional() @Transform(trim) @IsString() @MaxLength(100) search?: string;
   @IsOptional() @IsEnum(MessageStatus) status?: MessageStatus;
   @IsOptional() @Type(() => Number) @IsInt() @Min(1) page = 1;
   @IsOptional() @Type(() => Number) @IsInt() @Min(1) @Max(100) limit = 20;

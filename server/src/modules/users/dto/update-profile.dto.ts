@@ -10,6 +10,15 @@ import {
 } from 'class-validator';
 
 export class UpdateProfileDto {
+  @IsOptional()
+  @IsString()
+  @Length(1, 200)
+  avatarMediaId?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @Length(1, 200)
+  resumeMediaId?: string | null;
   @ValidateIf((_object, value) => value !== undefined)
   @IsString()
   @Length(1, 100)

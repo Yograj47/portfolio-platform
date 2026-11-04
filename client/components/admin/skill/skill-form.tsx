@@ -68,6 +68,7 @@ export function SkillForm({
     resolver: zodResolver(createSkillSchema) as Resolver<CreateSkillSchema>,
     defaultValues: {
       name: "",
+      group: "",
       icon: "",
       color: "#3b82f6",
       level: 60,
@@ -83,6 +84,7 @@ export function SkillForm({
     if (!defaultValues) return;
     reset({
       name: defaultValues.name ?? "",
+      group: defaultValues.group ?? "",
       icon: defaultValues.icon ?? "",
       color: defaultValues.color ?? "#3b82f6",
       level: defaultValues.level ?? 60,
@@ -101,7 +103,16 @@ export function SkillForm({
         <FormFieldError message={errors.name?.message} />
       </div>
 
-      {/* Icon Picker */}
+      <div className="space-y-2">
+        <Label htmlFor="skill-group">Skill group</Label>
+        <Input
+          id="skill-group"
+          placeholder="Frontend, Backend, Tools…"
+          maxLength={100}
+          {...register("group")}
+        />
+        <FormFieldError message={errors.group?.message} />
+      </div>
       <div className="space-y-2">
         <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           Icon
@@ -149,6 +160,7 @@ export function SkillForm({
             {PRESET_COLORS.map((preset) => (
               <button
                 key={preset}
+                aria-label={`Use color ${preset}`}
                 type="button"
                 className="size-5 rounded-full border border-black/10 transition-transform hover:scale-110"
                 style={{ backgroundColor: preset }}
@@ -182,6 +194,7 @@ export function SkillForm({
             return (
               <button
                 key={i}
+                aria-label={`Set proficiency to ${stepPercent}%`}
                 type="button"
                 onClick={() => setValue("level", stepPercent)}
                 className="h-7 flex-1 rounded-sm transition-all hover:opacity-80"
