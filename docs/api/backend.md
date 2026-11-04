@@ -79,13 +79,9 @@ All auth POST routes allow 15 attempts per IP/route per fixed minute. Public mes
 
 ## Integration notes
 
-Unknown body/query properties are rejected where DTOs apply. JSON booleans must be actual booleans and numeric body values actual numbers. Optional query pagination numbers are explicitly converted. Use browser credentials for auth cookies and the configured client Origin; frontend SSR refresh calls must deliberately forward a trusted Origin, not an arbitrary incoming header. PDF delivery and inbox integration are ready for the client phase; their client controls are not implemented here.
+Unknown body/query properties are rejected where DTOs apply. JSON booleans must be actual booleans and numeric body values actual numbers. Optional query pagination numbers are explicitly converted. Use browser credentials for auth cookies and the configured client Origin; frontend SSR refresh calls must deliberately forward a trusted Origin, not an arbitrary incoming header. The client includes hosted CV links, media selection and the protected inbox.
 
-Deploy the two November migrations before starting this version against an existing database, then generate Prisma Client. Existing refresh sessions from the previous hashing implementation require sign-in again. Production Swagger is disabled. See the [server runbook](../../server/README.md).
-
-## Complete CV response
-
-GET /portfolio returns the complete CV view model in the normal public API envelope, with Cache-Control: no-store. This endpoint is initially backed by the migrated server-side resume content file; it is not yet a PostgreSQL/CMS projection. The frontend checks /health first, then validates this complete snapshot before showing the homepage. Deploy this new endpoint together with the startup-gated frontend. See [startup loading](../architecture/portfolio-startup.md) for timeout, retry and data-source details.
+Apply all committed migrations with `npm run prisma:deploy` before starting an updated API, then generate Prisma Client. Existing sessions may require sign-in after authentication migrations. Production Swagger is disabled. See the [server runbook](../../server/README.md).
 
 ## One-page portfolio aggregate
 

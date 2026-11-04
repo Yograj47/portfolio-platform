@@ -1,39 +1,29 @@
-# Yograj Rijal — Portfolio
+# Yograj Rijal � Portfolio
 
-Personal portfolio with a Next.js client, NestJS API, PostgreSQL/Prisma, and an admin dashboard. The public homepage combines database-backed projects, skills, timeline, contact links, and training credentials in one interactive page. Project details have their own routes.
+An interactive developer portfolio with a Next.js frontend, a NestJS API, PostgreSQL/Prisma and a private admin CMS. The homepage presents projects, skills, experience, credentials and contact in one place; project write-ups have their own pages.
+
+The former terminal interface has been retired. The CV inspired the visual theme, while public content is managed through the database-backed CMS.
 
 ## Workspace
 
-- `client/` — Next.js public portfolio and admin dashboard.
-- `server/` — NestJS API, Prisma schema and migrations.
-- `docs/` — design proposals, implementation roadmap, and source review.
-- `docker-compose.yml` — local PostgreSQL service using root environment configuration.
+| Directory | Purpose |
+| --- | --- |
+| `client/` | Public portfolio and admin interface |
+| `server/` | API, migrations, owner seed and optional content import |
+| `docs/` | Current architecture, behavior, API and deployment guides |
 
 ## Development
 
-Install dependencies separately with `npm ci` in `client/` and `server/`. Configure the required environment variables before starting services; do not commit secrets.
+Use Node.js 24. Run `npm ci` separately in `client/` and `server/`. Copy each app's environment example to its local environment file and replace placeholders; keep secrets out of Git.
 
-From the repository root:
+Use an existing PostgreSQL instance or the root Docker Compose service, configured with POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB and POSTGRES_PORT. Inspect the target database, then apply committed migrations with `npm run prisma:deploy` from `server/`.
 
-```powershell
-docker compose up -d
-npm --prefix server run start:dev
-```
+Run one API with `npm --prefix server run start:dev` and one frontend with `npm --prefix client run dev`. The API uses port 3001; the frontend uses 3000 and refuses to fall back onto the API port. Backend development writes `dist-dev/`; production builds use `dist/`, so verification builds do not remove files used by the watcher.
 
-In a second terminal:
+## Checks and deployment
 
-```powershell
-npm --prefix client run dev
-```
+Run `npm run check` in each application. Frontend release checks also include `npm run build` and `npm run test:routes`. Backend HTTP tests require the isolated local TEST_DATABASE_URL fixture described in the [server runbook](server/README.md).
 
-Backend development uses `dist-dev/`, while production builds use `dist/`. This keeps `npm run build` from deleting files used by the running development watcher. Run one frontend on port 3000 and one API on port 3001.
+Deploy the frontend to Vercel and the API to Render using [the deployment guide](docs/operations/deployment.md). The current candidate is `codex/pre-deploy`; hosted verification and the planned 1.5.0 release remain pending.
 
-The root is not a separate Node application. Use the package scripts in each application for builds and checks. Database migrations are managed from `server/`; inspect the target database before running them.
-
-## Redesign documentation
-
-Start with [documentation](docs/README.md), then the [CV concept](docs/design/cv-portfolio.md) and [roadmap](docs/design/cv-roadmap.md). These describe proposed work, not completed features.
-
-The provided CV screenshot is the visual reference: centered identity, compact text entries, uppercase section headings, thin rules, and aligned dates. Training & Certifications will be the final content section, including verified AWS training/certification details.
-
-Older portfolio media is preserved in [reference assets](docs/reference/README.md).
+See the [documentation index](docs/README.md), [frontend runbook](client/README.md), and [server runbook](server/README.md).

@@ -1,6 +1,6 @@
 # Portfolio server
 
-NestJS + Prisma/PostgreSQL backend for Yograj's CV portfolio and private CMS.
+NestJS + Prisma/PostgreSQL backend for Yograj's interactive portfolio and private CMS.
 
 ## Local setup
 
@@ -16,7 +16,7 @@ To create/update the single portfolio owner, configure ADMIN_NAME, ADMIN_EMAIL a
 
 ## API contract and checks
 
-See [backend API contract](../docs/api/backend.md) for endpoint, validation, and client integration details. See [backend audit](../docs/architecture/backend-audit.md) for completed fixes and migration context.
+See [backend API contract](../docs/api/backend.md) for endpoint, validation, and client integration details. See the [project overview](../docs/architecture/overview.md) for ownership and structure, and [deployment guide](../docs/operations/deployment.md) for Vercel/Render configuration.
 
 ```powershell
 npm run check
@@ -36,3 +36,5 @@ CV_ALLOWED_HOSTS is a comma-separated list of exact trusted HTTPS file hostnames
 Messages are saved to the admin inbox; there is no outgoing email service. REPLIED is a manually managed status. No raw visitor IP or user agent is stored on messages. The public form accepts an optional empty website honeypot, while limits use hashed IP/route/time buckets.
 
 A single seeded owner is the administrative model; there is no public signup or multi-role account system. Access and refresh tokens carry the current database authVersion. Logout, a newer login, password reseeding, and account deletion invalidate older sessions. Refresh sessions rotate atomically.
+
+Development output is isolated in `dist-dev/`; production uses `dist/`. The optional resume import reads `scripts/data/resume.json`. It is not an automatic deployment or runtime fallback.

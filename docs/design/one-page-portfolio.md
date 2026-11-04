@@ -1,32 +1,25 @@
-# One-page interactive portfolio
+# Portfolio experience
 
-Current direction: 3 November 2026. Supersedes the CV document and three-section sidebar proposals.
+The current homepage is a portfolio, with the CV used only as a visual starting point: white background, clear typography, thin dividers and a maximum content width of 70rem.
 
-The CV is visual inspiration: restrained typography, white background, thin rules, and a 70rem content width. The homepage is an interactive portfolio with anchor navigation, category-filtered project cards, a skill explorer, expandable and filterable timeline entries, contact links, and training credentials last.
+## Why the earlier content changed
 
-## Routes
+The terminal interface required visitors to discover commands before seeing the work. The new direction makes projects, skills, experience and contact immediately visible through conventional navigation and accessible controls. The terminal feature was removed rather than maintained as a second presentation; a separate shell course project can demonstrate command-line work independently.
 
-- `/`: all public portfolio sections.
-- `/projects/[slug]`: project gallery and detailed write-up, with a back-to-portfolio link.
-- `/login` and `/dashboard`: retain management access.
-- `/projects`, `/skills`, `/timeline`, and `/terminal`: removed; return 404.
+The original resume copy provided verified identity, education and AWS training information. It was moved into database-backed CMS records so public content can be edited without rebuilding static resume data. Existing project records provide real project descriptions and galleries; missing resume-only projects are not fabricated as published projects. Training badges are described as training, without inventing certification claims.
 
-The terminal components, commands, contact-terminal output, types, and virtual filesystem have been removed.
+## Current interactions
 
-## Data
+- One homepage contains all main sections, with anchor navigation.
+- Projects scroll horizontally: one card on mobile, two at medium widths and three on wide screens, with native scrolling and previous/next controls. Full write-ups and galleries use `/projects/[slug]`.
+- Skills support pointer and keyboard exploration with inline detail/count presentation.
+- Timeline entries can be filtered and expanded. Training and credentials appear in their own final content section with verification links where available.
+- Contact combines profile links with a validated message form. Successful submission means the enquiry was stored in the private inbox; it does not send email.
+- View CV opens the configured hosted document. The API can stream an actual PDF from an explicitly allowed host; it does not generate a PDF from page content.
+- Initial loading checks backend health and fetches the full validated portfolio before revealing content. Failures have bounded retries and manual recovery.
 
-`GET /api/portfolio` now aggregates the safe public profile, published projects, skills, and timeline records using the existing CMS services. No hardcoded resume fallback runs in the application. The frontend validates the whole aggregate after `/health` succeeds, preserving cold-start retries, cancellation, timeout, and manual retry.
+## Editing
 
-The supplied resume transcription is preserved in `docs/reference/resume-import-source.ts` only as an import reference. Run `node scripts/import-resume.cjs` from `server` with its configured environment to add missing profile values, education institutions, and AWS training entries. Existing profile edits and matching timeline entries are preserved. The import was applied to the configured database during implementation. Year-only education dates use January 1 for sorting; the original supplied date wording remains in the description and the interface must not imply a precise month or graduation.
+The admin sidebar owns navigation, Profile and footer logout. Desktop has no account header; mobile retains a menu button. Content editors manage published data, credentials, media and enquiries. New list positions are automatic, and projects/skills/timeline are reordered directly by dragging rows.
 
-Published projects come from existing project records. Resume-only projects without full CMS records are not fabricated as published projects. A View CV link appears when a resume URL is configured and opens that hosted document directly. The current Google Drive viewer provides its own download control; the unconfigured PDF proxy is not promoted. Contact actions use the profile email, phone, and social URLs.
-
-Deploy backend and frontend together because the portfolio response contract has changed.
-
-
-Verification: frontend lint/type checks and 14 tests passed; backend build/lint and 18 tests passed. Production build and all nine route checks passed. Browser checks passed for section rendering, project filters, timeline filters/expansion, four AWS badges, project detail navigation, removed-route 404s, mobile overflow, and browser errors. Desktop/mobile screenshots were reviewed.
-
-Final browser pass also verified keyboard selection in the skills wheel. The current production preview is running on port 3000.
-
-
-Final interaction update: responsive horizontal project scrolling (1 / 2 / 3 cards), compact skill count in the detail header, and a contact message form. Admin follow-up: [Admin handoff](admin-handoff.md).
+The optional import `node scripts/import-resume.cjs` from `server/` reads `scripts/data/resume.json` and adds missing profile/education/training values. It is a manual recovery/import tool, not an automatic deploy step. Do not run it against edited production content without reviewing its source and target database. Year-only education dates use January 1 for sorting while the supplied wording remains in descriptions.

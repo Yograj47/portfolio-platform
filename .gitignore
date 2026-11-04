@@ -40,3 +40,5 @@ coverage/
 docker/postgres/data
 # Share configuration names without secrets
 !server/.env.example
+
+!client/.env.example

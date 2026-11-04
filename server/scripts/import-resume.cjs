@@ -1,23 +1,8 @@
 // One-time, additive import of the supplied resume. Never replaces edited CMS values.
 require('dotenv/config');
-const fs = require('node:fs');
-const path = require('node:path');
-const vm = require('node:vm');
-const ts = require('typescript');
 const { PrismaClient } = require('@prisma/client');
 const { PrismaPg } = require('@prisma/adapter-pg');
-const source = fs.readFileSync(
-  path.join(__dirname, '../../docs/reference/resume-import-source.ts'),
-  'utf8',
-);
-const exportsBox = {};
-vm.runInNewContext(
-  ts.transpileModule(source, {
-    compilerOptions: { module: ts.ModuleKind.CommonJS },
-  }).outputText,
-  { exports: exportsBox },
-);
-const cv = exportsBox.cvContent;
+const cv = require('./data/resume.json');
 const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
 });

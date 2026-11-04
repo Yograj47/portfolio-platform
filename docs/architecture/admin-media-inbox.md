@@ -28,20 +28,6 @@ Opening unread messages marks them read; failed updates retain the visible messa
 
 The inbox is shared within this single-owner CMS. It is not a multi-tenant mailbox. Credentials and message content remain behind the session gate/API token guards. Message bodies render as plain text, preserving line breaks.
 
-## Deployment handoff
+## Deployment and checks
 
-- Run `npm run prisma:deploy` in the server before starting the updated API. The new migration has been applied to the current configured development database.
-- Deploy frontend and backend together. Generated Prisma client must match the schema.
-- Configure ImageKit private/public keys and the allowed image host; private keys belong only on the server. PDF resume upload uses the same media registration flow.
-- External resume URLs must work with the existing allowed-host CV download configuration; provider uploads use the verified provider URL.
-- Configure actual frontend/API origins, refresh-cookie security and trusted proxy settings before deploying. Existing admin-auth documentation covers this separately.
-- Build, type/lint checks and unit tests are available in each package's `npm run check`; HTTP integration tests require the isolated `TEST_DATABASE_URL` fixture. Production route checks include media, inbox and profile routes.
-
-## Validation completed
-
-- Frontend lint/type checks, 20 regression tests, production build and 15 production route checks passed.
-- Backend generation/build/lint and 30 unit tests passed; 12 HTTP integration tests passed against disposable PostgreSQL, including cross-owner rejections, shared image reuse, profile links, cover promotion/restore, protected deletion and inbox search/status/delete.
-- Browser fixtures checked projects, skills, categories, timeline, media, profile and messages at 1440, 800 and 390 pixels, plus table search, filters, nested media selection, message status/email actions and mobile detail navigation. No page overflow or browser runtime errors were observed.
-- A focused browser check verified technologies/skill evidence on keyboard submit, blocked deletion for used files and enabled deletion for unused files.
-- The current development database still contains four uploads; its matching profile image was linked by the migration. The external resume remains unchanged. Read-only API probes returned health 200 and unauthenticated media/messages 401.
-- Browser enquiries and upload records were fixtures only; no real messages or provider files were created/deleted during checks.
+Apply committed migrations before starting the updated API. See [deployment](../operations/deployment.md) for configuration and hosted checks, and [project overview](overview.md#checks) for the current local verification baseline.

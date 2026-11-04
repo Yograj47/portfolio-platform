@@ -24,10 +24,4 @@ Data is validated before rendering. The initial state has a dashboard-specific s
 
 No database migration is needed for this endpoint. Deploy the backend update with the frontend so the new summary route exists.
 
-## Verification
-
-Backend build/lint and 23 unit tests passed. All 11 migrations and 10 HTTP integration tests passed on a temporary PostgreSQL 18 instance, including authentication, actual counts, owner isolation, and soft-deletion filtering. The temporary instance was stopped and removed. A read-only check against the configured owner database validated the real summary and frontend schema without changing records.
-
-Frontend lint/type checks, 20 tests, and production build passed. Browser checks cover exact snapshot rendering, dashboard-specific loading, successful refresh, safe handling of drafts, enquiry previews, narrow-screen scrolling and overflow, cached-data warnings, empty states, invalid responses, and retry recovery. Browser enquiry examples are test fixtures, not stored messages.
-
-Production route smoke checks also passed (12 routes). Sender-address tests ensure valid message API addresses remain displayable and email links encode URI-sensitive characters. The normal development preview is running on port 3000; the API remains on port 3001.
+See [project checks](overview.md#checks) for the current verified baseline and [deployment](../operations/deployment.md) for hosted verification.

@@ -13,7 +13,7 @@ The URL is not a secret or an authorization mechanism. Anyone who knows it can s
 
 ## Verification and redirects
 
-The client verifies `/users/me` on entry, restores an expired/missing in-memory access token through the HttpOnly refresh cookie, and verifies again before showing management content. A stored client-side signed-in flag is not sufficient. The sidebar, header, and child screens remain unmounted until the session is verified.
+The client verifies `/users/me` on entry, restores an expired/missing in-memory access token through the HttpOnly refresh cookie, and verifies again before showing management content. A stored client-side signed-in flag is not sufficient. The sidebar, mobile menu, and child screens remain unmounted until the session is verified.
 
 Unauthorized sessions go to `/admin/login?next=...`. Only paths inside `/admin/dashboard` are accepted as destinations; absolute URLs, protocol-relative URLs, backslashes, and paths escaping that subtree are rejected. A signed-in visitor to login is redirected to the requested safe destination.
 
@@ -36,5 +36,3 @@ Protected responses use `Cache-Control: private, no-store`. Auth responses and `
 ## Validation
 
 Frontend redirect and refresh-race regression tests cover unsafe destinations, concurrent refresh, transient failures, logout races, and newer-login races. Backend tests use disposable PostgreSQL and test credentials, checking wrong credentials, absent/forged bearer tokens, cookie-only access rejection, HttpOnly/SameSite cookies, refresh replay, logout revocation, and newer-login revocation. Browser authentication scenarios use mocked responses, so no owner password is used or changed.
-
-Final verification: frontend lint/type checks and 18 tests passed; backend generate/build/lint and 21 tests passed; all 11 migrations and 9 HTTP integration tests passed on disposable PostgreSQL, which was removed afterward. Production build and 12 route checks passed. Production browser checks passed for unverified-content gating, anonymous redirects, bad credentials, verified login, safe return destinations, HttpOnly-cookie restoration, authenticated login-page redirects, failed/successful logout, backend outage recovery, revoked sessions, old-route 404s, and browser errors. The session-version migration is also applied to the configured database, and its backend watcher was restarted.
