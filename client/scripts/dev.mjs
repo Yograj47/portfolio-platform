@@ -2,6 +2,14 @@ import { spawn } from "node:child_process";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
+const args = process.argv.slice(2);
+const hasPort = args.some(
+  (arg) =>
+    arg === "--port" ||
+    arg === "-p" ||
+    arg.startsWith("--port=") ||
+    /^-p[=\d]/.test(arg),
+);
 // Polling avoids repeated rebuilds from cloud-synced filesystem notifications.
 const server = spawn(
   process.execPath,
@@ -9,7 +17,8 @@ const server = spawn(
     require.resolve("next/dist/bin/next"),
     "dev",
     "--webpack",
-    ...process.argv.slice(2),
+    ...args,
+    ...(hasPort ? [] : ["--port", "3000"]),
   ],
   {
     stdio: "inherit",

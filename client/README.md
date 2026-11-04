@@ -14,7 +14,7 @@ npm run build
 npm run test:routes
 ```
 
-The development command uses webpack with a one-second polling watcher. The native Turbopack watcher repeatedly rebuilt and reloaded pages in this OneDrive workspace, causing visible flicker. Polling keeps Fast Refresh available for actual edits. Override WATCHPACK_POLLING to change the interval. Extra Next.js CLI arguments are forwarded, for example npm run dev -- --port 3002. Production build/start commands are unchanged.
+The development command uses webpack with a one-second polling watcher. The native Turbopack watcher repeatedly rebuilt and reloaded pages in this OneDrive workspace, causing visible flicker. Polling keeps Fast Refresh available for actual edits. Override WATCHPACK_POLLING to change the interval. The frontend defaults explicitly to port 3000 and fails if that port is occupied instead of falling back to the API port 3001. Stop an existing preview before starting another frontend. Extra Next.js CLI arguments are forwarded, for example npm run dev -- --port 3002. Production build/start commands are unchanged.
 
 Set NEXT_PUBLIC_API_URL to the backend's complete API base URL, for example http://localhost:3001/api, in .env.local. The backend CLIENT_URL must match the browser origin. Browser authentication sends credentials and relies on the backend's refresh cookie; no public terminal password is used.
 
