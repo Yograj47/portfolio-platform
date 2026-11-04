@@ -37,7 +37,7 @@ export function ProjectHero({
       <div className="space-y-4">
         {/* Top Bar: Back Link & Badges */}
         <div className="flex items-center justify-between gap-2">
-          <Link href="/projects">
+          <Link href="/#projects">
             <Button
               variant="ghost"
               size="sm"

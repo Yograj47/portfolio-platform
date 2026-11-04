@@ -1,6 +1,6 @@
 # Frontend
 
-Next.js App Router client for the portfolio and private CMS. The homepage is a minimal CV document. The terminal/workspace is retained at /terminal while content layouts and interactions are redesigned.
+Next.js App Router client for the one-page interactive portfolio and private CMS. Projects, skills, timeline, contact, and training are on the homepage; project details have their own routes.
 
 ## Run and verify
 
@@ -14,6 +14,8 @@ npm run build
 npm run test:routes
 ```
 
+The development command uses webpack with a one-second polling watcher. The native Turbopack watcher repeatedly rebuilt and reloaded pages in this OneDrive workspace, causing visible flicker. Polling keeps Fast Refresh available for actual edits. Override WATCHPACK_POLLING to change the interval. Extra Next.js CLI arguments are forwarded, for example npm run dev -- --port 3002. Production build/start commands are unchanged.
+
 Set NEXT_PUBLIC_API_URL to the backend's complete API base URL, for example http://localhost:3001/api, in .env.local. The backend CLIENT_URL must match the browser origin. Browser authentication sends credentials and relies on the backend's refresh cookie; no public terminal password is used.
 
 check runs lint, generated route types plus TypeScript, and focused regression tests. The production build fetches the existing Google Fonts and therefore needs network access. test:routes requires a completed build, temporarily starts Next.js on loopback port 3113 and stops it after checking routes. It checks server HTML/status responses, not an interactive browser login or backend data loading.
@@ -23,13 +25,13 @@ check runs lint, generated route types plus TypeScript, and focused regression t
 | Area | Responsibility |
 | --- | --- |
 | app/ | Route pages, route groups, shared layouts and global styles |
-| components/public/ | Current terminal/workspace and public content presentation |
+| components/public/ | Homepage sections, contact form, and project detail presentation |
 | components/admin/ | Dashboard presentation and forms |
 | components/ui/, forms/, feedback/, skeletons/ | Reusable controls and feedback |
 | hooks/ | Public reads, session state, and admin mutation workflows |
 | services/ | HTTP endpoint calls and request payload preparation |
 | types/ | Domain/response types shared by public and admin UI |
-| lib/ | HTTP refresh coordination, validation, terminal helpers, shared icons |
+| lib/ | HTTP refresh coordination, validation, startup loading, shared icons |
 | store/ | In-memory authentication state |
 | test/ | Refresh/payload regression tests and production route smoke check |
 
@@ -37,11 +39,11 @@ Domain types belong in types/portfolio.ts rather than table column components. P
 
 ## Routes
 
-Public homepage: /. Auxiliary routes: /terminal and /login. Existing content routes /projects, /projects/[slug], /skills and /timeline remain accessible directly but are not linked from the CV homepage. Terminal and workspace pages use noindex metadata during the transition.
+Public homepage: /. Project details: /projects/[slug]. Management login: /login. The old /terminal, /projects, /skills, and /timeline pages have been removed.
 
 Private dashboard: /dashboard and its projects, skills, timeline, categories, profile and media sections. The frontend session boundary handles redirects/loading; backend guards own data authorization. Project detail routes fetch directly by slug and do not depend on prior navigation or browser storage.
 
-The terminal root command begins backend email/password authentication. The unused /api/route-auth route and unsupported Blog explorer entry have been removed. Existing project URLs are unchanged by renaming the dynamic folder to [slug].
+The login page uses backend email/password authentication. The unused /api/route-auth route and unsupported Blog explorer entry have been removed. Project detail URLs use the project slug.
 
 See [frontend cleanup handoff](../docs/architecture/frontend-cleanup.md) for completion status and the next phase, and [backend API contract](../docs/api/backend.md) for integration requirements.
 
