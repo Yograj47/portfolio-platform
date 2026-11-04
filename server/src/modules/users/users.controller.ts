@@ -45,6 +45,7 @@ export class UsersController {
   }
 
   @Get('me')
+  @Header('Cache-Control', 'private, no-store')
   @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.OK)
   @ResponseMessage('Profile fetched successfully')
@@ -53,6 +54,7 @@ export class UsersController {
   }
 
   @Patch('me')
+  @Header('Cache-Control', 'private, no-store')
   @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.OK)
   @ResponseMessage('Information updated')

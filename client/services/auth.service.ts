@@ -11,7 +11,7 @@ export const authService = {
 
   refresh: () => http.post("/auth/refresh"),
 
-  me: () => http.get("/users/me"),
+  me: (signal?: AbortSignal) => http.get("/users/me", { signal }),
 
   profile: () => http.get("/users/profile"),
 

@@ -35,4 +35,4 @@ CV_ALLOWED_HOSTS is a comma-separated list of exact trusted HTTPS file hostnames
 
 Messages are saved to the admin inbox; there is no outgoing email service. REPLIED is a manually managed status. No raw visitor IP or user agent is stored on messages. The public form accepts an optional empty website honeypot, while limits use hashed IP/route/time buckets.
 
-A single seeded owner is the administrative model; there is no public signup or multi-role account system. Access tokens remain valid until their short expiry after logout, but deleted accounts are rejected. Refresh sessions rotate atomically, and login replaces the account's previous refresh session.
+A single seeded owner is the administrative model; there is no public signup or multi-role account system. Access and refresh tokens carry the current database authVersion. Logout, a newer login, password reseeding, and account deletion invalidate older sessions. Refresh sessions rotate atomically.

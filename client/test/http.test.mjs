@@ -6,15 +6,18 @@ import { fileURLToPath } from "node:url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 import vm from "node:vm";
 import ts from "typescript";
-function setup({ failRefresh = false } = {}) {
+function setup({ failRefresh = false, refreshStatus = 401 } = {}) {
   const state = {
     accessToken: "old",
+    sessionVersion: 0,
     loggedOut: false,
     setAccessToken(token) {
       this.accessToken = token;
+      this.sessionVersion++;
     },
     logout() {
       this.accessToken = null;
+      this.sessionVersion++;
       this.loggedOut = true;
     },
   };
@@ -24,7 +27,11 @@ function setup({ failRefresh = false } = {}) {
   http.post = async () => {
     refreshes++;
     await new Promise((resolve) => setTimeout(resolve, 5));
-    if (failRefresh) throw new Error("expired");
+    if (failRefresh)
+      throw Object.assign(new Error("expired"), {
+        axios: true,
+        response: { status: refreshStatus },
+      });
     return { data: { data: { accessToken: "new" } } };
   };
   http.interceptors = {
@@ -110,6 +117,26 @@ test("auth endpoints and requests already retried do not refresh recursively", a
   retried.config._retry = true;
   await assert.rejects(app.handle(retried));
   assert.equal(app.refreshes(), 0);
+});
+test("a temporary refresh failure preserves the session for retry", async () => {
+  const app = setup({ failRefresh: true, refreshStatus: 503 });
+  await assert.rejects(app.handle(app.error()));
+  assert.equal(app.state.loggedOut, false);
+});
+test("a late refresh cannot restore a session after logout", async () => {
+  const app = setup();
+  const pending = app.handle(app.error());
+  app.state.logout();
+  await assert.rejects(pending, /Session changed/);
+  assert.equal(app.state.accessToken, null);
+});
+test("a late refresh cannot overwrite a newer login", async () => {
+  const app = setup();
+  const pending = app.handle(app.error());
+  app.state.setAccessToken("new-login");
+  await assert.rejects(pending, /Session changed/);
+  assert.equal(app.state.accessToken, "new-login");
+  assert.equal(app.state.loggedOut, false);
 });
 
 function loadPayloadNormalizer() {

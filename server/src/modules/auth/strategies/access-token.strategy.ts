@@ -1,5 +1,5 @@
 import { UsersService } from '../../users/users.service';
-import { UnauthorizedException } from '@nestjs/common';
+import { UnauthorizedException, NotFoundException } from '@nestjs/common';
 import { JwtPayload } from '@/common/interfaces/jwt-payload.interface';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -22,13 +22,22 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(payload: JwtPayload) {
-    if (!payload.sub || typeof payload.sub !== 'string')
+    if (
+      !payload.sub ||
+      typeof payload.sub !== 'string' ||
+      !Number.isInteger(payload.version) ||
+      payload.version < 0
+    )
       throw new UnauthorizedException('Invalid token');
-    try {
-      await this.users.findById(payload.sub);
-    } catch {
-      throw new UnauthorizedException('Account no longer exists');
-    }
+    const user = await this.users
+      .findById(payload.sub)
+      .catch((error: unknown) => {
+        if (error instanceof NotFoundException)
+          throw new UnauthorizedException('Account no longer exists');
+        throw error;
+      });
+    if (user.authVersion !== payload.version)
+      throw new UnauthorizedException('Session is no longer active');
     return payload;
   }
 }

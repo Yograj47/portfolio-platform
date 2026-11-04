@@ -19,3 +19,5 @@ Next session: improve the admin experience for the database-backed one-page port
 The frontend and backend must be deployed together for the new `/portfolio` aggregate contract. The current resume source is a Google Drive viewer; View CV links to it directly.
 
 Final checks passed: frontend lint/type checks, 14 regression tests, production build, and nine production route checks. Browser fixtures verified 3 / 2 / 1 project cards at 1440 / 800 / 390 pixels, arrow scrolling, inline skill count, no horizontal page overflow, retained message draft after a simulated 429, and confirmation/reset after simulated success. No real inbox messages were created by these browser checks.
+
+Authentication update: management now lives under /admin/login and /admin/dashboard. See [Admin auth](../architecture/admin-auth.md) for verification, redirects, session revocation, and rollout notes.

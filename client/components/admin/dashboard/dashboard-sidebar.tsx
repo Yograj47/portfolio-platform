@@ -36,10 +36,10 @@ export function DashboardSidebar() {
 
             const active =
               !isDisabled &&
-              (item.href === "/dashboard"
+              (item.href === "/admin/dashboard"
                 ? pathname === item.href
                 : pathname === item.href ||
-                pathname.startsWith(`${item.href}/`));
+                  pathname.startsWith(`${item.href}/`));
 
             return (
               <Link
@@ -58,7 +58,7 @@ export function DashboardSidebar() {
                     ? "cursor-not-allowed text-muted-foreground/40 hover:bg-transparent"
                     : active
                       ? "bg-primary/10 text-primary font-semibold"
-                      : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground",
                 )}
               >
                 <div className="flex items-center gap-3">
@@ -74,7 +74,7 @@ export function DashboardSidebar() {
                         ? "text-muted-foreground/30"
                         : active
                           ? "text-primary"
-                          : "text-muted-foreground group-hover:scale-110"
+                          : "text-muted-foreground group-hover:scale-110",
                     )}
                   />
 

@@ -29,3 +29,5 @@ Section layout and route-specific loading: [Portfolio sections](design/portfolio
 Current direction (supersedes earlier layout proposals): [One-page interactive portfolio](design/one-page-portfolio.md).
 
 Next session: [Admin handoff](design/admin-handoff.md).
+
+Admin authentication and secure entry flow: [Admin auth](architecture/admin-auth.md).

@@ -16,7 +16,7 @@ describe('Profile responses', () => {
     ).getSafeProfile('u');
     expect(prisma.user.findUnique).toHaveBeenCalledWith({
       where: { id: 'u' },
-      omit: { passwordHash: true, refreshTokenHash: true },
+      omit: { passwordHash: true, refreshTokenHash: true, authVersion: true },
     });
     expect(profile).toEqual({ id: 'u', name: 'Yograj' });
   });

@@ -17,7 +17,8 @@ describe('Refresh token storage', () => {
       findByEmail: jest
         .fn()
         .mockResolvedValue({ id: 'u', passwordHash: 'password' }),
-      updateRefreshToken: jest.fn(),
+      beginSession: jest.fn().mockResolvedValue({ authVersion: 1 }),
+      updateRefreshToken: jest.fn().mockResolvedValue(true),
     };
     const jwt = { signAsync: jest.fn().mockResolvedValue('a'.repeat(150)) };
     const config = { getOrThrow: jest.fn().mockReturnValue('value') };

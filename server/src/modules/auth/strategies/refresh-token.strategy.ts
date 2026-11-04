@@ -31,7 +31,13 @@ export class RefreshTokenStrategy extends PassportStrategy(
 
   validate(request: Request, payload: JwtPayload) {
     const refreshToken = readCookie(request);
-    if (!refreshToken || typeof payload.sub !== 'string' || !payload.sub)
+    if (
+      !refreshToken ||
+      typeof payload.sub !== 'string' ||
+      !payload.sub ||
+      !Number.isInteger(payload.version) ||
+      payload.version < 0
+    )
       throw new UnauthorizedException('Invalid refresh token');
     return {
       ...payload,

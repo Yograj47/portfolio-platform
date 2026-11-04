@@ -7,6 +7,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Header,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -50,6 +51,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @Header('Cache-Control', 'private, no-store')
   @HttpCode(HttpStatus.OK)
   @ResponseMessage('Login successful')
   async login(
@@ -70,6 +72,7 @@ export class AuthController {
   }
 
   @Post('refresh')
+  @Header('Cache-Control', 'private, no-store')
   @UseGuards(RefreshTokenGuard)
   @HttpCode(HttpStatus.OK)
   @ResponseMessage('Token refreshed successfully')
@@ -80,6 +83,7 @@ export class AuthController {
     const tokens = await this.authService.refreshToken(
       user.sub,
       user.refreshToken,
+      user.version,
     );
 
     response.cookie(
@@ -94,6 +98,7 @@ export class AuthController {
   }
 
   @Post('logout')
+  @Header('Cache-Control', 'private, no-store')
   @UseGuards(RefreshTokenGuard)
   @HttpCode(HttpStatus.OK)
   @ResponseMessage('Logged out successfully')
@@ -101,7 +106,7 @@ export class AuthController {
     @CurrentUser() user: RefreshJwtPayload,
     @Res({ passthrough: true }) response: Response,
   ) {
-    await this.authService.logout(user.sub, user.refreshToken);
+    await this.authService.logout(user.sub, user.refreshToken, user.version);
 
     response.clearCookie('refreshToken', this.cookieOptions());
 

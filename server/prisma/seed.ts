@@ -46,6 +46,7 @@ async function main() {
       name: adminName,
       passwordHash: hashedAdminPassword,
       refreshTokenHash: null,
+      authVersion: { increment: 1 },
     },
     create: {
       name: adminName,

@@ -7,9 +7,9 @@ export default function Layout({
   children: React.ReactNode;
 }>) {
   return (
-    <DashboardLayout>
-      {children}
+    <>
       <Toaster />
-    </DashboardLayout>
+      <DashboardLayout>{children}</DashboardLayout>
+    </>
   );
 }

@@ -43,13 +43,25 @@ try {
     await delay(500);
   }
   assert.ok(ready, "Production server did not become ready");
-  for (const route of ["/", "/login", "/projects/example-slug"]) {
+  for (const route of [
+    "/",
+    "/admin/login",
+    "/admin/dashboard",
+    "/projects/example-slug",
+  ]) {
     const response = await fetch(base + route, {
       signal: AbortSignal.timeout(10000),
     });
     assert.equal(response.status, 200, route);
     const html = await response.text();
     if (route === "/") assert.ok(html.includes("data-cv-loading"));
+    if (route.startsWith("/admin/")) {
+      assert.ok(html.includes("noindex"), "Admin pages must not be indexed");
+      assert.ok(
+        !html.includes("data-admin-verified"),
+        "Unverified server HTML must not render the dashboard shell",
+      );
+    }
     if (route.startsWith("/projects/")) {
       assert.ok(html.includes("/#projects"));
       assert.ok(!html.includes("data-cv-loading"));
@@ -58,6 +70,8 @@ try {
     console.log("PASS " + route + " 200");
   }
   for (const route of [
+    "/login",
+    "/dashboard",
     "/api/route-auth",
     "/blogs",
     "/terminal",

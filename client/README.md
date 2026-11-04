@@ -39,9 +39,9 @@ Domain types belong in types/portfolio.ts rather than table column components. P
 
 ## Routes
 
-Public homepage: /. Project details: /projects/[slug]. Management login: /login. The old /terminal, /projects, /skills, and /timeline pages have been removed.
+Public homepage: /. Project details: /projects/[slug]. Management login: /admin/login. The old /terminal, /projects, /skills, and /timeline pages have been removed.
 
-Private dashboard: /dashboard and its projects, skills, timeline, categories, profile and media sections. The frontend session boundary handles redirects/loading; backend guards own data authorization. Project detail routes fetch directly by slug and do not depend on prior navigation or browser storage.
+Private dashboard: /admin/dashboard and its projects, skills, timeline, categories, profile and media sections. The frontend session boundary handles redirects/loading; backend guards own data authorization. Project detail routes fetch directly by slug and do not depend on prior navigation or browser storage.
 
 The login page uses backend email/password authentication. The unused /api/route-auth route and unsupported Blog explorer entry have been removed. Project detail URLs use the project slug.
 

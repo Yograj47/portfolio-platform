@@ -1,5 +1,9 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  NotFoundException,
+} from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
 import { UsersService } from '../users/users.service';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
@@ -30,24 +34,36 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const tokens = await this.generateTokens(user.id);
+    const session = await this.usersService.beginSession(user.id);
+    const tokens = await this.generateTokens(user.id, session.authVersion);
 
     const refreshTokenHash = await bcrypt.hash(
       createHash('sha256').update(tokens.refreshToken).digest('hex'),
       10,
     );
 
-    await this.usersService.updateRefreshToken(user.id, refreshTokenHash);
+    if (
+      !(await this.usersService.updateRefreshToken(
+        user.id,
+        refreshTokenHash,
+        session.authVersion,
+      ))
+    )
+      throw new UnauthorizedException('Session has been replaced');
 
     return tokens;
   }
 
-  async refreshToken(userId: string, refreshToken: string) {
-    const user = await this.usersService.findById(userId).catch(() => {
-      throw new UnauthorizedException('Access denied');
-    });
+  async refreshToken(userId: string, refreshToken: string, version: number) {
+    const user = await this.usersService
+      .findById(userId)
+      .catch((error: unknown) => {
+        if (error instanceof NotFoundException)
+          throw new UnauthorizedException('Access denied');
+        throw error;
+      });
 
-    if (!user || !user.refreshTokenHash) {
+    if (!user || !user.refreshTokenHash || user.authVersion !== version) {
       throw new UnauthorizedException('Access denied');
     }
 
@@ -60,7 +76,7 @@ export class AuthService {
       throw new UnauthorizedException('Access denied');
     }
 
-    const tokens = await this.generateTokens(user.id);
+    const tokens = await this.generateTokens(user.id, version);
 
     const refreshTokenHash = await bcrypt.hash(
       createHash('sha256').update(tokens.refreshToken).digest('hex'),
@@ -80,12 +96,17 @@ export class AuthService {
     return tokens;
   }
 
-  async logout(userId: string, refreshToken: string) {
-    const user = await this.usersService.findById(userId).catch(() => {
-      throw new UnauthorizedException('Access denied');
-    });
+  async logout(userId: string, refreshToken: string, version: number) {
+    const user = await this.usersService
+      .findById(userId)
+      .catch((error: unknown) => {
+        if (error instanceof NotFoundException)
+          throw new UnauthorizedException('Access denied');
+        throw error;
+      });
     if (
       !user.refreshTokenHash ||
+      user.authVersion !== version ||
       !(await bcrypt.compare(
         createHash('sha256').update(refreshToken).digest('hex'),
         user.refreshTokenHash,
@@ -108,9 +129,10 @@ export class AuthService {
     };
   }
 
-  async generateTokens(userId: string) {
+  async generateTokens(userId: string, version: number) {
     const payload = {
       sub: userId,
+      version,
     };
 
     const accessToken = await this.jwtService.signAsync(payload, {

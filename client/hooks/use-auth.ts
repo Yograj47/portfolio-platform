@@ -7,8 +7,10 @@ import { authService } from "@/services/auth.service";
 
 import { useAuthStore } from "@/store/auth.store";
 import { UpdateProfileData } from "@/lib/validations/profile";
+import { adminDestination, ADMIN_LOGIN } from "@/lib/admin-routes";
+import { showError } from "@/lib/toast";
 
-export function useAuth() {
+export function useAuth(redirectTo?: string) {
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -18,30 +20,48 @@ export function useAuth() {
     setUser,
     setAccessToken,
     logout: clearAuth,
+    setSigningOut,
   } = useAuthStore();
 
   const loginMutation = useMutation({
-    mutationFn: authService.login,
-
-    onSuccess: async (loginResponse) => {
-      setAccessToken(loginResponse.data.data.accessToken);
-
-      const me = await authService.me();
-
-      setUser(me.data.data);
-
-      router.replace("/dashboard");
+    onMutate: async () => {
+      await queryClient.cancelQueries();
+      clearAuth();
+      queryClient.removeQueries({
+        predicate: (query) => query.queryKey[0] !== "auth-user",
+      });
+    },
+    mutationFn: async (data: { email: string; password: string }) => {
+      const response = await authService.login(data);
+      setAccessToken(response.data.data.accessToken);
+      return (await authService.me()).data.data;
+    },
+    onSuccess: (profile) => {
+      setUser(profile);
+      queryClient.setQueryData(["auth-user"], profile);
+      router.replace(adminDestination(redirectTo));
+    },
+    onError: () => {
+      clearAuth();
     },
   });
 
   const logoutMutation = useMutation({
+    onMutate: async () => {
+      await queryClient.cancelQueries();
+      setSigningOut(true);
+    },
     mutationFn: authService.logout,
 
-    onSettled: () => {
+    onSuccess: () => {
       clearAuth();
       queryClient.clear();
 
-      router.replace("/");
+      router.replace(ADMIN_LOGIN);
+    },
+    onError: () => {
+      setSigningOut(false);
+      showError("Sign-out could not be confirmed. Please try again.");
     },
   });
 
@@ -67,6 +87,7 @@ export function useAuth() {
     updateProfileAsync: updateProfileMutation.mutateAsync,
 
     loginLoading: loginMutation.isPending,
+    loginError: loginMutation.error,
     logoutLoading: logoutMutation.isPending,
     updateProfileLoading: updateProfileMutation.isPending,
   };

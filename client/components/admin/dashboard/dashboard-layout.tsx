@@ -1,51 +1,56 @@
 "use client";
-
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { DashboardSidebar } from "./dashboard-sidebar";
 import { DashboardHeader } from "./dashboard-header";
 import { useSession } from "@/hooks/use-session";
-import { Skeleton } from "@/components/ui/skeleton";
+import { adminLoginHref } from "@/lib/admin-routes";
+import { ErrorState } from "@/components/feedback/error-state";
+import { useAuthStore } from "@/store/auth.store";
 
-type DashboardLayoutProps = {
-  children: React.ReactNode;
-};
-
-export function DashboardLayout({ children }: DashboardLayoutProps) {
+export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { isLoading, isError } = useSession();
-
+  const pathname = usePathname();
+  const session = useSession();
+  const signingOut = useAuthStore((state) => state.isSigningOut);
   useEffect(() => {
-    if (isError) {
-      router.replace("/login");
-    }
-  }, [isError, router]);
-
-  if (isError) return null;
-
+    if (!signingOut && !session.isLoading && session.isUnauthorized)
+      router.replace(adminLoginHref(pathname));
+  }, [session.isLoading, session.isUnauthorized, pathname, router, signingOut]);
+  if (signingOut)
+    return (
+      <main className="grid min-h-dvh place-items-center" role="status">
+        Signing out…
+      </main>
+    );
+  if (session.isLoading || session.isUnauthorized)
+    return (
+      <main className="grid min-h-dvh place-items-center" role="status">
+        Verifying admin session…
+      </main>
+    );
+  if (session.isError || !session.isAuthenticated)
+    return (
+      <main className="mx-auto max-w-xl px-6 py-24">
+        <ErrorState
+          title="Session could not be verified"
+          description="The server may be unavailable. Try again to verify your session."
+          onRetry={() => void session.refresh()}
+        />
+      </main>
+    );
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-muted/20">
+    <div
+      className="flex h-screen w-screen overflow-hidden bg-muted/20"
+      data-admin-verified
+    >
       <DashboardSidebar />
-
-      {/* Main View Container */}
-      <div className="flex flex-1 flex-col min-h-0 overflow-hidden">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <DashboardHeader />
-
-        {/* Bound Main Region to Remaining Vertical Height */}
-        <main className="flex flex-1 flex-col min-h-0 overflow-hidden p-6">
-          {isLoading ? (
-            <div className="flex flex-1 flex-col min-h-0 space-y-6">
-              <div className="space-y-2 shrink-0">
-                <Skeleton className="h-7 w-48 rounded-lg" />
-                <Skeleton className="h-4 w-72 rounded-lg" />
-              </div>
-              <Skeleton className="flex-1 min-h-0 w-full rounded-xl" />
-            </div>
-          ) : (
-            <div className="flex flex-1 flex-col min-h-0 overflow-hidden">
-              {children}
-            </div>
-          )}
+        <main className="flex min-h-0 flex-1 flex-col overflow-hidden p-6">
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+            {children}
+          </div>
         </main>
       </div>
     </div>

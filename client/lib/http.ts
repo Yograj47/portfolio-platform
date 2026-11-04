@@ -4,21 +4,30 @@ import type { ApiResponse } from "@/types/api";
 const http = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true,
+  timeout: 75000,
   headers: { "Content-Type": "application/json" },
 });
 type RetryConfig = InternalAxiosRequestConfig & { _retry?: boolean };
 let refreshRequest: Promise<string> | null = null;
 async function refreshAccessToken() {
   if (!refreshRequest) {
+    const version = useAuthStore.getState().sessionVersion;
     refreshRequest = http
       .post<ApiResponse<{ accessToken: string }>>("/auth/refresh")
       .then((response) => {
+        if (useAuthStore.getState().sessionVersion !== version)
+          throw new Error("Session changed during refresh");
         const token = response.data.data.accessToken;
         useAuthStore.getState().setAccessToken(token);
         return token;
       })
       .catch((error: unknown) => {
-        useAuthStore.getState().logout();
+        if (
+          useAuthStore.getState().sessionVersion === version &&
+          axios.isAxiosError(error) &&
+          [401, 403].includes(error.response?.status ?? 0)
+        )
+          useAuthStore.getState().logout();
         throw error;
       })
       .finally(() => {

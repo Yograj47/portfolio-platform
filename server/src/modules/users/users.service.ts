@@ -27,7 +27,7 @@ export class UsersService {
   async getSafeProfile(id: string) {
     const profile = await this.prisma.user.findUnique({
       where: { id },
-      omit: { passwordHash: true, refreshTokenHash: true },
+      omit: { passwordHash: true, refreshTokenHash: true, authVersion: true },
     });
     if (!profile) throw new NotFoundException('User not found');
     return profile;
@@ -68,18 +68,37 @@ export class UsersService {
   async rotateRefreshToken(id: string, previous: string, next: string | null) {
     const result = await this.prisma.user.updateMany({
       where: { id, refreshTokenHash: previous },
-      data: { refreshTokenHash: next },
+      data: {
+        refreshTokenHash: next,
+        ...(next === null ? { authVersion: { increment: 1 } } : {}),
+      },
     });
     return result.count === 1;
   }
 
-  async updateRefreshToken(id: string, refreshTokenHash: string | null) {
+  async beginSession(id: string) {
     return this.prisma.user.update({
       where: { id },
+      data: {
+        authVersion: { increment: 1 },
+        refreshTokenHash: null,
+        lastLoginAt: new Date(),
+      },
+    });
+  }
+
+  async updateRefreshToken(
+    id: string,
+    refreshTokenHash: string,
+    version: number,
+  ) {
+    const result = await this.prisma.user.updateMany({
+      where: { id, authVersion: version },
       data: {
         refreshTokenHash,
         ...(refreshTokenHash ? { lastLoginAt: new Date() } : {}),
       },
     });
+    return result.count === 1;
   }
 }

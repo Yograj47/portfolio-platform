@@ -88,13 +88,14 @@ describe('Portfolio API with isolated PostgreSQL', () => {
     }
     if (app) await app.close();
   });
-  it('provides one complete public CV snapshot without authentication', async () => {
+  it('provides the public CMS aggregate without authentication or credentials', async () => {
     const result = await call('/portfolio');
     expect(result.response.status).toBe(200);
     expect(result.response.headers.get('cache-control')).toBe('no-store');
-    expect(result.json.data.name).toEqual(expect.any(String));
-    expect(result.json.data.training.length).toBeGreaterThan(0);
-    expect(result.json.data.projects.length).toBeGreaterThan(0);
+    expect(result.json.data.profile.name).toEqual(expect.any(String));
+    expect(result.json.data.timelines).toEqual([]);
+    expect(result.json.data.projects).toEqual([]);
+    expect(result.json.data.skills).toHaveLength(1);
     expect(JSON.stringify(result.json.data)).not.toContain('passwordHash');
   });
 
@@ -107,10 +108,43 @@ describe('Portfolio API with isolated PostgreSQL', () => {
     token = result.json.data.accessToken;
     cookie = result.response.headers.get('set-cookie')!.split(';')[0];
     expect(result.response.headers.get('set-cookie')).toContain('HttpOnly');
+    expect(result.response.headers.get('set-cookie')).toContain(
+      'SameSite=Strict',
+    );
+    expect(result.response.headers.get('cache-control')).toContain('no-store');
     const profile = await call('/users/me', 'GET', undefined, true);
     expect(profile.json.data.passwordHash).toBeUndefined();
     expect(profile.json.data.refreshTokenHash).toBeUndefined();
+    expect(profile.json.data.authVersion).toBeUndefined();
+    expect(profile.response.headers.get('cache-control')).toContain('no-store');
     expect((await call('/health')).json.data.status).toBe('ok');
+  });
+  it('rejects missing/forged bearer tokens and incorrect credentials', async () => {
+    for (const path of [
+      '/users/me',
+      '/projects/admin',
+      '/messages',
+      '/media',
+    ]) {
+      expect((await call(path)).response.status).toBe(401);
+      const forged = await fetch(base + path, {
+        headers: { Authorization: 'Bearer invalid-token' },
+      });
+      expect(forged.status).toBe(401);
+    }
+    expect(
+      (await call('/users/me', 'GET', undefined, false, cookie)).response
+        .status,
+    ).toBe(401);
+    for (const email of ['backend-test@example.com', 'unknown@example.com'])
+      expect(
+        (
+          await call('/auth/login', 'POST', {
+            email,
+            password: 'wrong-password',
+          })
+        ).response.status,
+      ).toBe(401);
   });
   it('creates drafts with explicit evidence, then publishes them', async () => {
     const result = await call(
@@ -326,6 +360,36 @@ describe('Portfolio API with isolated PostgreSQL', () => {
       (await call('/auth/refresh', 'POST', undefined, false, currentCookie))
         .response.status,
     ).toBe(401);
+    expect(
+      (await call('/users/me', 'GET', undefined, true)).response.status,
+    ).toBe(401);
+    const newerLogin = await call('/auth/login', 'POST', {
+      email: 'backend-test@example.com',
+      password: 'test-password',
+    });
+    const firstAccess = newerLogin.json.data.accessToken;
+    const firstCookie = newerLogin.response.headers
+      .get('set-cookie')!
+      .split(';')[0];
+    const latestLogin = await call('/auth/login', 'POST', {
+      email: 'backend-test@example.com',
+      password: 'test-password',
+    });
+    expect(
+      (
+        await fetch(base + '/users/me', {
+          headers: { Authorization: 'Bearer ' + firstAccess },
+        })
+      ).status,
+    ).toBe(401);
+    expect(
+      (await call('/auth/refresh', 'POST', undefined, false, firstCookie))
+        .response.status,
+    ).toBe(401);
+    token = latestLogin.json.data.accessToken;
+    expect(
+      (await call('/users/me', 'GET', undefined, true)).response.status,
+    ).toBe(200);
   });
   it('enforces persistent message throttling and reports retry time', async () => {
     let status = 0;
