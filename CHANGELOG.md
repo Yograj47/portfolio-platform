@@ -4,9 +4,9 @@
 
 Released November 5, 2026.
 
-### Why the portfolio was redesigned
+### Why I redesigned my portfolio
 
-The terminal layout asked visitors to discover commands before they could see the work. This release replaces that flow with a one-page portfolio that puts projects, skills, experience, credentials, and contact information directly on screen. Project links open dedicated pages for details and screenshots. The CV still informs the visual style, and the portfolio copy now lives in the database so it can be edited through the admin dashboard.
+My terminal layout asked visitors to learn commands before they could see my work. I rebuilt the portfolio as a single page so people can find my projects, skills, experience, credentials, and contact information right away. Each project has a dedicated page for details and screenshots. I kept the visual style of my CV and moved the portfolio content into the database so I can update it from the admin dashboard.
 
 ### What changed
 
@@ -16,4 +16,4 @@ The terminal layout asked visitors to discover commands before they could see th
 - Simplified admin navigation and added a separate startup state while the portfolio API becomes available.
 - Removed the terminal interface and consolidated the public sections onto the homepage. Project details remain at `/projects/[slug]`, and admin sign-in is at `/admin/login`.
 
-The owner confirmed successful deployment to Vercel and Render. See the [deployment guide](docs/operations/deployment.md) for configuration and checks.
+I deployed the frontend to Vercel and the API to Render. The setup and verification steps are in the [deployment guide](docs/operations/deployment.md).
