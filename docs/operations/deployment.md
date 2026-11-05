@@ -1,6 +1,6 @@
 # Deployment: Vercel and Render
 
-Status: local verification complete; hosted verification pending. The candidate branch is `codex/pre-deploy`. The interactive portfolio has already been merged into `main`. No 1.5.0 release branch or tag is created until both hosted applications pass verification.
+Vercel and Render deployment succeeded for the v1.5.0 portfolio. Use `main` for ongoing deployments or `release/v1.5.0` to follow the release branch.
 
 ## Service configuration
 
@@ -76,6 +76,4 @@ Before confirming the deployment:
 
 Do not point the automated HTTP integration suite at a hosted portfolio database. It is restricted to a disposable local fixture.
 
-## Release gate
-
-After the owner confirms Vercel and Render are working, merge the verified pre-deploy changes into main, prepare `release/v1.5.0`, update version metadata and lockfiles, then create the `v1.5.0` tag on the verified release commit. Release notes should explain the move from command-driven terminal discovery to the direct one-page portfolio, revision of resume content into editable CMS records, and the completed admin/media/inbox work. These artifacts remain pending until hosted verification succeeds.
+See the [release notes](../../CHANGELOG.md#v150) for the changes included in v1.5.0.

@@ -14,3 +14,5 @@ Current implementation and deployment reference. Older terminal/CV proposals, se
 | [Deployment](operations/deployment.md) | Vercel/Render configuration, verification and release gate |
 
 Start with deployment when preparing hosting. Portfolio copy is managed in PostgreSQL through the admin CMS. The optional one-time resume import reads `server/scripts/data/resume.json`; it is not a runtime content fallback.
+
+See the [v1.5.0 release notes](../CHANGELOG.md#v150) for the redesign rationale and changes.

@@ -1,4 +1,4 @@
-# Yograj Rijal — Portfolio
+# Yograj Rijal â€” Portfolio
 
 An interactive developer portfolio with a Next.js frontend, a NestJS API, PostgreSQL/Prisma and a private admin CMS. The homepage presents projects, skills, experience, credentials and contact in one place; project write-ups have their own pages.
 
@@ -24,6 +24,6 @@ Run one API with `npm --prefix server run start:dev` and one frontend with `npm 
 
 Run `npm run check` in each application. Frontend release checks also include `npm run build` and `npm run test:routes`. Backend HTTP tests require the isolated local TEST_DATABASE_URL fixture described in the [server runbook](server/README.md).
 
-Deploy the frontend to Vercel and the API to Render using [the deployment guide](docs/operations/deployment.md). The current candidate is `codex/pre-deploy`; hosted verification and the planned 1.5.0 release remain pending.
+Deploy the frontend to Vercel and the API to Render using [the deployment guide](docs/operations/deployment.md). Vercel and Render deployment succeeded for v1.5.0. See the [release notes](CHANGELOG.md#v150).
 
 See the [documentation index](docs/README.md), [frontend runbook](client/README.md), and [server runbook](server/README.md).

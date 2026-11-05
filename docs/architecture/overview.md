@@ -35,4 +35,4 @@ Use PostgreSQL from an existing configured instance or the root Docker Compose s
 - `server/`: `npm run check`.
 - HTTP integration tests require an isolated PostgreSQL database named `portfolio_test` on localhost port 55439, supplied as TEST_DATABASE_URL, with migrations already applied. Run `npm run test:e2e` from `server/`. These tests must never use portfolio data.
 
-Current verified baseline: 20 frontend tests, 31 backend tests, 13 HTTP integration tests and 15 production route checks. Browser checks cover responsive pages, auth, media, inbox and mouse/keyboard ordering. Hosted deployment is still pending verification.
+Current verified baseline: 20 frontend tests, 31 backend tests, 13 HTTP integration tests and 15 production route checks. Browser checks cover responsive pages, auth, media, inbox and mouse/keyboard ordering. The owner confirmed successful deployment to Vercel and Render.
