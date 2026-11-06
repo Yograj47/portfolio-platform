@@ -40,11 +40,12 @@ export class CreateTimelineDto {
   @IsEnum(TimelineType)
   type!: TimelineType;
 
+  @IsOptional()
   @IsDateString(
     { strict: true },
     { message: 'Start date must be a valid ISO 8601 date (YYYY-MM-DD)' },
   )
-  startDate!: string;
+  startDate?: string | null;
 
   @IsOptional()
   @IsDateString(

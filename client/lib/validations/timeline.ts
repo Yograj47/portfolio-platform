@@ -15,7 +15,11 @@ const baseTimelineSchema = z.object({
   location: z.string().optional(),
   description: z.string().optional(),
   type: z.enum(TimelineType),
-  startDate: z.string().date("Start date must be a valid date (YYYY-MM-DD)"),
+  startDate: z
+    .string()
+    .date("Start date must be a valid date (YYYY-MM-DD)")
+    .or(z.literal(""))
+    .optional(),
   endDate: z
     .string()
     .date("End date must be a valid date (YYYY-MM-DD)")
@@ -27,6 +31,15 @@ const baseTimelineSchema = z.object({
 
 export const createTimelineSchema = baseTimelineSchema.superRefine(
   (data, ctx) => {
+    if (!data.startDate && (data.current || !data.endDate)) {
+      ctx.addIssue({
+        code: "custom",
+        message: data.current
+          ? "Start date is required for ongoing entries"
+          : "Enter a start or end date",
+        path: ["startDate"],
+      });
+    }
     if (
       !data.current &&
       data.endDate &&

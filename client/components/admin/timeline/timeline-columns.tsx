@@ -14,7 +14,7 @@ interface Props {
 }
 
 const formatDateSafe = (dateString?: string | null) => {
-  if (!dateString) return "-";
+  if (!dateString) return null;
   const date = new Date(dateString);
   return isValid(date) ? format(date, "MMM yyyy") : "-";
 };
@@ -82,7 +82,7 @@ export function getTimelineColumns({
 
         return (
           <span className="whitespace-nowrap font-mono text-xs text-muted-foreground">
-            {start} – {end}
+            {[start, end].filter(Boolean).join(" – ") || "-"}
           </span>
         );
       },

@@ -14,7 +14,9 @@ export class TimelineService {
 
   async create(createTimelineDto: CreateTimelineDto) {
     this.validateDates(createTimelineDto);
-    const startDate = new Date(createTimelineDto.startDate);
+    const startDate = createTimelineDto.startDate
+      ? new Date(createTimelineDto.startDate)
+      : null;
     const endDate = createTimelineDto.endDate
       ? new Date(createTimelineDto.endDate)
       : undefined;
@@ -57,48 +59,57 @@ export class TimelineService {
   }
 
   async update(id: string, updateTimelineDto: UpdateTimelineDto) {
-    const existing = await this.findOne(id);
-    this.validateDates({ ...existing, ...updateTimelineDto });
-    const data = {
-      ...updateTimelineDto,
-      startDate: updateTimelineDto.startDate
-        ? new Date(updateTimelineDto.startDate)
-        : undefined,
-      endDate: updateTimelineDto.current
-        ? null
-        : updateTimelineDto.endDate === null
-          ? null
-          : updateTimelineDto.endDate
-            ? new Date(updateTimelineDto.endDate)
-            : undefined,
-      expiresAt:
-        updateTimelineDto.expiresAt === null
-          ? null
-          : updateTimelineDto.expiresAt
-            ? new Date(updateTimelineDto.expiresAt)
-            : undefined,
-    };
+    return orderedWrite(this.prisma, 'timeline', async (tx) => {
+      const existing = await tx.timeline.findUnique({ where: { id } });
+      if (!existing) throw new NotFoundException('Timeline not found');
 
-    return this.prisma.timeline.update({
-      where: { id },
-      data,
+      const dates = { ...existing, ...updateTimelineDto };
+      this.validateDates(dates);
+      return tx.timeline.update({
+        where: { id },
+        data: {
+          ...updateTimelineDto,
+          startDate: this.parseOptionalDate(updateTimelineDto.startDate),
+          endDate: dates.current
+            ? null
+            : this.parseOptionalDate(updateTimelineDto.endDate),
+          expiresAt: this.parseOptionalDate(updateTimelineDto.expiresAt),
+        },
+      });
     });
   }
 
+  private parseOptionalDate(value?: string | null) {
+    return value ? new Date(value) : value;
+  }
+
   private validateDates(data: {
-    startDate: string | Date;
+    startDate?: string | Date | null;
     endDate?: string | Date | null;
     current?: boolean;
     expiresAt?: string | Date | null;
   }) {
+    const endDate = data.current ? null : data.endDate;
+    if (!data.startDate && !endDate) {
+      throw new BadRequestException(
+        data.current
+          ? 'Start date is required for ongoing entries'
+          : 'Enter a start or end date',
+      );
+    }
     if (
-      !data.current &&
-      data.endDate &&
-      new Date(data.endDate) < new Date(data.startDate)
+      data.startDate &&
+      endDate &&
+      new Date(endDate) < new Date(data.startDate)
     ) {
       throw new BadRequestException('End date must be on or after start date');
     }
-    if (data.expiresAt && new Date(data.expiresAt) < new Date(data.startDate))
+    const issueDate = endDate ?? data.startDate;
+    if (
+      data.expiresAt &&
+      issueDate &&
+      new Date(data.expiresAt) < new Date(issueDate)
+    )
       throw new BadRequestException(
         'Expiry date must be on or after issue/start date',
       );
