@@ -180,7 +180,7 @@ export function TimelineForm({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Start Date
+            Start Date {isCurrent ? "(required)" : "(optional with end date)"}
           </Label>
           <Input type="date" {...register("startDate")} />
           <FormFieldError message={errors.startDate?.message} />

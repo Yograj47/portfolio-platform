@@ -58,7 +58,7 @@ async function main() {
             title: badge.title,
             organization: cv.trainingIssuer,
             type: 'TRAINING',
-            startDate: new Date(badge.issuedOn),
+            endDate: new Date(badge.issuedOn),
             credentialUrl: cv.credentialProfile,
             displayOrder: 100 + index,
           },

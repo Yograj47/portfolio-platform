@@ -1,0 +1,1 @@
+ALTER TABLE "Timeline" ALTER COLUMN "startDate" DROP NOT NULL;

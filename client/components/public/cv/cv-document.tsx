@@ -7,6 +7,11 @@ import { ProjectGrid } from "@/components/public/projects/project-grid";
 import { SkillsWheel } from "@/components/public/skills/skills-wheel";
 import { MessageForm } from "@/components/public/contact/message-form";
 import styles from "./cv-document.module.css";
+const timelineDateFormat = new Intl.DateTimeFormat("en-GB", {
+  month: "short",
+  year: "numeric",
+  timeZone: "UTC",
+});
 const sections = ["About", "Projects", "Skills", "Timeline", "Contact"];
 function Section({
   id,
@@ -37,7 +42,11 @@ export function CvDocument({ cv }: { cv: CvContent }) {
   );
   const journey = timelines
     .filter((t) => !["TRAINING", "CERTIFICATION"].includes(t.type))
-    .sort((a, b) => b.startDate.localeCompare(a.startDate));
+    .sort((a, b) =>
+      (b.startDate ?? b.endDate ?? "").localeCompare(
+        a.startDate ?? a.endDate ?? "",
+      ),
+    );
   return (
     <main className={styles.page}>
       <nav className={styles.navigation} aria-label="Portfolio sections">
@@ -163,46 +172,39 @@ export function CvDocument({ cv }: { cv: CvContent }) {
           <div className={styles.timeline}>
             {journey
               .filter((t) => timelineType === "All" || t.type === timelineType)
-              .map((t) => (
-                <details key={t.id} className={styles.milestone}>
-                  <summary>
-                    <time dateTime={t.startDate}>
-                      {new Date(t.startDate).getUTCFullYear()}
-                    </time>
-                    <span>
-                      <small>{t.type.toLowerCase()}</small>
-                      <h3>{t.title}</h3>
-                      <p>{t.organization}</p>
-                    </span>
-                    <span className={styles.expand} aria-hidden="true">
-                      +
-                    </span>
-                  </summary>
-                  <div className={styles.description}>
-                    <p>{t.location}</p>
-                    {t.type !== "EDUCATION" && (
-                      <p>
-                        {new Date(t.startDate).toLocaleDateString("en-GB", {
-                          month: "short",
-                          year: "numeric",
-                          timeZone: "UTC",
-                        })}{" "}
-                        —{" "}
-                        {t.current
-                          ? "Present"
-                          : t.endDate
-                            ? new Date(t.endDate).toLocaleDateString("en-GB", {
-                                month: "short",
-                                year: "numeric",
-                                timeZone: "UTC",
-                              })
-                            : "Completed"}
-                      </p>
-                    )}
-                    <p>{t.description}</p>
-                  </div>
-                </details>
-              ))}
+              .map((t) => {
+                const anchorDate = t.startDate ?? t.endDate;
+                const dates = [
+                  t.startDate &&
+                    timelineDateFormat.format(new Date(t.startDate)),
+                  t.current
+                    ? "Present"
+                    : t.endDate &&
+                      timelineDateFormat.format(new Date(t.endDate)),
+                ].filter(Boolean);
+                return (
+                  <details key={t.id} className={styles.milestone}>
+                    <summary>
+                      <time dateTime={anchorDate ?? undefined}>
+                        {anchorDate && new Date(anchorDate).getUTCFullYear()}
+                      </time>
+                      <span>
+                        <small>{t.type.toLowerCase()}</small>
+                        <h3>{t.title}</h3>
+                        <p>{t.organization}</p>
+                      </span>
+                      <span className={styles.expand} aria-hidden="true">
+                        +
+                      </span>
+                    </summary>
+                    <div className={styles.description}>
+                      <p>{t.location}</p>
+                      {dates.length > 0 && <p>{dates.join(" – ")}</p>}
+                      <p>{t.description}</p>
+                    </div>
+                  </details>
+                );
+              })}
           </div>
           {!journey.length && (
             <p>Timeline entries will appear here once added.</p>
@@ -246,29 +248,29 @@ export function CvDocument({ cv }: { cv: CvContent }) {
             <h2>Always learning.</h2>
           </div>
           <div className={styles.credentials}>
-            {training.map((t) => (
-              <article key={t.id}>
-                <small>{t.organization}</small>
-                <h3>{t.title}</h3>
-                <p>
-                  Issued{" "}
-                  {new Date(t.startDate).toLocaleDateString("en-GB", {
-                    month: "short",
-                    year: "numeric",
-                    timeZone: "UTC",
-                  })}
-                </p>
-                {t.credentialUrl && (
-                  <a
-                    href={t.credentialUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    View credential ↗
-                  </a>
-                )}
-              </article>
-            ))}
+            {training.map((t) => {
+              const issueDate = t.endDate ?? t.startDate;
+              return (
+                <article key={t.id}>
+                  <small>{t.organization}</small>
+                  <h3>{t.title}</h3>
+                  {issueDate && (
+                    <p>
+                      Issued {timelineDateFormat.format(new Date(issueDate))}
+                    </p>
+                  )}
+                  {t.credentialUrl && (
+                    <a
+                      href={t.credentialUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      View credential ↗
+                    </a>
+                  )}
+                </article>
+              );
+            })}
           </div>
           {!training.length && (
             <p>Training and certifications will appear here once added.</p>

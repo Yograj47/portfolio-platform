@@ -156,7 +156,7 @@ export default function TimelinePage() {
                   location: selectedTimeline.location ?? "",
                   description: selectedTimeline.description ?? "",
                   type: selectedTimeline.type,
-                  startDate: selectedTimeline.startDate,
+                  startDate: selectedTimeline.startDate ?? "",
                   endDate: selectedTimeline.endDate ?? "",
                   current: selectedTimeline.current,
                 }

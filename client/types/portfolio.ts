@@ -28,7 +28,7 @@ export interface Timeline {
   location?: string | null;
   description?: string | null;
   type: TimelineType;
-  startDate: string;
+  startDate: string | null;
   endDate?: string | null;
   current: boolean;
   displayOrder: number;

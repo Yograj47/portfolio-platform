@@ -95,7 +95,7 @@ export const cvSchema = z.object({
           "ACHIEVEMENT",
         ])
         .transform((v) => v as TimelineType),
-      startDate: z.iso.datetime(),
+      startDate: z.iso.datetime().nullable(),
       endDate: z.iso.datetime().nullable().optional(),
       current: z.boolean(),
       displayOrder: z.number(),
